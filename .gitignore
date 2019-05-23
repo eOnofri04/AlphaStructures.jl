@@ -1,4 +1,11 @@
+# Julia GitIgnore
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
 deps/deps.jl
+
+# Apple GitIgnore
+*.DS_Store
+
+.gitignore
+*[WiP]*
