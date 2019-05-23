@@ -1,5 +1,5 @@
 using AlphaShape
-using Base.Test
+using Test
 
 @testset "Sample Test" begin
     
