@@ -7,4 +7,4 @@ deps/deps.jl
 # Apple GitIgnore
 *.DS_Store
 
-*[WiP]*
+*WiP*

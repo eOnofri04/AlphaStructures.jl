@@ -23,7 +23,7 @@ Given a Lar complex `(V, EV)`, this method evaluates and gives back:
 
 # Examples
 ```jldoctest
-julia> ...
+julia> Vi, Ve, EVi, EVe = AlphaShape.pointsRand(V, EV, 1000, 1000);
 ```
 """
 function pointsRand(V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0)::Tuple{Lar.Points, Lar.Points, Lar.Cells, Lar.Cells}
