@@ -1,0 +1,17 @@
+name = "AlphaShape"
+uuid = "89eebcb5-b2ae-54b1-a452-e2cc5f9acfa4"
+keywords = ["Topological", "AlphaShape"]
+license = "MIT"
+desc = "Alpha Shape Manager."
+version = "0.0.0"
+
+[deps]
+LinearAlgebraicRepresentation = "95167b0c-186a-594b-a231-52369c6de044"
+Plasm = "b80f858a-0c57-5189-97a3-6377c9b5ded7"
+Triangle = "56f361f5-126b-55db-87fb-1c71988fcde4"
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+
+[extras]
+
+
+[targets]
