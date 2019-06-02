@@ -20,7 +20,11 @@ notifications:
   email: false
 
 install:
-  - julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl", rev="julia-1.0"))'
+  - if [[ "$TRAVIS_JULIA_VERSION" == "0.6.4" ]]; then
+      julia -e 'Pkg.add(PackageSpec(url="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl", rev="master"))'
+    else
+      julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl", rev="julia-1.0"))'
+    fi
 
 after_success:
   - echo "$TRAVIS_JULIA_VERSION"
