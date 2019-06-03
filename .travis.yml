@@ -19,28 +19,28 @@ matrix:
 notifications:
   email: false
 
-before_install:
-  - if [[ "$TRAVIS_JULIA_VERSION" != "6.4" ]]; then
-      if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-      elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-      fi ;
-      bash miniconda.sh -b -p $HOME/miniconda;
-      export PATH="$HOME/miniconda/bin:$PATH";
-    fi
+#before_install:
+#  - if [[ "$TRAVIS_JULIA_VERSION" != "0.6.4" ]]; then
+#      if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+#        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+#      elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+#        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+#      fi ;
+#      bash miniconda.sh -b -p $HOME/miniconda;
+#      export PATH="$HOME/miniconda/bin:$PATH";
+#    fi
 
 install:
-  - if [[ "$TRAVIS_JULIA_VERSION" == "6.4" ]]; then
-      conda install --yes -c conda-forge pip numpy PyOpenGL;
-      if [[ "$TRAVIS_OS_NAME" == "osx" ]];
-        then pip install pyplasm ;
-        echo "plasm installed ----" ;
-      fi ;
-      julia -e 'using Pkg; Pkg.add("PyCall"); ENV["PYTHON"] = read(`which python`, String)[1:end-1]; Pkg.build("PyCall")';
-      julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/cvdlab/Plasm.jl", rev="julia-1.0"))';
-      julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl", rev="julia-1.0"))';
-    fi
+#  - if [[ "$TRAVIS_JULIA_VERSION" != "0.6.4" ]]; then
+#      conda install --yes -c conda-forge pip numpy PyOpenGL;
+#      if [[ "$TRAVIS_OS_NAME" == "osx" ]];
+#        then pip install pyplasm ;
+#        echo "plasm installed ----" ;
+#      fi ;
+#      julia -e 'using Pkg; Pkg.add("PyCall"); ENV["PYTHON"] = read(`which python`, String)[1:end-1]; Pkg.build("PyCall")';
+#      julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/cvdlab/Plasm.jl", rev="julia-1.0"))';
+#      julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl", rev="julia-1.0"))';
+#    fi
   - if [[ "$TRAVIS_JULIA_VERSION" != "0.6.4" ]]; then
       julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/eOnofri04/LinearAlgebraicRepresentation.jl", rev="julia-1.0"))';
     fi
