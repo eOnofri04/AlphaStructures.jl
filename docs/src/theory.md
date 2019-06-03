@@ -32,7 +32,7 @@ We can then define what an ``\alpha``-hull is, using the previous definition.
 
 It follows from the previous definition the following three facts:
  - if ``\alpha_1 \leq \alpha_2`` then ``\mathcal H_{\alpha_1} \subseteq \mathcal H_{\alpha_2}``;
- - for ``\aplha\to\infty`` we obtain that ``\mathcal H_\alpha`` corresponds to the convex hull of ``S``;
+ - for ``\alpha\to\infty`` we obtain that ``\mathcal H_\alpha`` corresponds to the convex hull of ``S``;
  - ``\mathcal H_0 = S`` since only the sites are considered.
 
 One more usefull concept related to what we are introducing is the ``\alpha``-diagramm defined as follows
