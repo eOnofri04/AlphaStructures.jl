@@ -77,33 +77,33 @@ We will call ``\bar\alpha`` as *Charateristic ``\alpha`` of the simplex ``\sigma
 
 We then obtain a sorted finite set
 ```math
-    \Alpha_S = \{\alpha_{\sigma_i} \mid \sigma_i \in F_k, \exists k = 1, 2, 3\}
+    A_S = \{\alpha_{\sigma_i} \mid \sigma_i \in F_k, \exists k = 1, 2, 3\}
 ```
 
-However in order to determine ``\Alpha_S`` there is a better path than evaluate each single ``\alpha``-charateristic. This strategy relies on the dual contruction of Delaunay Triangulation: Voronoy Diagrams.
+However in order to determine ``A_S`` there is a better path than evaluate each single ``\alpha``-charateristic. This strategy relies on the dual contruction of Delaunay Triangulation: Voronoy Diagrams.
 
 Let ``\mathcal V`` be the Voronoy Decomposition of ``S``. For all site ``t \in S`` we will denote ``V_t`` the Voronoy cell of ``t``.
 
-#### ``d=2``
+#### ``Dimension 2``
 ``\alpha_\sigma`` could be determined as follows:
  - if ``\sigma \in F_0`` then ``\alpha_\sigma = 0``
  - if ``\sigma \in F_2`` then ``\alpha_\sigma`` is the radius of the circumcircle of the triangle
  - if ``\sigma = \overline{st} \in F_1`` then two cases arise:
-   - if ``\overline{st}`` intersect the Voronoy segment between ``V_s`` and ``V_t`` (namely ``\overline{st} \cap V_s \cap V_t \ne \emptyset``) then ``\sigma = \|\sigma\|/2``
-   - if ``\overline{st}`` do not intersect the Voronoy segment then there exists ``u \in S`` such that the angle ``s\hat ut > \pi/2``. Then ``\alpha_\sigma`` is the radius of the circumcircle of the triangle ``sut``.
+   - if ``\overline{st}`` intersect the Voronoy segment between ``V_s`` and ``V_t`` (namely ``\overline{st} \cap V_s \cap V_t \ne \emptyset``) then ``\alpha_\sigma = \|\sigma\|/2``
+   - if ``\overline{st}`` do not intersect the Voronoy segment then there exists ``u \in S`` such that the angle ``s\ \hat{u}\ t > \pi/2``. Then ``\alpha_\sigma`` is the radius of the circumcircle of the triangle ``sut``.
 
-It is trivial that 0-cells always are in the ``\alpha``-Complex.
+It is trivial that ``0``-cells always are in the ``\alpha``-Complex.
 
-Moreover it is also pretty clear that if a ``2``-cell belongs to the ``alpha``-complex then also its ``1``-cells are part of it.
+Moreover it is also pretty clear that if a ``2``-cell belongs to the ``\alpha``-complex then also its ``1``-cells are part of it.
 
-#### ``d = 3``
+#### ``Dimension 3``
 ``\alpha_\sigma`` could be determined as follows:
  - if ``\sigma \in F_0`` then ``\alpha_\sigma = 0``
  - if ``\sigma \in F_3`` then ``\alpha_\sigma`` is the radius of the circumsphere of the tethrahedron.
 
 
 
-
+---
 
 We can divide two kind of ``\alpha``-shapes:
  - **Basic ``\alpha``-shapes** are based on the Delaunay triangulation.
