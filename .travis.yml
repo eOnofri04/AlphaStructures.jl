@@ -12,23 +12,23 @@ julia:
   - 0.6.4
   - 1.1
 
-matrix:
-  allow_failures:
-    - julia: 1.1
+# matrix:
+#   allow_failures:
+#     - julia: 1.1
 
 notifications:
   email: false
 
-#before_install:
-#  - if [[ "$TRAVIS_JULIA_VERSION" != "0.6.4" ]]; then
-#      if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-#        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-#      elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-#        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-#      fi ;
-#      bash miniconda.sh -b -p $HOME/miniconda;
-#      export PATH="$HOME/miniconda/bin:$PATH";
-#    fi
+# before_install:
+#   - if [[ "$TRAVIS_JULIA_VERSION" != "0.6.4" ]]; then
+#       if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+#         wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+#       elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+#         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+#       fi ;
+#       bash miniconda.sh -b -p $HOME/miniconda;
+#       export PATH="$HOME/miniconda/bin:$PATH";
+#     fi
 
 install:
 #  - if [[ "$TRAVIS_JULIA_VERSION" != "0.6.4" ]]; then
