@@ -5,4 +5,5 @@ module AlphaShape
 	export pointsRand
 
 	include("2dAlphaShape.jl")
+	include("alpha_complex.jl")
 end

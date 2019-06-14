@@ -1,5 +1,38 @@
+using Combinatorics
+
+"""
+	delaunayTriangulation(V::Lar.Points, dim)
+
+Return `d`-simplices of Delaunay triangulation of dimension `d > 1`
+"""
+function delaunayTriangulation(V::Lar.Points, dim)
+    if dim==2
+        vertices = convert(Array{Float64,2},V')
+        points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
+        @assert  size(vertices,1) > 3
+        triangles=Triangle.basic_triangulation(vertices,points_map)
+        edges=Array{Int64}[]
+        for triangle in triangles
+            tri_edge=collect(Combinatorics.combinations(triangle,2))
+            push!(edges,tri_edge...)
+        end
+    end
+    return [unique(sort.(edges)),triangles]
+end
+
+function found_alpha(T)
+
+end
+
+function vertex_in_circumball(T, alpha_char[d][i], point)
+
+end
 
 
+"""
+	AlphaFilter(V::Lar.Points)
+
+"""
 function AlphaFilter(V::Lar.Points)
 
     function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
@@ -13,14 +46,17 @@ function AlphaFilter(V::Lar.Points)
     end
 
     dim = size(V, 1)
+
     # 1 - Delaunay triangulation of ``V``
 
-    D = delaunayTriangulation(V, dim)
+    Cells = delaunayTriangulation(V, dim)
 
-    Cells = [[],[],[]]; # ToDo
-    for simplex in D
-        push!(Cells[length(simplex)-1], simplex)
-    end
+
+    #Cells = [[],[],[]]; # ToDo
+    #for simplex in D
+    #    push!(Cells[length(simplex)-1], simplex)
+    #end
+
 
     # 2 - Evaluate Circumballs Radius
 
