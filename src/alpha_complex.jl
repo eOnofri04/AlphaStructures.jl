@@ -5,7 +5,8 @@ using Combinatorics
 
 Return `d`-simplices of Delaunay triangulation of dimension `d > 1`
 """
-function delaunayTriangulation(V::Lar.Points, dim)
+function delaunayTriangulation(V::Lar.Points)
+    dim=size(V,1)
     if dim==2
         vertices = convert(Array{Float64,2},V')
         points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
@@ -20,12 +21,37 @@ function delaunayTriangulation(V::Lar.Points, dim)
     return [unique(sort.(edges)),triangles]
 end
 
-function found_alpha(T)
+"""
+	found_alpha(T:: Array{Array{Float64,1},1})::Float64
 
+Return the value of the circumball radius.
+"""
+function found_alpha(T:: Array{Array{Float64,1},1})::Float64
+    dim=size(T[1],1)
+    k=length(T)-1
+    if dim == 2
+        if k==1
+            alpha = Lar.norm(T[1]-T[2])/2.
+        end
+        if k==2
+            #calcolo del raggio della circonferenza circostritta
+            a=Lar.norm(T[1]-T[2])
+            b=Lar.norm(T[2]-T[3])
+            c=Lar.norm(T[3]-T[1])
+    		s = (a + b + c) / 2.
+    		area = sqrt(s * (s - a) * (s - b) * (s - c))
+    		alpha = a * b * c / (4. * area)
+        end
+    end
+    return alpha
 end
 
-function vertex_in_circumball(T, alpha_char[d][i], point)
-
+function vertex_in_circumball(T:: Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
+    dim=size(T[1],1)
+    if dim==2
+        center=(T[1]+T[2])/2
+        return Lar.norm(point-center)<=alpha_char
+    end
 end
 
 
@@ -49,8 +75,7 @@ function AlphaFilter(V::Lar.Points)
 
     # 1 - Delaunay triangulation of ``V``
 
-    Cells = delaunayTriangulation(V, dim)
-
+    Cells = delaunayTriangulation(V)
 
     #Cells = [[],[],[]]; # ToDo
     #for simplex in D
@@ -60,10 +85,12 @@ function AlphaFilter(V::Lar.Points)
 
     # 2 - Evaluate Circumballs Radius
 
+    alpha_char=[zeros(length(Cells[i])) for i in 1:dim]
     for d = 1 : dim
-        for i = 1 : length(Cells[d])    # simplex in Cells[d]
-            T = ...
-            alpha_char[i] = found_alpha(T); # To Do
+        for i = 1 : length(Cells[d]) # simplex in Cells[d]
+            simplex=Cells[d][i]
+            T=[V[:, simplex[i]] for i=1:size(simplex,1) ] #coordinate dei punti del simplesso
+            alpha_char[d][i] = found_alpha(T); # To Do
         end
     end
 
@@ -75,8 +102,8 @@ function AlphaFilter(V::Lar.Points)
             for j = 1 : length(Cells[d+1])  # up_simplex in Cells[d+1]
                 up_simplex = Cells[d+1][j]
                 if contains(up_simplex, simplex)
-                    point = V[diff(up_simplex, simplex)] # ToDo
-                    T = ... # ToDo
+                    point = V[:,setdiff(up_simplex, simplex)]
+                    T=[V[:, simplex[i]] for i=1:size(simplex,1) ]
                     if vertex_in_circumball(T, alpha_char[d][i], point) # ToDo
                         alpha_char[d][i] = alpha_char[d+1][j]
                     end
