@@ -7,5 +7,5 @@ V,EV = Plasm.svg2lar(filename);
 
 Vi, Ve, VVi, VVe = AlphaShape.pointsRand(V, EV, 1000, 10000);
 
-Plasm.view(Vi, EVi)
-Plasm.view(Ve, EVe)
+Plasm.view(Vi, VVi)
+Plasm.view(Ve, VVe)
