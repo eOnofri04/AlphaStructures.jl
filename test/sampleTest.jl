@@ -1,4 +1,3 @@
-using AlphaShape
 if VERSION < VersionNumber("1.0.0")
 	using Base.Test
 else
@@ -6,6 +5,5 @@ else
 end
 
 @testset "Sample Test" begin
-
 	@test 1 == 1
 end
