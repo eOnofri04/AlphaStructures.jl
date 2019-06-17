@@ -6,20 +6,20 @@ using Combinatorics
 Return highest level simplices of Delaunay triangulation.
 """
 function delaunayTriangulation(V::Lar.Points)
-    dim = size(V, 1)
+	dim = size(V, 1)
 	@assert dim > 0 "Error: V do not contains points."
 	@assert dim > 3 "Error: Function not yet Programmed."
 	if dim == 1
 		# To Do
 	elseif dim == 2
-        vertices = convert(Array{Float64,2},V')
-        points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
-        @assert size(vertices, 1) > 3
-        triangles = Triangle.basic_triangulation(vertices, points_map)
+		vertices = convert(Array{Float64,2},V')
+		points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
+		@assert size(vertices, 1) > 3
+		triangles = Triangle.basic_triangulation(vertices, points_map)
 	elseif dim == 3
 		# To Do
 	end
-    return triangles
+	return triangles
 end
 
 """
@@ -95,9 +95,9 @@ function AlphaFilter(V::Lar.Points)
     alpha_char=[zeros(length(Cells[i])) for i in 1:dim]
     for d = 1 : dim
         for i = 1 : length(Cells[d]) # simplex in Cells[d]
-            simplex=Cells[d][i]
-            T=[V[:, simplex[i]] for i=1:size(simplex,1) ] #coordinate dei punti del simplesso
-            alpha_char[d][i] = found_alpha(T); # To Do
+            simplex = Cells[d][i]
+            T = [ V[:, v] for v in simplex ] #coordinate dei punti del simplesso
+            alpha_char[d][i] = found_alpha(T);
         end
     end
 
@@ -109,9 +109,9 @@ function AlphaFilter(V::Lar.Points)
             for j = 1 : length(Cells[d+1])  # up_simplex in Cells[d+1]
                 up_simplex = Cells[d+1][j]
                 if contains(up_simplex, simplex)
-                    point = V[:,setdiff(up_simplex, simplex)]
-                    T=[V[:, simplex[i]] for i=1:size(simplex,1) ]
-                    if vertex_in_circumball(T, alpha_char[d][i], point) # ToDo
+                    point = V[:, setdiff(up_simplex, simplex)]
+                    T = [ V[:, v] for v in simplex ]
+                    if vertex_in_circumball(T, alpha_char[d][i], point)
                         alpha_char[d][i] = alpha_char[d+1][j]
                     end
                 end
