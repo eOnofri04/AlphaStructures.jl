@@ -6,17 +6,17 @@ export pointsRand
 Generate random points inside and otuside `(V, EV)`.
 
 Given a Lar complex `(V, EV)`, this method evaluates and gives back:
- - `V` adjoint with `n` non-external random points;
+ - `Vi` made of `n` internal random points;
  - `W` made of `m` external random points;
- - `EV` adjoint with single point cells;
- - `EW` made of `m` single point 1-cells.
+ - `VV` made of `n` single point 0-cells;
+ - `WW` made of `m` single point 0-cells.
 
 ---
 
 # Arguments
- - `V::Lar.Points`: The 0-cells of the original complex;
+ - `V::Lar.Points`: The coordinates of points of the original complex;
  - `EV::Lar.Cells`: The 1-cells of the original complex;
- - `n::Int64`: the number of new non-external points (*By default* = 1000);
+ - `n::Int64`: the number of internal points (*By default* = 1000);
  - `m::Int64`: the number of external points (*By default* = 0);
 
 ---
@@ -29,6 +29,7 @@ julia> Vi, Ve, EVi, EVe = AlphaShape.pointsRand(V, EV, 1000, 1000);
 function pointsRand(V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0)::Tuple{Lar.Points, Lar.Points, Lar.Cells, Lar.Cells}
 	classify = Lar.pointInPolygonClassification(V, EV)
 	p = size(V, 2)
+	Vi = [0.0; 0.0]
 	W = [0.0; 0.0]
 	k1 = 0
 	k2 = 0
@@ -36,8 +37,8 @@ function pointsRand(V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0)::Tuple{Lar.Po
 		queryPoint = [rand();rand()]
 		inOut = classify(queryPoint)
 
-		if k1 < n && (inOut == "p_in" || inOut == "p_on")
-			V = hcat(V, queryPoint)
+		if k1 < n && (inOut == "p_in")
+			Vi = hcat(Vi, queryPoint)
 			k1 = k1 + 1;
 		end
 		if k2 < m && inOut == "p_out"
@@ -45,9 +46,9 @@ function pointsRand(V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0)::Tuple{Lar.Po
 			k2 = k2 + 1;
 		end
 	end
-	EV = vcat(EV, [[i] for i = p : p+n])
-	EW = [[i] for i = 1 : m]
-	return V, W[:, 2:end], EV, EW
+	VV = [[i] for i = 1 : n]
+	WW = [[i] for i = 1 : m]
+	return Vi[:, 2:end], W[:, 2:end], VV, WW
 end
 
 
