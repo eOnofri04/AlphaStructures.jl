@@ -1,5 +1,3 @@
-using Combinatorics
-
 """
 	delaunayTriangulation(V::Lar.Points)
 
@@ -25,7 +23,8 @@ end
 """
 	found_alpha(T::Array{Array{Float64,1},1})::Float64
 
-Return the value of the circumball radius.
+Return the value of the circumball radius of the given points.
+If three or more points are collinear it returns `Inf`.
 """
 function found_alpha(T::Array{Array{Float64,1},1})::Float64
 	@assert length(T) > 1 "ERROR: at least two points are needed."
@@ -47,6 +46,13 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 	end
 	return alpha
 end
+
+"""
+	vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})
+
+Determine if a point is inner of the circumball determined by `T` points.
+
+"""
 
 function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
 	dim = size(T[1],1)
