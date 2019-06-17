@@ -6,7 +6,7 @@ Return highest level simplices of Delaunay triangulation.
 function delaunayTriangulation(V::Lar.Points)
 	dim = size(V, 1)
 	@assert dim > 0 "Error: V do not contains points."
-	@assert dim > 3 "Error: Function not yet Programmed."
+	@assert dim < 4 "Error: Function not yet Programmed."
 	if dim == 1
 		# To Do
 	elseif dim == 2
