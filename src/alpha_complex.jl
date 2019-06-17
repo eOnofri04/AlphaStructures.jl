@@ -1,3 +1,4 @@
+using Combinatorics, DataStructures
 """
 	delaunayTriangulation(V::Lar.Points)
 
@@ -6,7 +7,7 @@ Return highest level simplices of Delaunay triangulation.
 function delaunayTriangulation(V::Lar.Points)
 	dim = size(V, 1)
 	@assert dim > 0 "Error: V do not contains points."
-	@assert dim > 3 "Error: Function not yet Programmed."
+	@assert dim < 4 "Error: Function not yet Programmed."
 	if dim == 1
 		# To Do
 	elseif dim == 2
@@ -17,7 +18,8 @@ function delaunayTriangulation(V::Lar.Points)
 	elseif dim == 3
 		# To Do
 	end
-	return triangles
+		sort!.(triangles)
+	return sort(triangles)
 end
 
 """
@@ -62,22 +64,29 @@ function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64,
 	return Lar.norm(point - center) <= alpha_char
 end
 
+"""
+	contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
+
+Determine if a `d`-simplex is in a `d+1`-simplex.
+
+"""
+
+function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
+	flag = true
+	for point in simpl
+		if (point ∉ sup_simpl)
+			flag = false
+		end
+	end
+	return flag
+end
+
 
 """
 	AlphaFilter(V::Lar.Points)
 
 """
 function AlphaFilter(V::Lar.Points)
-
-    function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
-        flag = true
-        for point in simpl
-            if (point ∉ sup_simpl)
-                flag = false
-            end
-        end
-        return flag
-    end
 
     dim = size(V, 1)
 
@@ -88,7 +97,7 @@ function AlphaFilter(V::Lar.Points)
 
 	# 2 - 1..d-1 Cells Construction
 	#Cells[d] = Array{Int64}[]
-    for d = dim-1 : 1
+    for d = dim-1 :-1: 1
 		for cell in Cells[dim]
             newCells = collect(Combinatorics.combinations(cell, d+1)) #ToCheck Controllare se ordina 123 e 321 (scartare primo indice più grande dei successivi?)
             push!(Cells[d], newCells...)
@@ -128,6 +137,23 @@ function AlphaFilter(V::Lar.Points)
 
     # 4 - Sorting Complex by Alpha
 
-    # ToDo
+	dict = DataStructures.SortedMultiDict{Float64,Array{Int64,1}}()
 
+	for d = 1:dim
+	   	for i = 1:length(Cells[d])
+	   		insert!(dict, alpha_char[d][i], Cells[d][i])
+		end
+	end
+
+	orderedCollection = collect(dict)
+
+	complex = Array{Int64,1}[]
+	alpha_value = Float64[]
+
+	for i = 1:length(orderedCollection)
+		push!(alpha_value, orderedCollection[i][1])
+		push!(complex, orderedCollection[i][2])
+	end
+
+	return complex, alpha_value
 end
