@@ -17,7 +17,10 @@ function delaunayTriangulation(V::Lar.Points)
 	elseif dim == 3
 		# To Do
 	end
-	return triangles
+	for triangle in triangles
+		sort!(triangle)
+	end
+	return sort(triangles)
 end
 
 """
@@ -83,17 +86,18 @@ function AlphaFilter(V::Lar.Points)
 
     # 1 - Delaunay triangulation of ``V``
 
-	Cells = [[],[]]; # ToDo Generalize definition
+	Cells = [[],[]] # ToDo Generalize definition
 	Cells[dim] = delaunayTriangulation(V)
 
 	# 2 - 1..d-1 Cells Construction
 	#Cells[d] = Array{Int64}[]
     for d = dim-1 : 1
 		for cell in Cells[dim]
-            newCells = collect(Combinatorics.combinations(cell, d+1)) #ToCheck Controllare se ordina 123 e 321 (scartare primo indice più grande dei successivi?)
+			# It gives back combinations in natural order
+			newCells = collect(Combinatorics.combinations(cell, d+1))
             push!(Cells[d], newCells...)
         end
-		Cells[d] = unique(sort.(Cells[d]))
+		Cells[d] = unique(sort(Cells[d]))
 	end
 
 
