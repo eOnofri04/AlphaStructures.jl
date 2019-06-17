@@ -23,36 +23,37 @@ function delaunayTriangulation(V::Lar.Points)
 end
 
 """
-	found_alpha(T:: Array{Array{Float64,1},1})::Float64
+	found_alpha(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius.
 """
-function found_alpha(T:: Array{Array{Float64,1},1})::Float64
-    dim=size(T[1],1)
-    k=length(T)-1
-    if dim == 2
-        if k==1
-            alpha = Lar.norm(T[1]-T[2])/2.
-        end
-        if k==2
-            #calcolo del raggio della circonferenza circostritta
-            a=Lar.norm(T[1]-T[2])
-            b=Lar.norm(T[2]-T[3])
-            c=Lar.norm(T[3]-T[1])
-    		s = (a + b + c) / 2.
-    		area = sqrt(s * (s - a) * (s - b) * (s - c))
-    		alpha = a * b * c / (4. * area)
-        end
-    end
-    return alpha
+function found_alpha(T::Array{Array{Float64,1},1})::Float64
+	@assert length(T) > 1 "ERROR: at least two points are needed."
+	dim = size(T[1], 1)
+	k = length(T) - 1
+	@assert k <= dim +1 "ERROR: too much points."
+	if dim == 2
+        	if k==1
+			alpha = Lar.norm(T[1]-T[2])/2.
+		end
+		if k==2	#calcolo del raggio della circonferenza circostritta
+			a = Lar.norm(T[1] - T[2])
+			b = Lar.norm(T[2] - T[3])
+			c = Lar.norm(T[3] - T[1])
+			s = (a + b + c) / 2.
+			area = sqrt(s * (s - a) * (s - b) * (s - c))
+			alpha = a * b * c / (4. * area)
+		end
+	end
+	return alpha
 end
 
-function vertex_in_circumball(T:: Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
-    dim=size(T[1],1)
-    if dim==2
-        center=(T[1]+T[2])/2
-        return Lar.norm(point-center)<=alpha_char
-    end
+function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
+	dim = size(T[1],1)
+	if dim == 2
+		center=(T[1] + T[2])/2
+	end
+	return Lar.norm(point - center) <= alpha_char
 end
 
 
@@ -92,7 +93,7 @@ function AlphaFilter(V::Lar.Points)
 
     # 2 - Evaluate Circumballs Radius
 
-    alpha_char=[zeros(length(Cells[i])) for i in 1:dim]
+    alpha_char = [ zeros(length(Cells[i])) for i in 1 : dim ]
     for d = 1 : dim
         for i = 1 : length(Cells[d]) # simplex in Cells[d]
             simplex = Cells[d][i]
