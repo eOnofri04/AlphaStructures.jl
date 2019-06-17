@@ -1,5 +1,5 @@
 module AlphaShape
-	using LinearAlgebraicRepresentation, Triangle
+	using LinearAlgebraicRepresentation, Triangle, Combinatorics
 	Lar = LinearAlgebraicRepresentation
 
 	export pointsRand

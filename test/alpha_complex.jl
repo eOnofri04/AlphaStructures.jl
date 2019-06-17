@@ -1,4 +1,3 @@
-#using AlphaShape
 if VERSION < VersionNumber("1.0.0")
 	using Base.Test
 else
@@ -21,7 +20,7 @@ end
 		0.0 0.0 1.0 2.0
 	]
 	D = AlphaShape.delaunayTriangulation(V)
-	@test D == [[3,1,2],[2,4,3]]
+	@test D == [[1,2,3],[2,3,4]]
 
 end
 
