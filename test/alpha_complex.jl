@@ -7,8 +7,8 @@ end
 @testset "AlphaFilter" begin
 
 	@testset "contains" begin
-	#	@test AlphaShape.contains([1,2,3],[1,2])==true
-	#	@test AlphaShape.contains([1,2,3],[1,4])==false
+		@test AlphaShape.contains([1,2,3],[1,2])
+		@test !AlphaShape.contains([1,2,3],[1,4])
 	end
 
 end

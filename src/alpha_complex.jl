@@ -8,7 +8,9 @@ function delaunayTriangulation(V::Lar.Points)
 	@assert dim > 0 "Error: V do not contains points."
 	@assert dim < 4 "Error: Function not yet Programmed."
 	if dim == 1
-		# To Do
+		vertices = vcat(V...)
+		p = sortperm(vertices)
+		triangles = [[p[i],p[i+1]] for i=1:length(p)-1]
 	elseif dim == 2
 		vertices = convert(Array{Float64,2},V')
 		points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
@@ -17,9 +19,9 @@ function delaunayTriangulation(V::Lar.Points)
 	elseif dim == 3
 		# To Do
 	end
-	for triangle in triangles
-		sort!(triangle)
-	end
+
+	sort!.(triangles)
+
 	return sort(triangles)
 end
 
@@ -163,6 +165,6 @@ function AlphaFilter(V::Lar.Points)
 		push!(alpha_value, orderedCollection[i][1])
 		push!(complex, orderedCollection[i][2])
 	end
-	
+
 	return complex, alpha_value
 end
