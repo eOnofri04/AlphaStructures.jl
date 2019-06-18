@@ -1,4 +1,3 @@
-using Combinatorics, DataStructures
 """
 	delaunayTriangulation(V::Lar.Points)
 
@@ -18,7 +17,9 @@ function delaunayTriangulation(V::Lar.Points)
 	elseif dim == 3
 		# To Do
 	end
-		sort!.(triangles)
+	for triangle in triangles
+		sort!(triangle)
+	end
 	return sort(triangles)
 end
 
@@ -76,12 +77,11 @@ function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64,
 end
 
 """
-	contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
+	function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
 
 Determine if a `d`-simplex is in a `d+1`-simplex.
 
 """
-
 function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
 	flag = true
 	for point in simpl
@@ -92,14 +92,13 @@ function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
 	return flag
 end
 
-
 """
 	AlphaFilter(V::Lar.Points)
 
 """
 function AlphaFilter(V::Lar.Points)
 
-    dim = size(V, 1)
+	dim = size(V, 1)
 
 	# 1 - Delaunay triangulation of ``V``
 
@@ -107,8 +106,8 @@ function AlphaFilter(V::Lar.Points)
 	Cells[dim] = delaunayTriangulation(V)
 
 	# 2 - 1..d-1 Cells Construction
-	#Cells[d] = Array{Int64}[]
-    for d = dim-1 :-1: 1
+	# Cells[d] = Array{Int64}[]
+	for d = dim-1 : -1 : 1
 		for cell in Cells[dim]
 			# It gives back combinations in natural order
 			newCells = collect(Combinatorics.combinations(cell, d+1))
@@ -147,38 +146,6 @@ function AlphaFilter(V::Lar.Points)
 	end
 
 	# 4 - Sorting Complex by Alpha
-
-    # 2 - Evaluate Circumballs Radius
-
-    alpha_char = [ zeros(length(Cells[i])) for i in 1 : dim ]
-    for d = 1 : dim
-        for i = 1 : length(Cells[d]) # simplex in Cells[d]
-            simplex = Cells[d][i]
-            T = [ V[:, v] for v in simplex ] #coordinate dei punti del simplesso
-            alpha_char[d][i] = found_alpha(T);
-        end
-    end
-
-    # 3 - Evaluate Charatteristical Alpha
-
-    for d = dim-1 : -1 : 1
-        for i = 1 : length(Cells[d])    # simplex in Cells[d]
-            simplex = Cells[d][i]
-            for j = 1 : length(Cells[d+1])  # up_simplex in Cells[d+1]
-                up_simplex = Cells[d+1][j]
-                if contains(up_simplex, simplex)
-                    point = V[:, setdiff(up_simplex, simplex)]
-                    T = [ V[:, v] for v in simplex ]
-                    if vertex_in_circumball(T, alpha_char[d][i], point)
-                        alpha_char[d][i] = alpha_char[d+1][j]
-                    end
-                end
-            end
-        end
-    end
-
-    # 4 - Sorting Complex by Alpha
-
 	dict = DataStructures.SortedMultiDict{Float64,Array{Int64,1}}()
 
 	for d = 1:dim
@@ -196,6 +163,6 @@ function AlphaFilter(V::Lar.Points)
 		push!(alpha_value, orderedCollection[i][1])
 		push!(complex, orderedCollection[i][2])
 	end
-
+	
 	return complex, alpha_value
 end
