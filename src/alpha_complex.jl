@@ -26,6 +26,34 @@ function delaunayTriangulation(V::Lar.Points)
 end
 
 """
+	coeffSphere(T::Array{Array{Float64,1},1})
+
+Compute coefficients to find center and radius of the sphere through 4 points.
+"""
+function coeffSphere(T::Array{Array{Float64,1},1})
+	dim = length(T[1])
+	k = length(T) - 1
+	@assert dim == 3
+	@assert k+1 == 4
+	#http://www.ambrsoft.com/TrigoCalc/Sphere/Spher3D_.htm
+
+	T2matrix = permutedims(reshape(hcat(T...), (dim, k+1)))
+	t = [-Lar.dot(T2matrix[i,:],T2matrix[i,:]) for i = 1:k+1]
+	matrix = hcat(T2matrix,[1 ,1, 1, 1])
+	det = Lar.det(matrix)
+
+	coeff = []
+	for i = 1:k+1
+		cramerM = copy(matrix)
+		cramerM[:,i] = t
+		push!(coeff, Lar.det(cramerM)/det)
+	end
+
+	return coeff
+end
+
+
+"""
 	found_alpha(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.
@@ -33,17 +61,17 @@ If three or more points are collinear it returns `Inf`.
 """
 function found_alpha(T::Array{Array{Float64,1},1})::Float64
 	@assert length(T) > 0 "ERROR: at least one points is needed."
-	dim = size(T[1], 1)
+	dim = length(T[1])
 	@assert dim < 4 "Error: Function not yet Programmed."
 	k = length(T) - 1
 	@assert k <= dim +1 "ERROR: too much points."
 	if dim == 1
 		alpha = 0
 	elseif dim == 2
-        	if k==1
+        if k == 1
 			alpha = Lar.norm(T[1]-T[2])/2.
 		end
-		if k==2	#calcolo del raggio della circonferenza circostritta
+		if k == 2	#calcolo del raggio della circonferenza circostritta
 			a = Lar.norm(T[1] - T[2])
 			b = Lar.norm(T[2] - T[3])
 			c = Lar.norm(T[3] - T[1])
@@ -52,7 +80,21 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 			alpha = a * b * c / (4. * area)
 		end
 	elseif dim == 3
-		# ToDo
+		if k == 1
+			alpha = Lar.norm(T[1]-T[2])/2.
+		end
+		if k == 2	#calcolo del raggio della circonferenza circostritta
+			a = Lar.norm(T[1] - T[2])
+			b = Lar.norm(T[2] - T[3])
+			c = Lar.norm(T[3] - T[1])
+			area = 1/2*Lar.norm(Lar.cross(T[2]-T[1],T[3]-T[1]))
+			alpha = a * b * c / (4. * area)
+		end
+		if k == 3
+			#calcolo del raggio della sfera circoscritta ai 4 punti
+			D,E,F,G = coeffSphere(T)
+			alpha = 1/2*sqrt(D^2+E^2+F^2-4*G)
+		end
 	end
 	return alpha
 end
@@ -71,7 +113,7 @@ function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64,
 	if dim == 1
 		center = T[1]
 	elseif dim == 2
-		center=(T[1] + T[2])/2
+		center = (T[1] + T[2])/2
 	elseif dim == 3
 		# ToDo
 	end
