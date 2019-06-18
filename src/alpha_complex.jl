@@ -10,19 +10,19 @@ function delaunayTriangulation(V::Lar.Points)
 	if dim == 1
 		vertices = vcat(V...)
 		p = sortperm(vertices)
-		triangles = [[p[i],p[i+1]] for i=1:length(p)-1]
+		upper_simplex = [[p[i],p[i+1]] for i=1:length(p)-1]
 	elseif dim == 2
 		vertices = convert(Array{Float64,2},V')
 		points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
 		@assert size(vertices, 1) > 3
-		triangles = Triangle.basic_triangulation(vertices, points_map)
+		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
 	elseif dim == 3
 		# To Do
 	end
 
-	sort!.(triangles)
+	sort!.(upper_simplex)
 
-	return sort(triangles)
+	return sort(upper_simplex)
 end
 
 """
