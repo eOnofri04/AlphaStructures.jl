@@ -26,34 +26,6 @@ function delaunayTriangulation(V::Lar.Points)
 end
 
 """
-	coeffSphere(T::Array{Array{Float64,1},1})
-
-Compute coefficients to find center and radius of the sphere through 4 points.
-"""
-function coeffSphere(T::Array{Array{Float64,1},1})
-	dim = length(T[1])
-	k = length(T) - 1
-	@assert dim == 3
-	@assert k+1 == 4
-	#http://www.ambrsoft.com/TrigoCalc/Sphere/Spher3D_.htm
-
-	T2matrix = permutedims(reshape(hcat(T...), (dim, k+1)))
-	t = [-Lar.dot(T2matrix[i,:],T2matrix[i,:]) for i = 1:k+1]
-	matrix = hcat(T2matrix,[1 ,1, 1, 1])
-	det = Lar.det(matrix)
-
-	coeff = []
-	for i = 1:k+1
-		cramerM = copy(matrix)
-		cramerM[:,i] = t
-		push!(coeff, Lar.det(cramerM)/det)
-	end
-
-	return coeff
-end
-
-
-"""
 	found_alpha(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.
@@ -91,9 +63,14 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 			alpha = a * b * c / (4. * area)
 		end
 		if k == 3
-			#calcolo del raggio della sfera circoscritta ai 4 punti
-			D,E,F,G = coeffSphere(T)
-			alpha = 1/2*sqrt(D^2+E^2+F^2-4*G)
+			#radius of the circumsphere of a tetrahedron
+			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
+			num = Lar.norm(Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1])+
+				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1])+
+				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1]))
+			M=[T[2]-T[1] T[3]-T[1] T[4]-T[1]]
+			den = abs(2*Lar.det(M))
+			alpha = num/den
 		end
 	end
 	return alpha
@@ -105,17 +82,28 @@ end
 Determine if a point is inner of the circumball determined by `T` points and radius `alpha_char`.
 
 """
-
 function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
 	@assert length(T) > 0 "ERROR: at least one points is needed."
-	dim = size(T[1],1)
+	dim = length(T[1])
 	@assert dim < 4 "Error: Function not yet Programmed."
 	if dim == 1
 		center = T[1]
 	elseif dim == 2
 		center = (T[1] + T[2])/2
 	elseif dim == 3
-		# ToDo
+		k = length(T)-1
+		if k == 1
+			center = (T[1] + T[2])/2
+		end
+		if k == 2
+			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
+			#circumcenter of a triangle in R^3
+			num = Lar.norm(T[3]-T[1])^2*Lar.cross(Lar.cross(T[2]-T[1],T[3]-T[1]),T[2]-T[1])+
+					Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],Lar.cross(T[2]-T[1],T[3]-T[1]))
+			den = 2*Lar.norm(Lar.cross(T[2]-T[1],T[3]-T[1]))^2
+			center = T[1] + num/den
+		end
+
 	end
 	return Lar.norm(point - center) <= alpha_char
 end
