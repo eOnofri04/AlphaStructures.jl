@@ -15,13 +15,22 @@ end
 
 @testset "delaunayTriangulation" begin
 
-	V = [
-		0.0 1.0 0.0 2.0;
-		0.0 0.0 1.0 2.0
-	]
-	D = AlphaShape.delaunayTriangulation(V)
-	@test D == [[1,2,3],[2,3,4]]
+	@testset "1D delaunayTriangulation" begin
+		V = [
+			0. 1. 2. 9. 14. 12. 4. 7.
+		]
+		D = AlphaShape.delaunayTriangulation(V)
+		@test D == [[1,2],[2,3],[3,7],[4,6],[4,8],[5,6],[7,8]]
+	end
 
+	@testset "2D delaunayTriangulation" begin
+		V = [
+			0.0 1.0 0.0 2.0;
+			0.0 0.0 1.0 2.0
+		]
+		D = AlphaShape.delaunayTriangulation(V)
+		@test D == [[1,2,3],[2,3,4]]
+	end
 end
 
 @testset "found_alpha" begin
@@ -49,13 +58,30 @@ end
 end
 
 @testset "vertex_in_circumball" begin
-	V=[
-		0. 1. 0.;
-		0. 0. 1.
-	]
-	simplex = [2, 3]
-	up_simplex = [1, 2, 3]
-	point = V[:, setdiff(up_simplex, simplex)]
-	T=[ V[:, v] for v in simplex ]
-	@test AlphaShape.vertex_in_circumball(T, AlphaShape.found_alpha(T), point)
+
+	@testset "2D vertex_in_circumball" begin
+		V=[
+			0. 1. 0.;
+			0. 0. 1.
+		]
+		simplex = [2, 3]
+		up_simplex = [1, 2, 3]
+		point = V[:, setdiff(up_simplex, simplex)]
+		T=[ V[:, v] for v in simplex ]
+		@test AlphaShape.vertex_in_circumball(T, AlphaShape.found_alpha(T), point)
+	end
+
+	@testset "3D vertex_in_circumball" begin
+		V=[
+			0. 1. 0.;
+			0. 0. 1.;
+			0. 0. 0.
+		]
+		simplex = [2, 3]
+		up_simplex = [1, 2, 3]
+		point = V[:, setdiff(up_simplex, simplex)]
+		T=[ V[:, v] for v in simplex ]
+		@test AlphaShape.vertex_in_circumball(T, AlphaShape.found_alpha(T), point)
+	end
+
 end
