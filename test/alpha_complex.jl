@@ -25,12 +25,27 @@ end
 end
 
 @testset "found_alpha" begin
-	T = [[1., 1.], [2., 2.]]
-	P = [[1., 0.], [2., 0.], [3., 0.]]
-	Q = [[0., 0.], [2., 0.], [0., 2.]]
-	@test AlphaShape.found_alpha(T)==sqrt(2)/2.
-	@test AlphaShape.found_alpha(P)==Inf
-	@test isapprox(AlphaShape.found_alpha(Q), sqrt(2), atol=1e-4)
+
+	@testset "2D found_alpha" begin
+		T = [[1., 1.], [2., 2.]]
+		P = [[1., 0.], [2., 0.], [3., 0.]]
+		Q = [[0., 0.], [2., 0.], [0., 2.]]
+		@test AlphaShape.found_alpha(T) == sqrt(2)/2
+		@test AlphaShape.found_alpha(P) == Inf
+		@test isapprox(AlphaShape.found_alpha(Q), sqrt(2), atol=1e-4)
+	end
+
+	@testset "3D found_alpha" begin
+		T = [[1., 1., 0.], [2., 2., 0.]]
+		P = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.]]
+		Q = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,1.]]
+		R = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,0.]]
+		@test AlphaShape.found_alpha(T) == sqrt(2)/2
+		@test isapprox(AlphaShape.found_alpha(P), 1., atol=1e-4)
+		@test AlphaShape.found_alpha(Q) == 1.
+		@test AlphaShape.found_alpha(R) == Inf
+	end
+
 end
 
 @testset "vertex_in_circumball" begin
