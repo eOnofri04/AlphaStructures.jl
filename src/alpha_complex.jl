@@ -1,3 +1,4 @@
+using DataStructures,Combinatorics
 """
 	delaunayTriangulation(V::Lar.Points)
 
@@ -7,6 +8,7 @@ function delaunayTriangulation(V::Lar.Points)
 	dim = size(V, 1)
 	@assert dim > 0 "Error: V do not contains points."
 	@assert dim < 4 "Error: Function not yet Programmed."
+
 	if dim == 1
 		vertices = vcat(V...)
 		p = sortperm(vertices)
@@ -37,42 +39,40 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 	@assert dim < 4 "Error: Function not yet Programmed."
 	k = length(T) - 1
 	@assert k <= dim +1 "ERROR: too much points."
-	if dim == 1
-		alpha = 0
-	elseif dim == 2
-        if k == 1
-			alpha = Lar.norm(T[1]-T[2])/2.
-		end
-		if k == 2	#calcolo del raggio della circonferenza circostritta
+
+	if k == 1
+		alpha = Lar.norm(T[1]-T[2])/2.
+
+	elseif k == 2
+		if dim == 2
+        	# radius of circle from 3 points in R^2
 			a = Lar.norm(T[1] - T[2])
 			b = Lar.norm(T[2] - T[3])
 			c = Lar.norm(T[3] - T[1])
 			s = (a + b + c) / 2.
 			area = sqrt(s * (s - a) * (s - b) * (s - c))
 			alpha = a * b * c / (4. * area)
-		end
-	elseif dim == 3
-		if k == 1
-			alpha = Lar.norm(T[1]-T[2])/2.
-		end
-		if k == 2	#calcolo del raggio della circonferenza circostritta
+		elseif dim == 3
 			a = Lar.norm(T[1] - T[2])
 			b = Lar.norm(T[2] - T[3])
 			c = Lar.norm(T[3] - T[1])
 			area = 1/2*Lar.norm(Lar.cross(T[2]-T[1],T[3]-T[1]))
 			alpha = a * b * c / (4. * area)
 		end
-		if k == 3
+
+	elseif k == 3
+		if dim == 3
 			#radius of the circumsphere of a tetrahedron
 			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
 			num = Lar.norm(Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1])+
 				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1])+
 				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1]))
-			M=[T[2]-T[1] T[3]-T[1] T[4]-T[1]]
+			M = [T[2]-T[1] T[3]-T[1] T[4]-T[1]]
 			den = abs(2*Lar.det(M))
 			alpha = num/den
 		end
 	end
+	
 	return alpha
 end
 
@@ -127,6 +127,7 @@ end
 """
 	AlphaFilter(V::Lar.Points)
 
+Return
 """
 function AlphaFilter(V::Lar.Points)
 
@@ -180,6 +181,10 @@ function AlphaFilter(V::Lar.Points)
 	# 4 - Sorting Complex by Alpha
 	dict = DataStructures.SortedMultiDict{Float64,Array{Int64,1}}()
 
+	for i=1:size(V,2)
+		insert!(dict,0.,[i])
+	end
+
 	for d = 1:dim
 	   	for i = 1:length(Cells[d])
 	   		insert!(dict, alpha_char[d][i], Cells[d][i])
@@ -188,13 +193,5 @@ function AlphaFilter(V::Lar.Points)
 
 	orderedCollection = collect(dict)
 
-	complex = Array{Int64,1}[]
-	alpha_value = Float64[]
-
-	for i = 1:length(orderedCollection)
-		push!(alpha_value, orderedCollection[i][1])
-		push!(complex, orderedCollection[i][2])
-	end
-
-	return complex, alpha_value
+	return orderedCollection
 end
