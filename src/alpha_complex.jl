@@ -72,7 +72,7 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 			alpha = num/den
 		end
 	end
-	
+
 	return alpha
 end
 
@@ -109,7 +109,7 @@ function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64,
 end
 
 """
-	function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
+	contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
 
 Determine if a `d`-simplex is in a `d+1`-simplex.
 
@@ -127,7 +127,24 @@ end
 """
 	AlphaFilter(V::Lar.Points)
 
-Return
+Return ordered collection of pairs `(alpha charatteristic, complex)`.
+
+# Examples
+```jldoctest
+julia> V = [1. 2. 1. 2.; 0. 0. 1. 2. ]
+2×4 Array{Float64,2}:
+ 1.0  2.0  1.0  2.0
+ 0.0  0.0  1.0  2.0
+
+julia> AlphaShape.AlphaFilter(V)
+DataStructures.SortedDict{Float64,Array{Array{Int64,1},N} where N,Base.Order.ForwardOrdering} with 5 entries:
+  0.0      => Array{Int64,1}[[1], [2], [3], [4]]
+  0.5      => Array{Int64,1}[[1, 2], [1, 3]]
+  0.707107 => Array{Int64,1}[[3, 4]]
+  0.707107 => Array{Int64,1}[[2, 3], [1, 2, 3]]
+  1.0      => Array{Int64,1}[[2, 4], [2, 3, 4]]
+
+```
 """
 function AlphaFilter(V::Lar.Points)
 
@@ -178,20 +195,22 @@ function AlphaFilter(V::Lar.Points)
 		end
 	end
 
+
 	# 4 - Sorting Complex by Alpha
-	dict = DataStructures.SortedMultiDict{Float64,Array{Int64,1}}()
+	filtration = DataStructures.SortedDict{Float64,Array{Array{Int64,1}}}()
 
-	for i=1:size(V,2)
-		insert!(dict,0.,[i])
-	end
+	#each point => alpha_char = 0.
+	filtration[0.] = [[i] for i=1:size(V,2)]
 
-	for d = 1:dim
-	   	for i = 1:length(Cells[d])
-	   		insert!(dict, alpha_char[d][i], Cells[d][i])
+	for d = 1 : dim
+		for i = 1 : length(Cells[d])
+			if haskey(filtration, alpha_char[d][i])
+				push!(filtration[alpha_char[d][i]], Cells[d][i])
+			else
+				filtration[alpha_char[d][i]] = [Cells[d][i]]
+			end
 		end
 	end
 
-	orderedCollection = collect(dict)
-
-	return orderedCollection
+	return filtration
 end

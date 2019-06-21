@@ -99,4 +99,15 @@ end
 		end
 	end
 
+	@testset "AlphaFilter" begin
+		@testset "2D AlphaFilter" begin
+			V = [
+				0.0 1.0 0.0 2.0;
+				0.0 0.0 1.0 2.0
+			]
+			filter = AlphaShape.AlphaFilter(V)
+			@test length(filter) == 5
+		end
+	end
+
 end
