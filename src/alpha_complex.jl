@@ -43,7 +43,8 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 	@assert k <= dim +1 "ERROR: too much points."
 
 	if k == 1
-		alpha = round(Lar.norm(T[1]-T[2])/2., sigdigits = 14)
+		#for each dimension
+		alpha = round(Lar.norm(T[1]-T[2])/2., sigdigits = 14) #approssimazione dei numeri
 
 	elseif k == 2
         	# radius of circle from 3 points in R^n
@@ -83,6 +84,7 @@ function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64,
 	k = length(T)-1
 
 	if k == 1
+		#for each dimension
 		center = (T[1] + T[2])/2
 
 	elseif k == 2
@@ -103,9 +105,9 @@ end
 	contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
 
 Determine if a `d`-simplex is in a `d+1`-simplex.
-
 """
 function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
+	#Esiste issubset che fa la stessa cosa
 	flag = true
 	for point in simpl
 		if (point ∉ sup_simpl)
@@ -142,7 +144,7 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
 
 	# 1 - Delaunay triangulation of ``V``
 
-	Cells = [[],[]] # ToDo Generalize definition
+	Cells = [Array{Array{Int64,1},1}() for i=1:dim]  #Generalize definition
 	Cells[dim] = delaunayTriangulation(V)
 
 	# 2 - 1..d-1 Cells Construction
@@ -162,7 +164,7 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
 	for d = 1 : dim
 		for i = 1 : length(Cells[d]) # simplex in Cells[d]
 			simplex = Cells[d][i]
-			T = [ V[:, v] for v in simplex ] #coordinate dei punti del simplesso
+			T = [ V[:, v] for v in simplex ] #coordinates of the points of the simplex
 			alpha_char[d][i] = found_alpha(T);
 		end
 	end
@@ -174,7 +176,7 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
 			simplex = Cells[d][i]
 			for j = 1 : length(Cells[d+1])  # up_simplex in Cells[d+1]
 				up_simplex = Cells[d+1][j]
-				if contains(up_simplex, simplex)
+				if issubset(simplex, up_simplex) #contains(up_simplex, simplex)
 					point = V[:, setdiff(up_simplex, simplex)]
 					T = [ V[:, v] for v in simplex ]
 					if vertex_in_circumball(T, alpha_char[d][i], point)
@@ -193,13 +195,34 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
 
 	for d = 1 : dim
 		for i = 1 : length(Cells[d])
-			if haskey(filtration, alpha_char[d][i])
+			if haskey(filtration, alpha_char[d][i]) #if dict has key => push
 				push!(filtration[alpha_char[d][i]], Cells[d][i])
 			else
-				filtration[alpha_char[d][i]] = [Cells[d][i]]
+				filtration[alpha_char[d][i]] = [Cells[d][i]] #if dict has no key => new pair
 			end
 		end
 	end
 
 	return filtration
+end
+
+
+"""
+	AlphaSimplex(filtration::DataStructures.SortedDict{}, alphaValue::Float64)
+
+"""
+function AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedDict{}, alphaValue = 0.02)
+
+	dim = size(V, 1)
+	simplexCollection = [Array{Array{Int64,1},1}() for i=1:dim+1] #[VV,EV,FV,CV,...]
+
+	for key in collect(keys(filtration))
+		if key <= alphaValue
+			for i=1:length(filtration[key])
+				push!(simplexCollection[length(filtration[key][i])],filtration[key][i])
+			end
+		end
+	end
+
+	return simplexCollection
 end
