@@ -43,7 +43,7 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 	@assert k <= dim +1 "ERROR: too much points."
 
 	if k == 1
-		alpha = Lar.norm(T[1]-T[2])/2.
+		alpha = round(Lar.norm(T[1]-T[2])/2., sigdigits = 14)
 
 	elseif k == 2
         	# radius of circle from 3 points in R^n
@@ -52,7 +52,7 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 			c = Lar.norm(T[3] - T[1])
 			s = (a + b + c) / 2.
 			area = sqrt(s * (s - a) * (s - b) * (s - c))
-			alpha = a * b * c / (4. * area)
+			alpha = round(a * b * c / (4. * area), sigdigits = 14) #approssimazione dei numeri
 
 	elseif k == 3
 		if dim == 3
@@ -63,7 +63,7 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1]))
 			M = [T[2]-T[1] T[3]-T[1] T[4]-T[1]]
 			den = abs(2*Lar.det(M))
-			alpha = num/den
+			alpha = round(num/den, sigdigits = 14) #approssimazione dei numeri
 		end
 	end
 
@@ -131,8 +131,7 @@ julia> AlphaShape.AlphaFilter(V)
 DataStructures.SortedDict{Float64,Array{Array{Int64,1},N} where N,Base.Order.ForwardOrdering} with 5 entries:
   0.0      => Array{Int64,1}[[1], [2], [3], [4]]
   0.5      => Array{Int64,1}[[1, 2], [1, 3]]
-  0.707107 => Array{Int64,1}[[3, 4]]
-  0.707107 => Array{Int64,1}[[2, 3], [1, 2, 3]]
+  0.707107 => Array{Int64,1}[[2, 3], [3, 4], [1, 2, 3]]
   1.0      => Array{Int64,1}[[2, 4], [2, 3, 4]]
 
 ```
