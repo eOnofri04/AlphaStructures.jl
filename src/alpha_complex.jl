@@ -13,11 +13,13 @@ function delaunayTriangulation(V::Lar.Points)
 		vertices = vcat(V...)
 		p = sortperm(vertices)
 		upper_simplex = [[p[i],p[i+1]] for i=1:length(p)-1]
+
 	elseif dim == 2
 		vertices = convert(Array{Float64,2},V')
 		points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
 		@assert size(vertices, 1) > 3
 		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
+
 	elseif dim == 3
 		# To Do
 	end
@@ -44,21 +46,13 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 		alpha = Lar.norm(T[1]-T[2])/2.
 
 	elseif k == 2
-		if dim == 2
-        	# radius of circle from 3 points in R^2
+        	# radius of circle from 3 points in R^n
 			a = Lar.norm(T[1] - T[2])
 			b = Lar.norm(T[2] - T[3])
 			c = Lar.norm(T[3] - T[1])
 			s = (a + b + c) / 2.
 			area = sqrt(s * (s - a) * (s - b) * (s - c))
 			alpha = a * b * c / (4. * area)
-		elseif dim == 3
-			a = Lar.norm(T[1] - T[2])
-			b = Lar.norm(T[2] - T[3])
-			c = Lar.norm(T[3] - T[1])
-			area = 1/2*Lar.norm(Lar.cross(T[2]-T[1],T[3]-T[1]))
-			alpha = a * b * c / (4. * area)
-		end
 
 	elseif k == 3
 		if dim == 3
@@ -86,16 +80,13 @@ function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64,
 	@assert length(T) > 0 "ERROR: at least one points is needed."
 	dim = length(T[1])
 	@assert dim < 4 "Error: Function not yet Programmed."
-	if dim == 1
-		center = T[1]
-	elseif dim == 2
+	k = length(T)-1
+
+	if k == 1
 		center = (T[1] + T[2])/2
-	elseif dim == 3
-		k = length(T)-1
-		if k == 1
-			center = (T[1] + T[2])/2
-		end
-		if k == 2
+
+	elseif k == 2
+		if dim == 3
 			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
 			#circumcenter of a triangle in R^3
 			num = Lar.norm(T[3]-T[1])^2*Lar.cross(Lar.cross(T[2]-T[1],T[3]-T[1]),T[2]-T[1])+
@@ -103,8 +94,8 @@ function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64,
 			den = 2*Lar.norm(Lar.cross(T[2]-T[1],T[3]-T[1]))^2
 			center = T[1] + num/den
 		end
-
 	end
+
 	return Lar.norm(point - center) <= alpha_char
 end
 
@@ -146,7 +137,7 @@ DataStructures.SortedDict{Float64,Array{Array{Int64,1},N} where N,Base.Order.For
 
 ```
 """
-function AlphaFilter(V::Lar.Points)
+function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
 
 	dim = size(V, 1)
 
@@ -194,7 +185,6 @@ function AlphaFilter(V::Lar.Points)
 			end
 		end
 	end
-
 
 	# 4 - Sorting Complex by Alpha
 	filtration = DataStructures.SortedDict{Float64,Array{Array{Int64,1}}}()
