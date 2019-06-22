@@ -39,7 +39,7 @@ end
 		T = [[1., 1.], [2., 2.]]
 		P = [[1., 0.], [2., 0.], [3., 0.]]
 		Q = [[0., 0.], [2., 0.], [0., 2.]]
-		@test AlphaShape.found_alpha(T) == sqrt(2)/2
+		@test AlphaShape.found_alpha(T) == round(sqrt(2)/2,sigdigits=14)
 		@test AlphaShape.found_alpha(P) == Inf
 		@test isapprox(AlphaShape.found_alpha(Q), sqrt(2), atol=1e-4)
 	end
@@ -49,7 +49,7 @@ end
 		P = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.]]
 		Q = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,1.]]
 		R = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,0.]]
-		@test AlphaShape.found_alpha(T) == sqrt(2)/2
+		@test AlphaShape.found_alpha(T) == round(sqrt(2)/2,sigdigits=14)
 		@test isapprox(AlphaShape.found_alpha(P), 1., atol=1e-4)
 		@test AlphaShape.found_alpha(Q) == 1.
 		@test AlphaShape.found_alpha(R) == Inf
