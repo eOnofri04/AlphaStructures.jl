@@ -31,6 +31,7 @@ end
 		D = AlphaShape.delaunayTriangulation(V)
 		@test D == [[1,2,3],[2,3,4]]
 	end
+
 end
 
 @testset "found_alpha" begin
@@ -72,6 +73,7 @@ end
 	end
 
 	@testset "3D vertex_in_circumball" begin
+
 		@testset "edge and triangle" begin
 			V=[
 				0. 1. 0.;
@@ -97,17 +99,26 @@ end
 			T=[ V[:, v] for v in simplex ]
 			@test AlphaShape.vertex_in_circumball(T, AlphaShape.found_alpha(T), point)
 		end
+
 	end
 
-	@testset "AlphaFilter" begin
-		@testset "2D AlphaFilter" begin
-			V = [
-				0.0 1.0 0.0 2.0;
-				0.0 0.0 1.0 2.0
-			]
-			filter = AlphaShape.AlphaFilter(V)
-			@test length(filter) == 5
-		end
+end
+
+@testset "AlphaFilter" begin
+
+	@testset "1D AlphaFilter" begin
+		V = [ 1. 3. 2. 6. 7. 8. 12. 10. ]
+		filter = AlphaShape.AlphaFilter(V)
+		@test length(filter) == 4
 	end
 
+	@testset "2D AlphaFilter" begin
+		V = [
+			0.0 1.0 0.0 2.0;
+			0.0 0.0 1.0 2.0
+		]
+		filter = AlphaShape.AlphaFilter(V)
+		@test length(filter) == 5
+	end
+	
 end

@@ -1,4 +1,5 @@
 using DataStructures,Combinatorics
+
 """
 	delaunayTriangulation(V::Lar.Points)
 
@@ -158,7 +159,7 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
 		Cells[d] = unique(sort(Cells[d]))
 	end
 
-	# 2 - Evaluate Circumballs Radius
+	# 3 - Evaluate Circumballs Radius
 
 	alpha_char = [ zeros(length(Cells[i])) for i in 1 : dim ]
 	for d = 1 : dim
@@ -169,7 +170,7 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
 		end
 	end
 
-	# 3 - Evaluate Charatteristical Alpha
+	# 4 - Evaluate Charatteristical Alpha
 
 	for d = dim-1 : -1 : 1
 		for i = 1 : length(Cells[d])    # simplex in Cells[d]
@@ -187,7 +188,7 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
 		end
 	end
 
-	# 4 - Sorting Complex by Alpha
+	# 5 - Sorting Complex by Alpha
 	filtration = DataStructures.SortedDict{Float64,Array{Array{Int64,1}}}()
 
 	#each point => alpha_char = 0.
@@ -208,18 +209,19 @@ end
 
 
 """
-	AlphaSimplex(filtration::DataStructures.SortedDict{}, alphaValue::Float64)
+	AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedDict{}, alphaValue = 0.02)
 
+Return collection of all `d`-simplex, for `d ∈ [0,dimension]`, with characteristic alpha less than a given value.
 """
 function AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedDict{}, alphaValue = 0.02)
 
 	dim = size(V, 1)
-	simplexCollection = [Array{Array{Int64,1},1}() for i=1:dim+1] #[VV,EV,FV,CV,...]
+	simplexCollection = [ Array{Array{Int64,1},1}() for i=1:dim+1 ] #[VV,EV,FV,CV,...]
 
 	for key in collect(keys(filtration))
 		if key <= alphaValue
-			for i=1:length(filtration[key])
-				push!(simplexCollection[length(filtration[key][i])],filtration[key][i])
+			for i = 1:length(filtration[key])
+				push!( simplexCollection[length(filtration[key][i])], filtration[key][i] )
 			end
 		end
 	end

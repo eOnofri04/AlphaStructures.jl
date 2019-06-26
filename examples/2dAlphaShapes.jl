@@ -1,4 +1,4 @@
-#include("../src/AlphaShape.jl")
+include("../src/AlphaShape.jl")
 using Plasm, Triangle, LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
