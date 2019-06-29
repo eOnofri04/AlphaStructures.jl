@@ -142,7 +142,7 @@ DataStructures.SortedDict{Float64,Array{Array{Int64,1},N} where N,Base.Order.For
 
 ```
 """
-function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
+function AlphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 
 	dim = size(V, 1)
 
@@ -192,18 +192,16 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedDict{}
 	end
 
 	# 5 - Sorting Complex by Alpha
-	filtration = DataStructures.SortedDict{Float64,Array{Array{Int64,1}}}()
+	filtration = DataStructures.SortedMultiDict{Float64, Array{Int64,1}}()
 
 	#each point => alpha_char = 0.
-	filtration[0.] = [[i] for i=1:size(V,2)]
+	for i = 1 : size(V, 2)
+		insert!(filtration, 0., [i])
+	end
 
 	for d = 1 : dim
 		for i = 1 : length(Cells[d])
-			if haskey(filtration, alpha_char[d][i]) #if dict has key => push
-				push!(filtration[alpha_char[d][i]], Cells[d][i])
-			else
-				filtration[alpha_char[d][i]] = [Cells[d][i]] #if dict has no key => new pair
-			end
+			insert!(filtration, alpha_char[d][i], Cells[d][i])
 		end
 	end
 
@@ -216,18 +214,18 @@ end
 
 Return collection of all `d`-simplex, for `d ∈ [0,dimension]`, with characteristic alpha less than a given value.
 """
-function AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedDict{}, alphaValue = 0.02)
+function AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedMultiDict{}, alphaValue = 0.02)
 
 	dim = size(V, 1)
 	simplexCollection = [ Array{Array{Int64,1},1}() for i=1:dim+1 ] #[VV,EV,FV,CV,...]
 
-	for key in collect(keys(filtration))
-		if key <= alphaValue
-			for i = 1:length(filtration[key])
-				push!( simplexCollection[length(filtration[key][i])], filtration[key][i] )
-			end
-		end
-	end
+	for (k, v) in filtration
+        if k <= alphaValue
+        	push!(simplexCollection[length(v)], v )
+    	else
+			break
+    	end
+    end
 
 	return simplexCollection
 end

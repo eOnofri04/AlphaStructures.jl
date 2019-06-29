@@ -1,4 +1,4 @@
-using AlphaShape
+#using AlphaShape
 
 include("sampleTest.jl")
 include("2dAlphaShape.jl")
