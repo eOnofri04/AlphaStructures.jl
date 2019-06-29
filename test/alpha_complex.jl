@@ -148,4 +148,44 @@ end
 		@test sort([v for v in unique(values(filter)) if length(v) == 3]) == FV
 	end
 
+	@testset "3D AlphaFilter" begin
+
+	end
+
+end
+
+@testset "Alpha Simplices Evaluation" begin
+
+	@testset "1D AlphaSimplex" begin
+
+	end
+
+	@testset "2D AlphaSimplex" begin
+		# Input Data
+		V = [
+			0.0 1.0 0.0 2.0;
+			0.0 0.0 1.0 0.3
+		]
+		filtration = AlphaShape.AlphaFilter(V)
+
+		# α = 0.0
+		@test AlphaSimplex(V, filtration, 0.0)[1] == [[1],[2],[3],[4]]
+		@test isempty(AlphaSimplex(V, filtration, 0.0)[2])
+		@test isempty(AlphaSimplex(V, filtration, 0.0)[3])
+		# α = 0.5
+		@test AlphaSimplex(V, filtration, 0.5)[2] == [[1,2],[1,3]]
+		@test isempty(AlphaSimplex(V, filtration, 0.5)[3])
+		# α = 1.0
+		@test AlphaSimplex(V, filtration, 1.0)[2] == [[1,2],[1,3],[2,3],[2,4]]
+		@test AlphaSimplex(V, filtration, 1.0)[3] == [[1,2,3]]
+		# α = 1.5
+		@test AlphaSimplex(V, filtration, 1.0)[2] == [[1,2],[1,3],[2,3],[2,4],[3,4]]
+		@test AlphaSimplex(V, filtration, 1.0)[3] == [[1,2,3],[2,3,4]]
+
+	end
+
+	@testset "3D AlphaSimplex" begin
+
+	end
+
 end

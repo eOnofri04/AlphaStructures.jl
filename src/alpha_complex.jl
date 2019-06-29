@@ -1,11 +1,26 @@
+#
+#	In this file there is
+#	 - delaunayTriangulation(V::Lar.Points)
+#	 - found_alpha(T::Array{Array{Float64,1},1})::Float64
+#	 - vertex_in_circumball(T::Array{Array{Float64,1},1},
+#							alpha_char::Float64,
+#							point::Array{Float64,2}
+#							):: Bool
+#	 - AlphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
+#	 - AlphaSimplex(V::Lar.Points,
+#					filtration::DataStructures.SortedDict{},
+#					alphaValue = 0.02
+#					)::Array{Lar.Cells,1}
+#
+
 using DataStructures,Combinatorics
 
 """
-	delaunayTriangulation(V::Lar.Points)
+	delaunayTriangulation(V::Lar.Points)::Lar.Cells
 
 Return highest level simplices of Delaunay triangulation.
 """
-function delaunayTriangulation(V::Lar.Points)
+function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 	dim = size(V, 1)
 	@assert dim > 0 "Error: V do not contains points."
 	@assert dim < 4 "Error: Function not yet Programmed."
@@ -76,7 +91,7 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 end
 
 """
-	vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})
+	vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
 
 Determine if a point is inner of the circumball determined by `T` points and radius `alpha_char`.
 
@@ -122,7 +137,7 @@ function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
 end
 
 """
-	AlphaFilter(V::Lar.Points)
+	AlphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
@@ -210,22 +225,24 @@ end
 
 
 """
-	AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedDict{}, alphaValue = 0.02)
+	AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedDict{}, alphaValue = 0.02)::Array{Lar.Cells,1}
 
 Return collection of all `d`-simplex, for `d ∈ [0,dimension]`, with characteristic alpha less than a given value.
 """
-function AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedMultiDict{}, alphaValue = 0.02)
+function AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedMultiDict{}, alphaValue)::Array{Lar.Cells,1}
 
 	dim = size(V, 1)
 	simplexCollection = [ Array{Array{Int64,1},1}() for i=1:dim+1 ] #[VV,EV,FV,CV,...]
 
 	for (k, v) in filtration
         if k <= alphaValue
-        	push!(simplexCollection[length(v)], v )
+        	push!(simplexCollection[length(v)], v)
     	else
 			break
     	end
     end
+
+	sort!.(simplexCollection)
 
 	return simplexCollection
 end
