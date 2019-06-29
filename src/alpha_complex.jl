@@ -229,6 +229,7 @@ end
 
 Return collection of all `d`-simplex, for `d ∈ [0,dimension]`, with characteristic alpha less than a given value.
 """
+
 function AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedMultiDict{}, alphaValue)::Array{Lar.Cells,1}
 
 	dim = size(V, 1)

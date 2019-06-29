@@ -179,8 +179,8 @@ end
 		@test AlphaSimplex(V, filtration, 1.0)[2] == [[1,2],[1,3],[2,3],[2,4]]
 		@test AlphaSimplex(V, filtration, 1.0)[3] == [[1,2,3]]
 		# α = 1.5
-		@test AlphaSimplex(V, filtration, 1.0)[2] == [[1,2],[1,3],[2,3],[2,4],[3,4]]
-		@test AlphaSimplex(V, filtration, 1.0)[3] == [[1,2,3],[2,3,4]]
+		@test AlphaSimplex(V, filtration, 1.5)[2] == [[1,2],[1,3],[2,3],[2,4],[3,4]]
+		@test AlphaSimplex(V, filtration, 1.5)[3] == [[1,2,3],[2,3,4]]
 
 	end
 
