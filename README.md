@@ -1,7 +1,9 @@
 # AlphaShape.jl
 
 [![Build Status](https://travis-ci.org/eOnofri04/AlphaShape.jl.svg?branch=master)](https://travis-ci.org/eOnofri04/AlphaShape.jl)
+[![Coverage Status](https://coveralls.io/repos/github/eOnofri04/AlphaShape.jl/badge.svg?branch=master)](https://coveralls.io/github/eOnofri04/AlphaShape.jl?branch=master)
 [![Read the Docs](https://img.shields.io/readthedocs/pip.svg)](https://eOnofri04.github.io/AlphaShape.jl/)
+
 
 This library, developed during the course of (**IN540** - _Computational Applied Topology_ - 2018/19).
 
