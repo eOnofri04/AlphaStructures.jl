@@ -43,7 +43,10 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 	k = length(T) - 1
 	@assert k <= dim +1 "ERROR: too much points."
 
-	if k == 1
+	if k == 0
+		alpha = 0.0
+
+	elseif k == 1
 		#for each dimension
 		alpha = round(Lar.norm(T[1]-T[2])/2., sigdigits = 14) #approssimazione dei numeri
 
