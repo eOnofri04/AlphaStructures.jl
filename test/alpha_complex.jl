@@ -4,7 +4,7 @@ else
 	using Test
 end
 
-@testset "Alpha Filter" begin
+@testset "α Filter" begin
 
 	@testset "contains" begin
 		@test AlphaShape.contains([1,2,3],[1,2])
@@ -34,9 +34,9 @@ end
 
 end
 
-@testset "Found Alpha" begin
+@testset "Found α" begin
 
-	@testset "2D Found Alpha" begin
+	@testset "2D Found α" begin
 		T = [[1., 1.], [2., 2.]]
 		P = [[1., 0.], [2., 0.], [3., 0.]]
 		Q = [[0., 0.], [2., 0.], [0., 2.]]
@@ -104,9 +104,9 @@ end
 
 end
 
-@testset "Alpha Filter" begin
+@testset "α Filter" begin
 
-	@testset "1D Alpha Filter" begin
+	@testset "1D α Filter" begin
 		# Input Data
 		V = [ 1. 3. 2. 6. 7. 8. 12. 10. ]
 
@@ -123,7 +123,7 @@ end
 		@test sort([v for v in unique(values(filter)) if length(v) == 2]) == EV
 	end
 
-	@testset "2D Alpha Filter" begin
+	@testset "2D α Filter" begin
 		# Input Data
 		V = [
 			0.0 1.0 0.0 2.0;
@@ -148,19 +148,19 @@ end
 		@test sort([v for v in unique(values(filter)) if length(v) == 3]) == FV
 	end
 
-	@testset "3D Alpha Filter" begin
+	@testset "3D α Filter" begin
 
 	end
 
 end
 
-@testset "Alpha Simplices Evaluation" begin
+@testset "α Simplices Evaluation" begin
 
-	@testset "1D Alpha Simplex" begin
+	@testset "1D α Simplex" begin
 
 	end
 
-	@testset "2D Alpha Simplex" begin
+	@testset "2D α Simplex" begin
 		# Input Data
 		V = [
 			0.0 1.0 0.0 2.0;
@@ -169,26 +169,26 @@ end
 		filtration = AlphaShape.alphaFilter(V)
 
 		# α = 0.0
-		alpha_simplices = AlphaShape.alphaSimplex(V, filtration, 0.0)
-		@test alpha_simplices[1] == [[1],[2],[3],[4]]
-		@test isempty(alpha_simplices[2])
-		@test isempty(alpha_simplices[3])
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.0)
+		@test α_simplices[1] == [[1],[2],[3],[4]]
+		@test isempty(α_simplices[2])
+		@test isempty(α_simplices[3])
 		# α = 0.5
-		alpha_simplices = AlphaShape.alphaSimplex(V, filtration, 0.5)
-		@test alpha_simplices[2] == [[1,2],[1,3]]
-		@test isempty(alpha_simplices[3])
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.5)
+		@test α_simplices[2] == [[1,2],[1,3]]
+		@test isempty(α_simplices[3])
 		# α = 1.0
-		alpha_simplices = AlphaShape.alphaSimplex(V, filtration, 1.0)
-		@test alpha_simplices[2] == [[1,2],[1,3],[2,3],[2,4]]
-		@test alpha_simplices[3] == [[1,2,3]]
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.0)
+		@test α_simplices[2] == [[1,2],[1,3],[2,3],[2,4]]
+		@test α_simplices[3] == [[1,2,3]]
 		# α = 1.5
-		alpha_simplices = AlphaShape.alphaSimplex(V, filtration, 1.5)
-		@test alpha_simplices[2] == [[1,2],[1,3],[2,3],[2,4],[3,4]]
-		@test alpha_simplices[3] == [[1,2,3],[2,3,4]]
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.5)
+		@test α_simplices[2] == [[1,2],[1,3],[2,3],[2,4],[3,4]]
+		@test α_simplices[3] == [[1,2,3],[2,3,4]]
 
 	end
 
-	@testset "3D Alpha Simplex" begin
+	@testset "3D α Simplex" begin
 
 	end
 

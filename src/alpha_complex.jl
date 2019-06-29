@@ -3,14 +3,14 @@
 #	 - delaunayTriangulation(V::Lar.Points)
 #	 - foundAlpha(T::Array{Array{Float64,1},1})::Float64
 #	 - vertexInCircumball(T::Array{Array{Float64,1},1},
-#							alpha_char::Float64,
-#							point::Array{Float64,2}
-#							):: Bool
+#			α_char::Float64,
+#			point::Array{Float64,2}
+#		):: Bool
 #	 - alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 #	 - alphaSimplex(V::Lar.Points,
-#					filtration::DataStructures.SortedDict{},
-#					alphaValue = 0.02
-#					)::Array{Lar.Cells,1}
+#			filtration::DataStructures.SortedDict{},
+#			α = 0.02
+#		)::Array{Lar.Cells,1}
 #
 
 using DataStructures,Combinatorics
@@ -62,8 +62,8 @@ function foundAlpha(T::Array{Array{Float64,1},1})::Float64
 		alpha = 0.0
 
 	elseif k == 1
-		#for each dimension
-		alpha = round(Lar.norm(T[1]-T[2])/2., sigdigits = 14) #approssimazione dei numeri
+		# number approximation
+		alpha = round(Lar.norm(T[1]-T[2])/2., sigdigits = 14)
 
 	elseif k == 2
         	# radius of circle from 3 points in R^n
@@ -72,15 +72,18 @@ function foundAlpha(T::Array{Array{Float64,1},1})::Float64
 			c = Lar.norm(T[3] - T[1])
 			s = (a + b + c) / 2.
 			area = sqrt(s * (s - a) * (s - b) * (s - c))
-			alpha = round(a * b * c / (4. * area), sigdigits = 14) #approssimazione dei numeri
+			# number approximation
+			alpha = round(a * b * c / (4. * area), sigdigits = 14)
 
 	elseif k == 3
 		if dim == 3
 			#radius of the circumsphere of a tetrahedron
 			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
-			num = Lar.norm(Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1])+
-				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1])+
-				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1]))
+			num = Lar.norm(
+				Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1]) +
+				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1]) +
+				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1])
+			)
 			M = [T[2]-T[1] T[3]-T[1] T[4]-T[1]]
 			den = abs(2*Lar.det(M))
 			alpha = round(num/den, sigdigits = 14) #approssimazione dei numeri
@@ -91,12 +94,21 @@ function foundAlpha(T::Array{Array{Float64,1},1})::Float64
 end
 
 """
-	vertexInCircumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
+	vertexInCircumball(
+		T::Array{Array{Float64,1},1},
+		α_char::Float64,
+		point::Array{Float64,2}
+	)::Bool
 
-Determine if a point is inner of the circumball determined by `T` points and radius `alpha_char`.
+Determine if a point is inner of the circumball determined by `T` points
+	and radius `α_char`.
 
 """
-function vertexInCircumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
+function vertexInCircumball(
+		T::Array{Array{Float64,1},1},
+		α_char::Float64,
+		point::Array{Float64,2}
+	)::Bool
 	@assert length(T) > 0 "ERROR: at least one points is needed."
 	dim = length(T[1])
 	@assert dim < 4 "Error: Function not yet Programmed."
@@ -110,14 +122,17 @@ function vertexInCircumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, p
 		if dim == 3
 			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
 			#circumcenter of a triangle in R^3
-			num = Lar.norm(T[3]-T[1])^2*Lar.cross(Lar.cross(T[2]-T[1],T[3]-T[1]),T[2]-T[1])+
-					Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],Lar.cross(T[2]-T[1],T[3]-T[1]))
-			den = 2*Lar.norm(Lar.cross(T[2]-T[1],T[3]-T[1]))^2
-			center = T[1] + num/den
+			num = Lar.norm(T[3]-T[1])^2 *
+					Lar.cross( Lar.cross(T[2]-T[1], T[3]-T[1]), T[2]-T[1] ) +
+				Lar.norm(T[2]-T[1])^2 *
+					Lar.cross( T[3]-T[1], Lar.cross(T[2]-T[1], T[3]-T[1] )
+			)
+			den = 2*Lar.norm( Lar.cross(T[2]-T[1], T[3]-T[1]) )^2
+			center = T[1] + num / den
 		end
 	end
 
-	return Lar.norm(point - center) <= alpha_char
+	return Lar.norm(point - center) <= α_char
 end
 
 """
@@ -143,17 +158,22 @@ Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
 # Examples
 ```jldoctest
-julia> V = [1. 2. 1. 2.; 0. 0. 1. 2. ]
-2×4 Array{Float64,2}:
- 1.0  2.0  1.0  2.0
- 0.0  0.0  1.0  2.0
+julia> V = [1. 2. 1. 2.; 0. 0. 1. 2. ];
 
 julia> AlphaShape.alphaFilter(V)
-DataStructures.SortedDict{Float64,Array{Array{Int64,1},N} where N,Base.Order.ForwardOrdering} with 5 entries:
-  0.0      => Array{Int64,1}[[1], [2], [3], [4]]
-  0.5      => Array{Int64,1}[[1, 2], [1, 3]]
-  0.707107 => Array{Int64,1}[[2, 3], [3, 4], [1, 2, 3]]
-  1.0      => Array{Int64,1}[[2, 4], [2, 3, 4]]
+SortedMultiDict(Base.Order.ForwardOrdering(),
+	0.0 => [1],
+	0.0 => [2],
+	0.0 => [3],
+	0.0 => [4],
+	0.5 => [1, 2],
+	0.5 => [1, 3],
+	0.70710678118655 => [2, 3],
+	0.70710678118655 => [3, 4],
+	0.70710678118655 => [1, 2, 3],
+	1.0 => [2, 4],
+	1.0 => [2, 3, 4]
+)
 
 ```
 """
@@ -179,16 +199,16 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 
 	# 3 - Evaluate Circumballs Radius
 
-	alpha_char = [ zeros(length(Cells[i])) for i in 1 : dim ]
+	α_char = [ zeros(length(Cells[i])) for i in 1 : dim ]
 	for d = 1 : dim
 		for i = 1 : length(Cells[d]) # simplex in Cells[d]
 			simplex = Cells[d][i]
-			T = [ V[:, v] for v in simplex ] #coordinates of the points of the simplex
-			alpha_char[d][i] = foundAlpha(T);
+			T = [ V[:, v] for v in simplex ] # simplices points coordinates
+			α_char[d][i] = foundAlpha(T);
 		end
 	end
 
-	# 4 - Evaluate Charatteristical Alpha
+	# 4 - Evaluate Charatteristical α
 
 	for d = dim-1 : -1 : 1
 		for i = 1 : length(Cells[d])    # simplex in Cells[d]
@@ -198,8 +218,8 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 				if issubset(simplex, up_simplex) #contains(up_simplex, simplex)
 					point = V[:, setdiff(up_simplex, simplex)]
 					T = [ V[:, v] for v in simplex ]
-					if vertexInCircumball(T, alpha_char[d][i], point)
-						alpha_char[d][i] = alpha_char[d+1][j]
+					if vertexInCircumball(T, α_char[d][i], point)
+						α_char[d][i] = α_char[d+1][j]
 					end
 				end
 			end
@@ -209,14 +229,14 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 	# 5 - Sorting Complex by Alpha
 	filtration = DataStructures.SortedMultiDict{Float64, Array{Int64,1}}()
 
-	#each point => alpha_char = 0.
+	#each point => α_char = 0.
 	for i = 1 : size(V, 2)
 		insert!(filtration, 0., [i])
 	end
 
 	for d = 1 : dim
 		for i = 1 : length(Cells[d])
-			insert!(filtration, alpha_char[d][i], Cells[d][i])
+			insert!(filtration, α_char[d][i], Cells[d][i])
 		end
 	end
 
@@ -225,17 +245,27 @@ end
 
 
 """
-	alphaSimplex(V::Lar.Points, filtration::DataStructures.SortedDict{}, alphaValue = 0.02)::Array{Lar.Cells,1}
+	alphaSimplex(
+		V::Lar.Points,
+		filtration::DataStructures.SortedDict{},
+		α_threshold = 0.02
+	)::Array{Lar.Cells,1}
 
-Return collection of all `d`-simplex, for `d ∈ [0,dimension]`, with characteristic alpha less than a given value.
+Return collection of all `d`-simplex, for `d ∈ [0,dimension]`,
+	with characteristic α less than a given value `α_threshold`.
 """
-function alphaSimplex(V::Lar.Points, filtration::DataStructures.SortedMultiDict{}, alphaValue::Float64)::Array{Lar.Cells,1}
+function alphaSimplex(
+		V::Lar.Points,
+		filtration::DataStructures.SortedMultiDict{},
+		α_threshold::Float64
+	)::Array{Lar.Cells,1}
 
 	dim = size(V, 1)
-	simplexCollection = [ Array{Array{Int64,1},1}() for i=1:dim+1 ] #[VV,EV,FV,CV,...]
+	# [VV, EV, FV, ...]
+	simplexCollection = [ Array{Array{Int64,1},1}() for i = 1 : dim+1 ]
 
 	for (k, v) in filtration
-        if k <= alphaValue
+        if k <= α_threshold
         	push!(simplexCollection[length(v)], v)
     	else
 			break
