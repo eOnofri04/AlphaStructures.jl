@@ -1,13 +1,13 @@
 #
 #	In this file there is
 #	 - delaunayTriangulation(V::Lar.Points)
-#	 - found_alpha(T::Array{Array{Float64,1},1})::Float64
-#	 - vertex_in_circumball(T::Array{Array{Float64,1},1},
+#	 - foundAlpha(T::Array{Array{Float64,1},1})::Float64
+#	 - vertexInCircumball(T::Array{Array{Float64,1},1},
 #							alpha_char::Float64,
 #							point::Array{Float64,2}
 #							):: Bool
-#	 - AlphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
-#	 - AlphaSimplex(V::Lar.Points,
+#	 - alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
+#	 - alphaSimplex(V::Lar.Points,
 #					filtration::DataStructures.SortedDict{},
 #					alphaValue = 0.02
 #					)::Array{Lar.Cells,1}
@@ -46,12 +46,12 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 end
 
 """
-	found_alpha(T::Array{Array{Float64,1},1})::Float64
+	foundAlpha(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.
 If three or more points are collinear it returns `Inf`.
 """
-function found_alpha(T::Array{Array{Float64,1},1})::Float64
+function foundAlpha(T::Array{Array{Float64,1},1})::Float64
 	@assert length(T) > 0 "ERROR: at least one points is needed."
 	dim = length(T[1])
 	@assert dim < 4 "Error: Function not yet Programmed."
@@ -91,12 +91,12 @@ function found_alpha(T::Array{Array{Float64,1},1})::Float64
 end
 
 """
-	vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
+	vertexInCircumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
 
 Determine if a point is inner of the circumball determined by `T` points and radius `alpha_char`.
 
 """
-function vertex_in_circumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
+function vertexInCircumball(T::Array{Array{Float64,1},1}, alpha_char::Float64, point::Array{Float64,2})::Bool
 	@assert length(T) > 0 "ERROR: at least one points is needed."
 	dim = length(T[1])
 	@assert dim < 4 "Error: Function not yet Programmed."
@@ -137,7 +137,7 @@ function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
 end
 
 """
-	AlphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
+	alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
@@ -148,7 +148,7 @@ julia> V = [1. 2. 1. 2.; 0. 0. 1. 2. ]
  1.0  2.0  1.0  2.0
  0.0  0.0  1.0  2.0
 
-julia> AlphaShape.AlphaFilter(V)
+julia> AlphaShape.alphaFilter(V)
 DataStructures.SortedDict{Float64,Array{Array{Int64,1},N} where N,Base.Order.ForwardOrdering} with 5 entries:
   0.0      => Array{Int64,1}[[1], [2], [3], [4]]
   0.5      => Array{Int64,1}[[1, 2], [1, 3]]
@@ -157,7 +157,7 @@ DataStructures.SortedDict{Float64,Array{Array{Int64,1},N} where N,Base.Order.For
 
 ```
 """
-function AlphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
+function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 
 	dim = size(V, 1)
 
@@ -184,7 +184,7 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 		for i = 1 : length(Cells[d]) # simplex in Cells[d]
 			simplex = Cells[d][i]
 			T = [ V[:, v] for v in simplex ] #coordinates of the points of the simplex
-			alpha_char[d][i] = found_alpha(T);
+			alpha_char[d][i] = foundAlpha(T);
 		end
 	end
 
@@ -198,7 +198,7 @@ function AlphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 				if issubset(simplex, up_simplex) #contains(up_simplex, simplex)
 					point = V[:, setdiff(up_simplex, simplex)]
 					T = [ V[:, v] for v in simplex ]
-					if vertex_in_circumball(T, alpha_char[d][i], point)
+					if vertexInCircumball(T, alpha_char[d][i], point)
 						alpha_char[d][i] = alpha_char[d+1][j]
 					end
 				end
@@ -225,12 +225,11 @@ end
 
 
 """
-	AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedDict{}, alphaValue = 0.02)::Array{Lar.Cells,1}
+	alphaSimplex(V::Lar.Points, filtration::DataStructures.SortedDict{}, alphaValue = 0.02)::Array{Lar.Cells,1}
 
 Return collection of all `d`-simplex, for `d ∈ [0,dimension]`, with characteristic alpha less than a given value.
 """
-
-function AlphaSimplex(V::Lar.Points, filtration::DataStructures.SortedMultiDict{}, alphaValue)::Array{Lar.Cells,1}
+function alphaSimplex(V::Lar.Points, filtration::DataStructures.SortedMultiDict{}, alphaValue::Float64)::Array{Lar.Cells,1}
 
 	dim = size(V, 1)
 	simplexCollection = [ Array{Array{Int64,1},1}() for i=1:dim+1 ] #[VV,EV,FV,CV,...]
