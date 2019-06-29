@@ -36,6 +36,18 @@ end
 
 @testset "Found α" begin
 
+	@testset "Points Found α" begin
+		@test AlphaShape.foundAlpha(([[1.]])) == 0.0
+		@test AlphaShape.foundAlpha(([[1., 1.]])) == 0.0
+		@test AlphaShape.foundAlpha(([[1., 1., 1.]])) == 0.0
+		@test AlphaShape.foundAlpha(([[1., 1., 1., 1.]])) == 0.0
+	end
+
+	@testset "1D Found α" begin
+		@test AlphaShape.foundAlpha(([[1.], [3.]])) == 1.0
+		@test AlphaShape.foundAlpha(([[1.], [1.]])) == 0.0
+	end
+
 	@testset "2D Found α" begin
 		T = [[1., 1.], [2., 2.]]
 		P = [[1., 0.], [2., 0.], [3., 0.]]
