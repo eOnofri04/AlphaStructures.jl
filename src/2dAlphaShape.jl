@@ -26,8 +26,9 @@ Given a Lar complex `(V, EV)`, this method evaluates and gives back:
 julia> Vi, Ve, VVi, VVe = AlphaShape.pointsRand(V, EV, 1000, 1000);
 ```
 """
-function pointsRand(V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0)
-		::Tuple{Lar.Points, Lar.Points, Lar.Cells, Lar.Cells}
+function pointsRand(
+		V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0
+	)::Tuple{Lar.Points, Lar.Points, Lar.Cells, Lar.Cells}
 	classify = Lar.pointInPolygonClassification(V, EV)
 	p = size(V, 2)
 	Vi = [0.0; 0.0]
