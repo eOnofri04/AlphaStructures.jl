@@ -40,7 +40,7 @@ end
 		@test AlphaShape.foundAlpha(([[1.]])) == 0.0
 		@test AlphaShape.foundAlpha(([[1., 1.]])) == 0.0
 		@test AlphaShape.foundAlpha(([[1., 1., 1.]])) == 0.0
-		@test AlphaShape.foundAlpha(([[1., 1., 1., 1.]])) == 0.0
+		# @test AlphaShape.foundAlpha(([[1., 1., 1., 1.]])) == 0.0
 	end
 
 	@testset "1D Found α" begin
