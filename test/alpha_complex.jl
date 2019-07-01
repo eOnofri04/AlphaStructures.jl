@@ -4,15 +4,6 @@ else
 	using Test
 end
 
-@testset "α Filter" begin
-
-	@testset "contains" begin
-		@test AlphaShape.contains([1,2,3],[1,2])
-		@test !AlphaShape.contains([1,2,3],[1,4])
-	end
-
-end
-
 @testset "delaunayTriangulation" begin
 
 	@testset "1D delaunayTriangulation" begin
@@ -30,6 +21,35 @@ end
 		]
 		D = AlphaShape.delaunayTriangulation(V)
 		@test D == [[1,2,3],[2,3,4]]
+	end
+
+	@testset "3D delaunayTriangulation" begin
+
+	end
+
+end
+
+@testset "Found Center" begin
+
+	@testset "Points Found Center" begin
+		@test AlphaShape.foundCenter([[1.]]) == [1.]
+		@test AlphaShape.foundCenter([[1., 1.]]) == [1., 1.]
+		@test AlphaShape.foundCenter([[1., 1., 1.]]) == [1., 1., 1.]
+	end
+
+	@testset "Edges Found Center" begin
+		@test AlphaShape.foundCenter([[1.], [3.]]) == [2.0]
+		@test AlphaShape.foundCenter([[1.,1.], [3.,3.]]) == [2.0, 2.0]
+		@test AlphaShape.foundCenter([[1.,1.,1.], [3.,3.,3.]]) == [2.0, 2.0, 2.0]
+	end
+
+	@testset "Triangles Found Center" begin
+		@test AlphaShape.foundCenter([[0.,0.], [0.,1.], [1.,0.]]) == [0.5, 0.5]
+		@test AlphaShape.foundCenter([[0.,0.,0.], [0.,1.,0.], [1.,0.,0.]]) == [0.5,0.5,0.0]
+	end
+
+	@testset "Tetrahedrons Found Center" begin
+		@test AlphaShape.foundCenter([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [0.,0.,1.]]) == [0.5, 0.5, 0.5]
 	end
 
 end
@@ -53,11 +73,11 @@ end
 		P = [[1., 0.], [2., 0.], [3., 0.]]
 		Q = [[0., 0.], [2., 0.], [0., 2.]]
 		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
-		@test AlphaShape.foundAlpha(P) == Inf
+		@test isnan(AlphaShape.foundAlpha(P))
 		@test isapprox(AlphaShape.foundAlpha(Q), sqrt(2), atol=1e-4)
 	end
 
-	@testset "3D Found Alpha" begin
+	@testset "3D Found α" begin
 		T = [[1., 1., 0.], [2., 2., 0.]]
 		P = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.]]
 		Q = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,1.]]
@@ -65,7 +85,7 @@ end
 		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
 		@test isapprox(AlphaShape.foundAlpha(P), 1., atol=1e-4)
 		@test AlphaShape.foundAlpha(Q) == 1.
-		@test AlphaShape.foundAlpha(R) == Inf
+		@test isnan(AlphaShape.foundAlpha(R))
 	end
 
 end
@@ -169,6 +189,25 @@ end
 @testset "α Simplices Evaluation" begin
 
 	@testset "1D α Simplex" begin
+		# Input Data
+		V = [
+			0.0 1.0 2.0 7.0 5.0 3.0 14.0 11.0
+		]
+		filtration = AlphaShape.alphaFilter(V)
+
+		# α = 0.0
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.0)
+		@test α_simplices[1] == [[1],[2],[3],[4],[5],[6],[7],[8]]
+		@test isempty(α_simplices[2])
+		# α = 0.5
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.5)
+		@test α_simplices[2] == [[1,2],[2,3],[3,6]]
+		# α = 1.0
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.0)
+		@test α_simplices[2] == [[1, 2], [2, 3], [3, 6], [4, 5], [5, 6]]
+		# α = 1.5
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.5)
+		@test α_simplices[2] == [[1, 2], [2, 3], [3, 6], [4, 5], [5, 6], [7, 8]]
 
 	end
 
