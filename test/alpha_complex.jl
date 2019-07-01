@@ -23,6 +23,10 @@ end
 		@test D == [[1,2,3],[2,3,4]]
 	end
 
+	@testset "3D delaunayTriangulation" begin
+		
+	end
+
 end
 
 @testset "Found α" begin
@@ -48,7 +52,7 @@ end
 		@test isapprox(AlphaShape.foundAlpha(Q), sqrt(2), atol=1e-4)
 	end
 
-	@testset "3D Found Alpha" begin
+	@testset "3D Found α" begin
 		T = [[1., 1., 0.], [2., 2., 0.]]
 		P = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.]]
 		Q = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,1.]]
@@ -160,6 +164,25 @@ end
 @testset "α Simplices Evaluation" begin
 
 	@testset "1D α Simplex" begin
+		# Input Data
+		V = [
+			0.0 1.0 2.0 7.0 5.0 3.0 14.0 11.0
+		]
+		filtration = AlphaShape.alphaFilter(V)
+
+		# α = 0.0
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.0)
+		@test α_simplices[1] == [[1],[2],[3],[4],[5],[6],[7],[8]]
+		@test isempty(α_simplices[2])
+		# α = 0.5
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.5)
+		@test α_simplices[2] == [[1,2],[2,3],[3,6]]
+		# α = 1.0
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.0)
+		@test α_simplices[2] == [[1, 2], [2, 3], [3, 6], [4, 5], [5, 6]]
+		# α = 1.5
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.5)
+		@test α_simplices[2] == [[1, 2], [2, 3], [3, 6], [4, 5], [5, 6], [7, 8]]
 
 	end
 

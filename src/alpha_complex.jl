@@ -103,7 +103,7 @@ end
 	foundAlpha(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.
-If three or more points are collinear it returns `Inf`.
+If three or more points are collinear it returns `NaN`.
 """
 function foundAlpha(T::Array{Array{Float64,1},1})::Float64
 
