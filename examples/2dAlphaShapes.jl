@@ -1,5 +1,5 @@
 include("../src/AlphaShape.jl")
-using Plasm, Triangle, LinearAlgebraicRepresentation
+using Plasm, LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
 """
