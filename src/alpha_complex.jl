@@ -1,6 +1,7 @@
 #
 #	In this file there is
 #	 - delaunayTriangulation(V::Lar.Points)
+#	 - foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
 #	 - foundAlpha(T::Array{Array{Float64,1},1})::Float64
 #	 - vertexInCircumball(T::Array{Array{Float64,1},1},
 #			α_char::Float64,
@@ -46,12 +47,12 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 end
 
 """
-	foundCenter(T::Array{Array{Float64,1},1})::Float64
+	foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
 
-Return center of a simplex.
+Determine center of a simplex defined by `T` points.
 
 """
-function foundCenter(T::Array{Array{Float64,1},1})
+function foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
 	@assert length(T) > 0 "ERROR: at least one points is needed."
 	dim = length(T[1])
 	@assert dim < 4 "Error: Function not yet Programmed."
@@ -85,13 +86,14 @@ function foundCenter(T::Array{Array{Float64,1},1})
 		end
 
 	elseif k == 3
+		#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
 		if dim == 3
 			num = Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1]) +
 				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1]) +
 				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1])
 			M = [T[2]-T[1] T[3]-T[1] T[4]-T[1]]
 			den = 2*Lar.det(M)
-			center = T[1] + num / den #approssimazione dei numeri
+			center = T[1] + num / den
 		end
 	end
 

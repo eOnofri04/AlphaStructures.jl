@@ -29,26 +29,26 @@ end
 
 end
 
-@testset "FoundCenter" begin
+@testset "Found Center" begin
 
-	@testset "Points FoundCenter" begin
+	@testset "Points Found Center" begin
 		@test AlphaShape.foundCenter([[1.]]) == [1.]
 		@test AlphaShape.foundCenter([[1., 1.]]) == [1., 1.]
 		@test AlphaShape.foundCenter([[1., 1., 1.]]) == [1., 1., 1.]
 	end
 
-	@testset "Edges FoundCenter" begin
+	@testset "Edges Found Center" begin
 		@test AlphaShape.foundCenter([[1.], [3.]]) == [2.0]
 		@test AlphaShape.foundCenter([[1.,1.], [3.,3.]]) == [2.0, 2.0]
 		@test AlphaShape.foundCenter([[1.,1.,1.], [3.,3.,3.]]) == [2.0, 2.0, 2.0]
 	end
 
-	@testset "Triangles FoundCenter" begin
+	@testset "Triangles Found Center" begin
 		@test AlphaShape.foundCenter([[0.,0.], [0.,1.], [1.,0.]]) == [0.5, 0.5]
 		@test AlphaShape.foundCenter([[0.,0.,0.], [0.,1.,0.], [1.,0.,0.]]) == [0.5,0.5,0.0]
 	end
 
-	@testset "Tetrahedrons FoundCenter" begin
+	@testset "Tetrahedrons Found Center" begin
 		@test AlphaShape.foundCenter([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [0.,0.,1.]]) == [0.5, 0.5, 0.5]
 	end
 
