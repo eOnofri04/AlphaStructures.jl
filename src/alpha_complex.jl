@@ -136,22 +136,6 @@ function vertexInCircumball(
 end
 
 """
-	contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
-
-Determine if a `d`-simplex is in a `d+1`-simplex.
-"""
-function contains(sup_simpl::Array{Int64,1}, simpl::Array{Int64,1})::Bool
-	#Esiste issubset che fa la stessa cosa
-	flag = true
-	for point in simpl
-		if (point ∉ sup_simpl)
-			flag = false
-		end
-	end
-	return flag
-end
-
-"""
 	alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
@@ -247,8 +231,8 @@ end
 """
 	alphaSimplex(
 		V::Lar.Points,
-		filtration::DataStructures.SortedDict{},
-		α_threshold = 0.02
+		filtration::DataStructures.SortedMultiDict{},
+		α_threshold::Float64
 	)::Array{Lar.Cells,1}
 
 Return collection of all `d`-simplex, for `d ∈ [0,dimension]`,

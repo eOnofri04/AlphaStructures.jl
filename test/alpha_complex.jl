@@ -4,15 +4,6 @@ else
 	using Test
 end
 
-@testset "α Filter" begin
-
-	@testset "contains" begin
-		@test AlphaShape.contains([1,2,3],[1,2])
-		@test !AlphaShape.contains([1,2,3],[1,4])
-	end
-
-end
-
 @testset "delaunayTriangulation" begin
 
 	@testset "1D delaunayTriangulation" begin
