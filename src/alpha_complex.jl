@@ -89,9 +89,8 @@ function foundCenter(T::Array{Array{Float64,1},1})
 			num = Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1]) +
 				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1]) +
 				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1])
-
 			M = [T[2]-T[1] T[3]-T[1] T[4]-T[1]]
-			den = abs(2*Lar.det(M))
+			den = 2*Lar.det(M)
 			center = T[1] + num / den #approssimazione dei numeri
 		end
 	end
