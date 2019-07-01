@@ -41,7 +41,7 @@ function pointsRand(
 		queryPoint = [rand();rand()]
 		inOut = classify(queryPoint)
 
-		if k1 < n && (inOut == "p_in")
+		if k1 < n && inOut == "p_in"
 			Vi = hcat(Vi, queryPoint)
 			k1 = k1 + 1;
 		end

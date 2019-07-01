@@ -8,8 +8,8 @@
 #		):: Bool
 #	 - alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 #	 - alphaSimplex(V::Lar.Points,
-#			filtration::DataStructures.SortedDict{},
-#			α = 0.02
+#			filtration::DataStructures.SortedMultiDict{},
+#			α_threshold::Float64
 #		)::Array{Lar.Cells,1}
 #
 
@@ -46,49 +46,74 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 end
 
 """
+	foundCenter(T::Array{Array{Float64,1},1})::Float64
+
+"""
+function foundCenter(T::Array{Array{Float64,1},1})
+	@assert length(T) > 0 "ERROR: at least one points is needed."
+	dim = length(T[1])
+	@assert dim < 4 "Error: Function not yet Programmed."
+	k = length(T)-1
+
+	if k == 0
+		center = T[1]
+
+	elseif k == 1
+		#for each dimension
+		center = (T[1] + T[2])/2
+
+	elseif k == 2
+		if dim == 2
+			den = 2*Lar.det([T[2]-T[1] T[3]-T[1]])
+			det = (T[2]-T[1])*Lar.norm(T[3]-T[1])^2 -
+						(T[3]-T[1])*Lar.norm(T[2]-T[1])^2
+			num = [-det[2],det[1]]
+			center = T[1] + num / den
+
+		elseif dim == 3
+			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
+			#circumcenter of a triangle in R^3
+			num = Lar.norm(T[3]-T[1])^2 *
+					Lar.cross( Lar.cross(T[2]-T[1], T[3]-T[1]), T[2]-T[1] ) +
+				Lar.norm(T[2]-T[1])^2 *
+					Lar.cross( T[3]-T[1], Lar.cross(T[2]-T[1], T[3]-T[1] )
+			)
+			den = 2*Lar.norm( Lar.cross(T[2]-T[1], T[3]-T[1]) )^2
+			center = T[1] + num / den
+		end
+
+	elseif k == 3
+		if dim == 3
+			num = Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1]) +
+				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1]) +
+				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1])
+
+			M = [T[2]-T[1] T[3]-T[1] T[4]-T[1]]
+			den = abs(2*Lar.det(M))
+			center = T[1] + num / den #approssimazione dei numeri
+		end
+	end
+
+	return center
+end
+
+"""
 	foundAlpha(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.
 If three or more points are collinear it returns `Inf`.
 """
 function foundAlpha(T::Array{Array{Float64,1},1})::Float64
+
 	@assert length(T) > 0 "ERROR: at least one points is needed."
 	dim = length(T[1])
 	@assert dim < 4 "Error: Function not yet Programmed."
 	k = length(T) - 1
 	@assert k <= dim +1 "ERROR: too much points."
-
-	if k == 0
-		alpha = 0.0
-
-	elseif k == 1
-		# number approximation
-		alpha = round(Lar.norm(T[1]-T[2])/2., sigdigits = 14)
-
-	elseif k == 2
-        	# radius of circle from 3 points in R^n
-			a = Lar.norm(T[1] - T[2])
-			b = Lar.norm(T[2] - T[3])
-			c = Lar.norm(T[3] - T[1])
-			s = (a + b + c) / 2.
-			area = sqrt(s * (s - a) * (s - b) * (s - c))
-			# number approximation
-			alpha = round(a * b * c / (4. * area), sigdigits = 14)
-
-	elseif k == 3
-		if dim == 3
-			#radius of the circumsphere of a tetrahedron
-			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
-			num = Lar.norm(
-				Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1]) +
-				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1]) +
-				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1])
-			)
-			M = [T[2]-T[1] T[3]-T[1] T[4]-T[1]]
-			den = abs(2*Lar.det(M))
-			alpha = round(num/den, sigdigits = 14) #approssimazione dei numeri
-		end
-	end
+	
+	# number approximation
+	center = AlphaShape.foundCenter(T)
+	alpha = round(Lar.norm(T[1] - center), sigdigits = 14)
 
 	return alpha
 end
@@ -109,29 +134,8 @@ function vertexInCircumball(
 		α_char::Float64,
 		point::Array{Float64,2}
 	)::Bool
-	@assert length(T) > 0 "ERROR: at least one points is needed."
-	dim = length(T[1])
-	@assert dim < 4 "Error: Function not yet Programmed."
-	k = length(T)-1
 
-	if k == 1
-		#for each dimension
-		center = (T[1] + T[2])/2
-
-	elseif k == 2
-		if dim == 3
-			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
-			#circumcenter of a triangle in R^3
-			num = Lar.norm(T[3]-T[1])^2 *
-					Lar.cross( Lar.cross(T[2]-T[1], T[3]-T[1]), T[2]-T[1] ) +
-				Lar.norm(T[2]-T[1])^2 *
-					Lar.cross( T[3]-T[1], Lar.cross(T[2]-T[1], T[3]-T[1] )
-			)
-			den = 2*Lar.norm( Lar.cross(T[2]-T[1], T[3]-T[1]) )^2
-			center = T[1] + num / den
-		end
-	end
-
+	center = AlphaShape.foundCenter(T)
 	return Lar.norm(point - center) <= α_char
 end
 
@@ -213,7 +217,7 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 	# 5 - Sorting Complex by Alpha
 	filtration = DataStructures.SortedMultiDict{Float64, Array{Int64,1}}()
 
-	#each point => α_char = 0.
+	# each point => α_char = 0.
 	for i = 1 : size(V, 2)
 		insert!(filtration, 0., [i])
 	end
