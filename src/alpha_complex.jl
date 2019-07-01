@@ -48,6 +48,8 @@ end
 """
 	foundCenter(T::Array{Array{Float64,1},1})::Float64
 
+Return center of a simplex.
+
 """
 function foundCenter(T::Array{Array{Float64,1},1})
 	@assert length(T) > 0 "ERROR: at least one points is needed."
@@ -63,6 +65,7 @@ function foundCenter(T::Array{Array{Float64,1},1})
 		center = (T[1] + T[2])/2
 
 	elseif k == 2
+		#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
 		if dim == 2
 			den = 2*Lar.det([T[2]-T[1] T[3]-T[1]])
 			det = (T[2]-T[1])*Lar.norm(T[3]-T[1])^2 -
@@ -71,7 +74,6 @@ function foundCenter(T::Array{Array{Float64,1},1})
 			center = T[1] + num / den
 
 		elseif dim == 3
-			#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
 			#circumcenter of a triangle in R^3
 			num = Lar.norm(T[3]-T[1])^2 *
 					Lar.cross( Lar.cross(T[2]-T[1], T[3]-T[1]), T[2]-T[1] ) +
@@ -110,7 +112,7 @@ function foundAlpha(T::Array{Array{Float64,1},1})::Float64
 	@assert dim < 4 "Error: Function not yet Programmed."
 	k = length(T) - 1
 	@assert k <= dim +1 "ERROR: too much points."
-	
+
 	# number approximation
 	center = AlphaShape.foundCenter(T)
 	alpha = round(Lar.norm(T[1] - center), sigdigits = 14)

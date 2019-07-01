@@ -44,7 +44,7 @@ end
 		P = [[1., 0.], [2., 0.], [3., 0.]]
 		Q = [[0., 0.], [2., 0.], [0., 2.]]
 		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
-		@test AlphaShape.foundAlpha(P) == Inf
+		@test isnan(AlphaShape.foundAlpha(P))
 		@test isapprox(AlphaShape.foundAlpha(Q), sqrt(2), atol=1e-4)
 	end
 
@@ -56,7 +56,7 @@ end
 		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
 		@test isapprox(AlphaShape.foundAlpha(P), 1., atol=1e-4)
 		@test AlphaShape.foundAlpha(Q) == 1.
-		@test AlphaShape.foundAlpha(R) == Inf
+		@test isnan(AlphaShape.foundAlpha(R))
 	end
 
 end
