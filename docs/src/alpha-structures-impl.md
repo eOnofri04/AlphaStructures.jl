@@ -1,4 +1,6 @@
-# Alpha Structures Implementation (ToDo)
+# 4.2 - Alpha Structures Implementation (ToDo)
+
+We however will discuss implementative features in the _"... and Practice"_ section.
 
 ## 2 and 3 dimensional problem resolution
 

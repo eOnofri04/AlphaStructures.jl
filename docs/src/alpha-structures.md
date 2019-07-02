@@ -1,4 +1,4 @@
-# Introduction to ``\alpha``-Structures
+# 3.3 - Introduction to ``\alpha``-Structures
 
 Let ``S`` a set of ``n`` sites in ``\mathbb R^D`` (finite).
 Since we are interested in real situation we will restrict to the case ``D \in \{2, 3\}``; however the following description could be simply enlarged for a general ``D`` value.
