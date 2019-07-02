@@ -1,4 +1,4 @@
-# Authors
+# A - Authors
 
 This repository was developed by two students at [RomaTre](http://dmf.matfis.uniroma3.it/scienzecomp/sc_home.php) universisty.
 

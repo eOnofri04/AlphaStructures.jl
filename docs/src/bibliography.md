@@ -1,4 +1,4 @@
-Bibliography
+B - Bibliography
 
 [1] H. Edelsbrunner. Weighted alpha shapes. Technical Report UIUCDCS-R- 92-1760, Dept. Comput. Sci., Univ. Illinois, Urbana, IL, 1992.
 

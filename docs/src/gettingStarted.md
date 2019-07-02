@@ -1,4 +1,4 @@
-# Installation
+# 2 - Installation
 
 If you have not done so already, download and install [Julia](https://julialang.org/downloads/).
 

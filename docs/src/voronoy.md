@@ -1,1 +1,1 @@
-# Voronoy Diagrams
+# 3.2 - Voronoy Diagrams

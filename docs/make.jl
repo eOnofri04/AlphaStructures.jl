@@ -7,19 +7,22 @@ makedocs(
 	sitename = "AlphaShape.jl",
 	assets = ["assets/AlphaShape.css", "assets/logo.png"],
 	pages = [
-		"Home" => "index.md",
-		"Getting Started" => "gettingStarted.md",
+		"1 - Home" => "index.md",
+		"2 - Getting Started" => "gettingStarted.md",
 		"Theory..." => [
-			"Delaunay Triangulation" => "delaunay.md",
-			"Voronoy Diagrams" => "voronoy.md",
-			"Alpha Structures" => "alpha-structures.md",
-			"Persistent Homology" => "persistent-homology.md"
+			"3.0 - Theory Index" => "theory-index.md", 
+			"3.1 - Delaunay Triangulation" => "delaunay.md",
+			"3.2 - Voronoy Diagrams" => "voronoy.md",
+			"3.3 - Alpha Structures" => "alpha-structures.md",
+			"3.4 - Persistent Homology" => "persistent-homology.md",
 		],
 		"... and Practice" => [
-			"Module Introduction" => "this-module.md"
-			"Alpha Structures" => "alpha-structures-impl.md"
+			"4.0 - Module Introduction" => "this-module.md",
+			"4.1 - 3D Delaunay Triangulation" => "delaunay-impl.md",
+			"4.2 - Alpha Structures" => "alpha-structures-impl.md",
+			"4.3 - Persistent Homology" => "persistent-homology-impl.md",
 		],
-		"About the Authors" => "authors.md",
-		"Bibliography" => "bibliography.md"
+		"A - About the Authors" => "authors.md",
+		"B - Bibliography" => "bibliography.md"
 	]
 )
