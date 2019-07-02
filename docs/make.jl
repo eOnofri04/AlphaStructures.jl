@@ -17,7 +17,9 @@ makedocs(
 		],
 		"... and Practice" => [
 			"Module Introduction" => "this-module.md"
+			"Alpha Structures" => "alpha-structures-impl.md"
 		],
 		"About the Authors" => "authors.md",
+		"Bibliography" => "bibliography.md"
 	]
 )
