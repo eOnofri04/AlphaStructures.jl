@@ -6,7 +6,7 @@ Since we are interested in real situation we will restrict to the case ``D \in \
 Suppose we want to build is something like "the shape formed by these points".
 Of course it could be done in many ways: ``\alpha``-shapes are one of them.
 
-Suppose than that we want to take this ``\alpha``-shape and we want to build its complete structure: in other words we want to evaluate each and every ``d``-cell (with ``d \in [0, D]``) it could be made of; something like "the bricks this shape is made of".
+Suppose than that we want to take this ``\alpha``-shape and we want to build its complete structure: in other words we want to evaluate each and every ``d``-simplex (with ``d \in [0, D]``) it could be made of; something like "the bricks this shape is made of".
 This problem also could be solved in many ways: ``\alpha``-complexes are one of them.
 
 As Edelbrunner and Mücke said in their paper [3] ``\alpha``-shapes could be thinked as the following.
@@ -68,15 +68,36 @@ It is pretty clear that there is a strict relation between ``\mathcal H_\alpha``
 
 We have so far talked about sets. What we are interested in are however complex of simplices. We therefore drop the curved edges of ``\alpha``-hulls in favor of straight lines.
 
-What we have described take the name of ``\alpha``-shape ``\Sigma`` of ``S``. In fact it gives us a boundary of what is internal to the point cloud made of the Sites ``S`` and what is and outsider. It is trivial to understand that ``\Sigma`` is mainly made of ``D-1``-cells and it could not have ``D``-cells at all.
+What we have described take the name of ``\alpha``-shape of ``S``: we will denote it ``\Sigma_\alpha(S)`` or, shortly, ``\Sigma``. In fact it gives us a boundary of what is internal to the point cloud made of the Sites ``S`` and what is and outsider. It is trivial to understand that ``\Sigma`` is mainly made of ``D-1``-simplices and it could not have ``D``-simplices at all.
 
-However ``\Sigma`` comes with a notion of Delaunay Triangulation and, since the general position condition is satisfied by hypotesis, it follows that the polytope decomposition of the ``\alpha``-hull is unique. This particular decomposition ``\mathcal C`` is named ``\alpha``-complex of ``S``.
+However ``\Sigma`` comes with a notion of Delaunay Triangulation and, since the general position condition is satisfied by hypotesis, it follows that the polytope decomposition of the ``\alpha``-hull is unique. We define:
 
-It could be seen that the higher is the value of ``alpha``, the bigger is the complex gained. It also follows from the way we have defined it that if a ``d``-polytope (``d``-cell) is in ``\mathcal C`` then every cell it is made of is also inside ``\mathcal C``.
+!!! definition
+    The Delaunay Triangulation of ``\Sigma_\alpha(S)`` takes the name of ``\alpha``-complex of ``S``: we will denote it ``\mathcal A_\alpha(S)`` or, shortly, ``\mathcal A``.
+
+It then follows from the way we have defined it that if a ``d``-polytope (``d``-cell) is in ``\mathcal A`` then every cell it is made of is also inside ``\mathcal A``.
 
 ### ``\alpha``-Filtration
 
-We have slightly introduce previously the case of study of what happends if we vary the ``\alpha`` value.
+We now introduce the case of study of what happends if we vary the ``\alpha`` value. In general this topic is strictly related to Persistent Homology (we will see in the next section).
+
+The first observation we could make is that the bigger is the value ``\alpha`` the more simplices get into the complex ``\mathcal A``.
+
+It is although pretty clear that if a simplex is in ``\mathcal A`` for a certain ``\alpha`` than it will be in ``\mathcal A`` for every ``\alpha' \geq \alpha``. It then makes sense to search for the first value ``alpha`` such that each single simplex ``\sigma`` gets inside ``\mathcal A``. We will define it as:
+
+!!! definition
+    Let ``\mathcal A_\infty(S) \equiv \mathcal D(S)`` the Delaunay complex of ``S``. For each simplex ``\sigma \in \mathcal D(S)`` we define the _charateristical ``\alpha`` of ``\sigma``_ like the infimum ``\alpha`` such that ``\sigma \in \mathcal A_\alpha(S)``:
+    ```math
+        \alpha_\sigma = \inf_{\alpha \geq 0}\{\sigma \in \mathcal A_\alpha(S)\}
+    ```
+
+This last definition gives us a better way to build up the ``alpha``-Complex:
+```math
+    \mathcal A = \{\sigma \in \mathcal D(S) \mid \alpha_\sigma \leq \alpha\}
+```
+
+In particular this will be the key we use in our algorith to evaluate the ``\alpha``-structures.
+We will describe more precisely how to evaluate the charateristical ``\alpha`` in the _"... and Practice > Alpha Structures Implementation"_ [section](https://eonofri04.github.io/AlphaShape.jl/alpha-structures-impl/).
 
 ## Further Developments
 
@@ -85,9 +106,3 @@ Since we have defined ``\alpha``-complexes via Delaunay Triangulation it makes s
 We can therefore divide ``\alpha``-shapes into two families:
  - **Basic ``\alpha``-shapes** are based on the Delaunay triangulation.
  - **Weighted ``\alpha``-shapes** are based on the Regular Triangulation, a Delunay generalization where the euclidean distance is replaced by the power to weighted points.
-
-## 2 and 3 dimensional problem
-
-In this module we have solved the problem of building an ``alpha``-complex for a generical dimension. However the module could only solve two and three dimensional istances of the problem. The reason is that no library for ``d``-dimensional Delaunay Triangulation exists in Julia so far.
-
-We however will discuss implementative features in the _"... and Practice"_ section.

@@ -32,7 +32,7 @@ It also presents what [Alpha Complex and Alpha Shapes](https://eOnofri04.github.
  - [Elia Onofri](https://github.com/eOnofri04) - [Ln](https://www.linkedin.com/in/elia-onofri-80b403173/) (elia.onofri4@gmail.com)
  - [Maria Teresa Graziano](https://github.com/marteresagh) - (marteresa28@gmail.com)
 
-More informations about the authors could be found in the [Authors page](https://eonofri04.github.io/AlphaShape.jl/authors.html) of the documentation.
+More informations about the authors could be found in the [Authors page](https://eonofri04.github.io/AlphaShape.jl/authors/) of the documentation.
 
 ## Project Managers
 Professor [Alberto Paoluzzi](http://paoluzzi.dia.uniroma3.it)
