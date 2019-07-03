@@ -1,8 +1,14 @@
 # 1 - AlphaShape.jl
 
-`AlphaShape.jl` is a [Julia](http://julialang.org) library to ...
+`AlphaShape.jl` is a [Julia](http://julialang.org) library that provides some tool for point cloud analysis.
 
-In this documentation it is explained a little brief of theory and how to apply it in computer science.
+With `AlphaShape.jl` you can:
+ - evaluate the ``\alpha``-Shape of a point cloud
+ - compute the ``\alpha``-Filtration of a point cloud
+ - build the ``\alpha``-Complex of a point cloud
+ - find some basics about Persistent Homology evaluation of a cloud of points
+
+In this documentation we present the problem and the related solution we have implemented so far both from the mathematical and the computer science point of view.
 
 
 ## Dependencies
@@ -22,7 +28,7 @@ and as additional dependece:
  - **Bold** is used to point out theory concepts.
  - `Monospace` is used for everything code related.
 
-## Index
+## Table of Contenents
 
 ```@contents
 ```

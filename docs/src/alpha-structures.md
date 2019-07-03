@@ -99,7 +99,7 @@ This last definition gives us a better way to build up the ``alpha``-Complex:
 In particular this will be the key we use in our algorith to evaluate the ``\alpha``-structures.
 We will describe more precisely how to evaluate the charateristical ``\alpha`` in the _"... and Practice > Alpha Structures Implementation"_ [section](https://eonofri04.github.io/AlphaShape.jl/alpha-structures-impl/).
 
-## Further Developments
+## Other ``\alpha``-structures
 
 Since we have defined ``\alpha``-complexes via Delaunay Triangulation it makes sense think that we could also define them via Regular Triangulation.
 
