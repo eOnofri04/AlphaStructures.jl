@@ -1,7 +1,11 @@
 # α è un piano perpendicolare agli assi e che si sposta a metà del pointset,
 # piano ortogonale ad ogni chiamata di dewall
+"""
+    pointsetPartition(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
 
-function pointsetPartition(P, axis, off)
+Return two subsets of pointset `P` split by α plane defined by `axis` and `off`.
+"""
+function pointsetPartition(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
     coord = findall(x->x==1,axis)[1]
     Pminus = P[:,findall(x-> x < off,P[coord,:])]
     Pplus = P[:,findall(x-> x > off,P[coord,:])]
@@ -9,13 +13,15 @@ function pointsetPartition(P, axis, off)
 end
 
 """
-The MakeFirstWallSimplex function selects the point p1 ∈ P nearest to the plane α. Then it selects a
+    MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Array{Int64,1}
+
+The MakeFirstWallSimplex function selects the point p1 ∈ `P` nearest to the plane `α`. Then it selects a
 second point p2 such that: (a) p2 is on the other side of α from p1 , and (b) p2 is the point in P with the
 minimum Euclidean distance from p1 . Then, it seeks the point p3 at which the radius of the circum-circle
 about 1-face (p1 , p2 ) and point p3 is minimized: the points (p1 , p2 , p3 ) are a 2-face of the DT(P). The
 process continues in the same way until the required first d-simplex is built.
 """
-function MakeFirstWallSimplex(P,axis,off)
+function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Array{Int64,1}
     #migliorare un po' il codice
     coord = findall(x->x==1,axis)[1]
     Pminus,Pplus = pointsetPartition(P, axis, off)
@@ -51,23 +57,58 @@ function MakeFirstWallSimplex(P,axis,off)
     p4 = P[:, index4]
     @assert p4!=p2 && p4!=p1 && p4!=p3 "FirstTetra, Planar dataset, unable to build first tetrahedron."
 
-    return [index1,index2,index3,index4] #gli indici devono essere quelli in P
+    return sort!([index1,index2,index3,index4]) #gli indici devono essere quelli in P
 end
 
-function Faces(t)
+"""
+    Faces(t::Array{Int64,1})::Array{Array{Int64,1},1}
 
+Return `d-1`-faces of a `d`-simplex.
+"""
+function Faces(t::Array{Int64,1})::Array{Array{Int64,1},1}
+    d = length(t)
+    return collect(Combinatorics.combinations(t, d-1))
 end
 
-function Intersect(f,α)
+"""
+	RightSide(point::Array{Float64,1}, axis::Array{Int8,1}, off::Float64)::Bool
 
+Return true if the point is in the half-space indicated by the normal.
+"""
+function RightSide(point::Array{Float64,1}, axis::Array{Int8,1}, off::Float64)::Bool
+	coord = findall(x->x==1,axis)[1]
+	return point[coord]>off
 end
 
-function NegHalfspace(α)
+"""
+	Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
 
-end
+Given a face f and a plane α returns
+ -   0 if f intersect α
+ -  -1 if f is completely contained in NegHalfspace(α)
+ -   1 if f is completely contained in PosHalfspace(α)
+"""
+function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
+	p1,p2,p3 = [P[:,i] for i in f]
 
-function PosHalfspace(α)
+	v1 = RightSide(p1, axis, off)
+	v2 = RightSide(p2, axis, off)
 
+	if v1 != v2
+		return 0;
+	end
+
+ 	v3 = RightSide(p3, axis, off);
+
+ 	if v1 != v3
+		return 0;
+    else
+		if v1
+			return  1;
+		else
+			return -1;
+		end
+	end
 end
 
 function MakeSimplex(f,P)
@@ -97,16 +138,16 @@ P. Cignoni, C. Montani, R. Scopigno
 CNUCE Internal Report C92/16 Oct 1992
 """
 #pseudocodice
-function DeWall(P::Lar.Points,AFL::face_list,axis::Array{Int64,1})::simplex_tassellation
+function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Int8,1})::simplex_tassellation
 
     @assert size(P,1) == 3  #in R^3
     @assert size(P,2) > 1 #almeno 2 punti
 
     # 0 - initialization of list
-    AFL_α = []      # (d-1)faces intersected by plane α;
-    AFLplus = []    # (d-1)faces completely contained in PosHalfspace(α);
-    AFLminus = []   # (d-1)faces completely contained in NegHalfspace(α).
-    DT = []
+    AFL_α = Array{Int64,1}[]      # (d-1)faces intersected by plane α;
+    AFLplus = Array{Int64,1}[]    # (d-1)faces completely contained in PosHalfspace(α);
+    AFLminus = Array{Int64,1}[]   # (d-1)faces completely contained in NegHalfspace(α).
+    DT = Array{Int64,1}[]
 
     # 1 - Select the splitting plane α; defined by axis and an origin point `off`
     coord = findall(x->x==1,axis)[1] #forse si può migliorare
@@ -115,36 +156,42 @@ function DeWall(P::Lar.Points,AFL::face_list,axis::Array{Int64,1})::simplex_tass
     numberPoint = size(sortP,2)
     off = (sortP[coord,floor(Int,numberPoint/2)] + sortP[coord,floor(Int,numberPoint/2)+1])/2
 
-    # 2 - construct Sα and the two subsets P− and P+ ;
+    # 2 - construct two subsets P− and P+ ;
     Pminus,Pplus = pointsetPartition(P, axis, off)
 
+	# 3 - construct first tetrahedra if necessary
     if isempty(AFL)
-        t = MakeFirstWallSimplex(P,axis,off) #ToDo
-        AFL = Faces(t) # d-1 - facce di t #ToDo
+        t = MakeFirstWallSimplex(P,axis,off) #ToDo da migliorare
+        AFL = Faces(t) # d-1 - faces of t
         push!(DT,t)
     end
+
     for f in AFL
-        if Intersect(f,α) #return true (se interseca) or false #ToDo
+		inters = Intersect(P, f, axis, off)
+        if inters == 0 #intersected by plane α
             push!(AFL_α,f)
-        elseif f in NegHalfspace(α) #ToDo
+        elseif inters == -1 #in NegHalfspace(α)
             push!(AFLminus,f)
-        elseif f in PosHalfspace(α) #ToDo
+        elseif inters == 1 #in PosHalfspace(α)
             push!(AFLplus,f)
         end
     end
+
+	# 4 - construct Sα, simplexWall
     while !isempty(AFL_α) #The Sα construction terminates when the AFL_α is empty
         f = popfirst!(AFL_α)
         t = MakeSimplex(f,P) # return nothing iff f is in ConvexHull #ToDo
         if t != nothing
             push!(upper_simplex,t)
-            for ff in Faces(t)-f #ToDo
-                    if Intersect(f,α)
-                        Update(ff,AFL_α)
-                    elseif ff in NegHalfspace(α)
-                        Update(ff,AFLminus)
-                    elseif ff in PosHalfspace(α)
-                        Update(ff,AFLplus)
-                    end
+            for ff in setdiff(Faces(t),[f])
+				inters = Intersect(P, f, axis, off)
+                if inters == 0
+                    Update(ff,AFL_α)
+                elseif inters == -1
+                    Update(ff,AFLminus)
+                elseif inters == 1
+                    Update(ff,AFLplus)
+                end
             end
         end
     end
