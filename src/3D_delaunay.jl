@@ -47,7 +47,7 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64):
     minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
     index3 = findall(x->x == minRad, radius)[1]
     p3 = P[:, index3]
-    @assert p3!=p2 && p3!=p1 "FirstTetra, Planar dataset, unable to build first tetrahedron."
+    @assert p3 != p2 && p3 != p1 "FirstTetra, Planar dataset, unable to build first tetrahedron."
 
     #The 4th point is that with previous ones builds the smallest sphere.
     #for point in P
@@ -55,7 +55,7 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64):
     minRadSph = min(filter(p-> !isnan(p) && p!=0,radiusSphere)...)
     index4 = findall(x->x == minRadSph, radiusSphere)[1]
     p4 = P[:, index4]
-    @assert p4!=p2 && p4!=p1 && p4!=p3 "FirstTetra, Planar dataset, unable to build first tetrahedron."
+    @assert p4 != p2 && p4 != p1 && p4 != p3 "FirstTetra, Planar dataset, unable to build first tetrahedron."
 
     return sort!([index1,index2,index3,index4]) #gli indici devono essere quelli in P
 end
@@ -77,7 +77,7 @@ Return true if the point is in the half-space indicated by the normal.
 """
 function RightSide(point::Array{Float64,1}, axis::Array{Int8,1}, off::Float64)::Bool
 	coord = findall(x->x==1,axis)[1]
-	return point[coord]>off
+	return point[coord] > off
 end
 
 """
@@ -137,7 +137,6 @@ P. Cignoni, C. Montani, R. Scopigno
 "A Merge-First Divide and Conquer Algorithm for E^d  Delaunay Triangulation"
 CNUCE Internal Report C92/16 Oct 1992
 """
-#pseudocodice
 function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Int8,1})::simplex_tassellation
 
     @assert size(P,1) == 3  #in R^3
@@ -186,11 +185,11 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Int8,1}):
             for ff in setdiff(Faces(t),[f])
 				inters = Intersect(P, f, axis, off)
                 if inters == 0
-                    Update(ff,AFL_α)
+                    Update(ff,AFL_α) #ToDO
                 elseif inters == -1
-                    Update(ff,AFLminus)
+                    Update(ff,AFLminus) #ToDO
                 elseif inters == 1
-                    Update(ff,AFLplus)
+                    Update(ff,AFLplus) #ToDO
                 end
             end
         end
@@ -198,10 +197,10 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Int8,1}):
 
     newaxis = circshift(axis,1)
     if !isempty(AFLminus)
-        DT = union(DT,DeWall(Pminus,AFLminus,newaxis))
+        DT = union(DT,DeWall(Pminus,AFLminus,newaxis)) #ToDO
     end
     if !isempty(AFLplus)
-        DT = union(DT,DeWall(Pplus,AFLplus,newaxis))
+        DT = union(DT,DeWall(Pplus,AFLplus,newaxis)) #ToDO
     end
     return DT
 end
