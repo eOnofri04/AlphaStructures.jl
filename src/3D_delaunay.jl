@@ -1,8 +1,11 @@
 # α è un piano perpendicolare agli assi e che si sposta a metà del pointset,
 # piano ortogonale ad ogni chiamata di dewall
 
-function pointsetPartition(P,α)
-
+function pointsetPartition(P, axis, off)
+    coord = findall(x->x==1,axis)[1]
+    Pminus = P[:,findall(x-> x < off,P[coord,:])]
+    Pplus = P[:,findall(x-> x > off,P[coord,:])]
+    return Pminus,Pplus
 end
 
 function MakeFirstWallSimplex(P,α)
@@ -22,7 +25,7 @@ function NegHalfspace(α)
 end
 
 function PosHalfspace(α)
-
+    
 end
 
 function MakeSimplex(f,P)
@@ -52,14 +55,29 @@ P. Cignoni, C. Montani, R. Scopigno
 CNUCE Internal Report C92/16 Oct 1992
 """
 #pseudocodice
-function DeWall(P::Lar.Points,AFL::face_list,α::plane)::simplex_tassellation
-    AFL_α = []
-    AFLplus = []
-    AFLminus = []
+function DeWall(P::Lar.Points,AFL::face_list,axis::Array{Int64,1})::simplex_tassellation
+
+    @assert size(P,1) == 3  #in R^3
+    @assert size(P,2) > 1 #almeno 2 punti
+
+    # 0 - initialization of list
+    AFL_α = []      #
+    AFLplus = []    # face list:
+    AFLminus = []   #
     DT = []
-    Pminus,Pplus = pointsetPartition(P,α) #ToDo
+
+    # 1 - Define plane α by axis and a origin point off
+    coord = findall(x->x==1,axis)[1] #forse si può migliorare
+    cols = sortperm(P[coord,:])
+    sortP = P[:,cols]
+    numberPoint = size(sortP,2)
+    off = (sortP[coord,floor(Int,numberPoint/2)] + sortP[coord,floor(Int,numberPoint/2)+1])/2
+
+    # 2 - Partition of pointset
+    Pminus,Pplus = pointsetPartition(P, axis, off)
+
     if isempty(AFL)
-        t = MakeFirstWallSimplex(P,α)#ToDo
+        t = MakeFirstWallSimplex(P,α) #ToDo
         AFL = Faces(t) # d-1 - facce di t #ToDo
         push!(DT,t)
     end
@@ -88,11 +106,13 @@ function DeWall(P::Lar.Points,AFL::face_list,α::plane)::simplex_tassellation
             end
         end
     end
+
+    newaxis = circshift(axis,1)
     if !isempty(AFLminus)
-        DT = union(DT,DeWall(Pminus,AFLminus))
+        DT = union(DT,DeWall(Pminus,AFLminus,newaxis))
     end
     if !isempty(AFLplus)
-        DT = union(DT,DeWall(Pplus,AFLplus))
+        DT = union(DT,DeWall(Pplus,AFLplus,newaxis))
     end
     return DT
 end
