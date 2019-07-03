@@ -1,6 +1,20 @@
 # α è un piano perpendicolare agli assi e che si sposta a metà del pointset,
 # piano ortogonale ad ogni chiamata di dewall
 """
+    SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
+
+Return threshold value to split pointset `P`.
+"""
+function SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
+	coord = findall(x->x==1,axis)[1]
+    cols = sortperm(P[coord,:])
+    sortP = P[:,cols]
+    numberPoint = size(sortP,2)
+    off = (sortP[coord,floor(Int,numberPoint/2)] + sortP[coord,floor(Int,numberPoint/2)+1])/2
+    return off
+end
+
+"""
     pointsetPartition(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
 
 Return two subsets of pointset `P` split by α plane defined by `axis` and `off`.
@@ -89,6 +103,7 @@ Given a face f and a plane α returns
  -   1 if f is completely contained in PosHalfspace(α)
 """
 function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
+
 	p1,p2,p3 = [P[:,i] for i in f]
 
 	v1 = RightSide(p1, axis, off)
@@ -111,14 +126,27 @@ function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::F
 	end
 end
 
+"""
+Given a face f , the adjacent simplex can be identified by using the Delaunay simplex definition: all
+the points p ∈ P are tested by checking the radius of the hypersphere which circumscribes p and the d
+vertices of f . In the pseudo code in Figure 3 the function MakeSimplex implements the adjacent simplex
+construction. The analysis of the points p ∈ P is limited by considering only those points which lie
+in the outer halfspace with respect to face f (i.e. the halfspace which does not contain the previously
+generated simplex that contains the face f ). MakeSimplex selects the point which minimizes the function
+dd (Delaunay distance):
+with r and c the radius and the center of the circumsphere around f and p. The outer halfspace associated
+with f contains no point iff, face f is part of the Convex Hull of the pointset P ; in this case the algorithm
+correctly returns no adjacent simplex and, in this case only, M akeSimplex returns null.
+"""
 function MakeSimplex(f,P)
-
+	#ToDo
 end
 
 function Update(element,list)
     if element ∈ list
         setdiff!(list, [element])
     else push!(list,element)
+	end
 end
 
 """
@@ -149,11 +177,7 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Int8,1}):
     DT = Array{Int64,1}[]
 
     # 1 - Select the splitting plane α; defined by axis and an origin point `off`
-    coord = findall(x->x==1,axis)[1] #forse si può migliorare
-    cols = sortperm(P[coord,:])
-    sortP = P[:,cols]
-    numberPoint = size(sortP,2)
-    off = (sortP[coord,floor(Int,numberPoint/2)] + sortP[coord,floor(Int,numberPoint/2)+1])/2
+    off = AlphaShape.SplitValue(P,axis)
 
     # 2 - construct two subsets P− and P+ ;
     Pminus,Pplus = pointsetPartition(P, axis, off)
