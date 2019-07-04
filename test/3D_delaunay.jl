@@ -72,6 +72,10 @@ end
 end
 
 @testset "Update" begin
+	@test AlphaShape.Update(1,[2,3,4]) == [2,3,4,1]
+	@test AlphaShape.Update(4,[2,3,4]) == [2,3]
+	@test AlphaShape.Update([3,4],[[1,2],[2,3]]) == [[1,2],[2,3],[3,4]]
+	@test AlphaShape.Update([1,2],[[1,2],[2,3]]) == [[2,3]]
 end
 
 @testset "DeWall" begin
