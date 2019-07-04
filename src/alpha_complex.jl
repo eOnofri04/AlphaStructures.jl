@@ -36,7 +36,9 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
 
 	elseif dim == 3
-		# To Do
+		axis = [1.,0.,0.]
+		AFL = Array{Int64,1}[]
+		upper_simplex = AlphaShape.DeWall(V,AFL,axis)
 	end
 
 	sort!.(upper_simplex)

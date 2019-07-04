@@ -6,9 +6,10 @@
 Return    if the point is in the half-space indicated by plane defined by normal `axis` and point `off`.
 """
 function SidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
-	if Lar.dot(point,axis) == off return 0
-	elseif Lar.dot(point,axis) > off return 1
-	elseif Lar.dot(point,axis) < off return -1
+	side = round(Lar.dot(point,axis), sigdigits = 14)
+	if  side == off return 0
+	elseif side > off return 1
+	elseif side < off return -1
 	end
 end
 
@@ -33,7 +34,7 @@ end
 Return two subsets of pointset `P` split by α plane defined by `axis` and `off`.
 """
 function pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
-	side = [SidePlane(P[:,i],axis,off) for i = 1:size(P,2)]
+	side = [AlphaShape.SidePlane(P[:,i],axis,off) for i = 1:size(P,2)]
 	Pminus = P[:,side.== -1 ]
     Pplus = P[:,side.== 1]
     return Pminus,Pplus

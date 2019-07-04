@@ -79,4 +79,16 @@ end
 end
 
 @testset "DeWall" begin
+	AFL = Array{Int64,1}[]
+	axis = [1.,0.,0.]
+	P = [  -1.  1    1.5  2   ;
+			0.  0.2  1.3  1.  ;
+			0.  0.   0.   1.   ]
+
+	@test AlphaShape.DeWall(P,AFL,axis) == [[1,2,3,4]]
+
+	T = [  -1. -2. 3.  4.  5. -6.  ;
+			0.  1. 3. -2. -4.  2.  ;
+			1.  8. -5.  7.  4.  3.  ]
+	@test length(AlphaShape.DeWall(T,AFL,axis)) == 11
 end
