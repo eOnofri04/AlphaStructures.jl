@@ -8,7 +8,7 @@ With `AlphaShape.jl` you can:
  - build the ``\alpha``-Complex of a point cloud
  - find some basics about Persistent Homology evaluation of a cloud of points
 
-In this documentation we present the problem and the related solution we have implemented so far both from the mathematical and the computer science point of view.
+In this documentation we present the problem and the related solution we have implemented so far both from the mathematical [EM92] and the computer science [Ede14] point of view.
 
 
 ## Dependencies
