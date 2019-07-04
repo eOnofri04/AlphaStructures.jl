@@ -14,8 +14,6 @@
 #		)::Array{Lar.Cells,1}
 #
 
-using DataStructures,Combinatorics
-
 """
 	delaunayTriangulation(V::Lar.Points)::Lar.Cells
 

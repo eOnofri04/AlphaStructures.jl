@@ -36,11 +36,13 @@ about 1-face (p1 , p2 ) and point p3 is minimized: the points (p1 , p2 , p3 ) ar
 process continues in the same way until the required first d-simplex is built.
 """
 function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Array{Int64,1}
-    #migliorare un po' il codice
+
 	d = size(P,1)+1 # dimension of upper_simplex
-    coord = findall(x -> x == 1, axis)[1]
-    Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
 	indices = Int64[]
+
+	coord = findall(x -> x == 1, axis)[1]
+    Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
+
     #The first point of the face is the nearest to middle plane in negative halfspace.
     #for point in Pminus
     maxcoord = max( Pminus[coord,:]...)
@@ -57,8 +59,8 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64):
     index = findall(x -> x == [p2...], [P[:,i] for i = 1:size(P,2)])[1]
 	push!(indices,index)
 
-    #The 3rd point is that with previous ones builds the smallest circle.
-    #for point in P
+    #The other points are that with previous ones builds the smallest hypersphere.
+
 	simplexPoint = [p1,p2]
 	for dim = 3:d
 		radius = [AlphaShape.foundAlpha([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
@@ -70,7 +72,7 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64):
 		push!(indices,index)
 	end
 
-    return sort!(indices) #gli indici devono essere quelli in P
+    return sort(indices)
 end
 
 """

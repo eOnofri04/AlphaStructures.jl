@@ -1,5 +1,5 @@
 module AlphaShape
-	using LinearAlgebraicRepresentation, Triangle, Combinatorics
+	using LinearAlgebraicRepresentation, Triangle, Combinatorics, DataStructures
 	Lar = LinearAlgebraicRepresentation
 
 	include("alpha_complex.jl")
