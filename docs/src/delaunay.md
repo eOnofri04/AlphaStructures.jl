@@ -10,7 +10,7 @@ Usually Delaunay triangulation is built over the euclidean metric (also known as
 ```math
 	d(P, Q) = \|P-Q\|_2 = \sqrt{(\sum_{i=1}^D (P[i] - Q[i])^2)}
 ```
-however Delaunay triangulation coul be obtained even using other kind of metrics.
+however it could be obtained using any kind of metrics (The esistence and the uniqueness are not guaranteed).
 
 
 ## Properties
