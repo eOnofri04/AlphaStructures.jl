@@ -4,13 +4,11 @@
     SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
 
 Return threshold value to split pointset `P`.
+
 """
 function SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
 	coord = findall(x->x==1,axis)[1]
-    cols = sortperm(P[coord,:])
-    sortP = P[:,cols]
-    numberPoint = size(sortP,2)
-    off = (sortP[coord,floor(Int,numberPoint/2)] + sortP[coord,floor(Int,numberPoint/2)+1])/2
+	off = sum(P[coord,:])/size(P,2)
     return off
 end
 
@@ -52,7 +50,7 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64):
     minDist = min(filter(p-> !isnan(p) && p!=0,distance)...)
     ind2 = findall(x->x == minDist, distance)[1]
     p2 = Pplus[:, ind2]
-    index2 = findall(x->x == [p2...], [P[:,i] for i =1:size(P,2)])[1]
+    index2 = findall(x->x == [p2...], [P[:,i] for i = 1:size(P,2)])[1]
 
 
     #The 3rd point is that with previous ones builds the smallest circle.
@@ -69,7 +67,7 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64):
     minRadSph = min(filter(p-> !isnan(p) && p!=0,radiusSphere)...)
     index4 = findall(x->x == minRadSph, radiusSphere)[1]
     p4 = P[:, index4]
-    @assert p4 != p2 && p4 != p1 && p4 != p3 "FirstTetra, Planar dataset, unable to build first tetrahedron."
+    @assert p4 != p1 && p4 != p2 && p4 != p3 "FirstTetra, Planar dataset, unable to build first tetrahedron."
 
     return sort!([index1,index2,index3,index4]) #gli indici devono essere quelli in P
 end
@@ -147,6 +145,7 @@ function Update(element,list)
         setdiff!(list, [element])
     else push!(list,element)
 	end
+	return list
 end
 
 """
@@ -209,11 +208,11 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Int8,1}):
             for ff in setdiff(Faces(t),[f])
 				inters = Intersect(P, f, axis, off)
                 if inters == 0
-                    Update(ff,AFL_α) #ToDO
+                    AFL_α = Update(ff,AFL_α) #ToDO
                 elseif inters == -1
-                    Update(ff,AFLminus) #ToDO
+                    AFLminus = Update(ff,AFLminus) #ToDO
                 elseif inters == 1
-                    Update(ff,AFLplus) #ToDO
+                    AFLplus = Update(ff,AFLplus) #ToDO
                 end
             end
         end
