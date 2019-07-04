@@ -1,17 +1,14 @@
-# Installation
+# 2 - Installation
 
 If you have not done so already, download and install [Julia](https://julialang.org/downloads/).
 
-This package was developed with `julia 1.1.0` but it should be supported also on `julia 0.6.4`.
-
+This package was developed with `julia 1.1.0` ([![Build Status Julia-1.1](https://travis-ci.org/eOnofri04/AlphaShape.jl.svg?branch=master)](https://travis-ci.org/eOnofri04/AlphaShape.jl)) but it should be supported also on `julia 0.6.4`.
 
 To install AlphaShape package first you have to download [this](https://github.com/eOnofri04/AlphaShape.jl) repository.
 
-Then start julia and navigate to the folder called `AlphaShape.jl` (with the command `;cd`);
-here run
+Then start julia and navigate to the folder called `AlphaShape.jl` (with the command `;cd`); here run:
 ```julia
 include("src/AlphaShape.jl")
-using AlphaShape
 ```
 
 If you want, you can test if everithyng is working fine by running
