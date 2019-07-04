@@ -4,11 +4,13 @@
     SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
 
 Return threshold value to split pointset `P`.
-
 """
 function SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
 	coord = findall(x->x==1,axis)[1]
-	off = sum(P[coord,:])/size(P,2)
+	valueP = sort(unique(P[coord,:]))
+	@assert length(valueP) > 1 "not exist splitting plane"
+    numberPoint = length(valueP)
+    off = (valueP[floor(Int,numberPoint/2)] + valueP[floor(Int,numberPoint/2)+1])/2
     return off
 end
 
@@ -35,41 +37,40 @@ process continues in the same way until the required first d-simplex is built.
 """
 function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Array{Int64,1}
     #migliorare un po' il codice
-    coord = findall(x->x==1,axis)[1]
-    Pminus,Pplus = pointsetPartition(P, axis, off)
-
+	d = size(P,1)+1 # dimension of upper_simplex
+    coord = findall(x -> x == 1, axis)[1]
+    Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
+	indices = Int64[]
     #The first point of the face is the nearest to middle plane in negative halfspace.
     #for point in Pminus
     maxcoord = max( Pminus[coord,:]...)
-    index1 = findall(x->x==maxcoord,P[coord,:])[1]
-    p1 = P[:,index1]
+    index = findall(x -> x == maxcoord, P[coord,:])[1]
+    p1 = P[:,index]
+	push!(indices,index)
 
     #The 2nd point of the face is the euclidean nearest to first point that is in the positive halfspace
     #for point in Pplus
     distance = [Lar.norm(p1-Pplus[:,i]) for i = 1:size(Pplus,2)]
     minDist = min(filter(p-> !isnan(p) && p!=0,distance)...)
-    ind2 = findall(x->x == minDist, distance)[1]
+    ind2 = findall(x -> x == minDist, distance)[1]
     p2 = Pplus[:, ind2]
-    index2 = findall(x->x == [p2...], [P[:,i] for i = 1:size(P,2)])[1]
-
+    index = findall(x -> x == [p2...], [P[:,i] for i = 1:size(P,2)])[1]
+	push!(indices,index)
 
     #The 3rd point is that with previous ones builds the smallest circle.
     #for point in P
-    radius = [AlphaShape.foundAlpha([p1,p2,P[:,i]]) for i = 1:size(P,2)]
-    minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
-    index3 = findall(x->x == minRad, radius)[1]
-    p3 = P[:, index3]
-    @assert p3 != p2 && p3 != p1 "FirstTetra, Planar dataset, unable to build first tetrahedron."
+	simplexPoint = [p1,p2]
+	for dim = 3:d
+		radius = [AlphaShape.foundAlpha([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
+    	minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
+    	index = findall(x->x == minRad, radius)[1]
+    	p = P[:, index]
+		@assert p ∉ simplexPoint  "FirstTetra, Planar dataset, unable to build first tetrahedron."
+		push!(simplexPoint,p)
+		push!(indices,index)
+	end
 
-    #The 4th point is that with previous ones builds the smallest sphere.
-    #for point in P
-    radiusSphere = [AlphaShape.foundAlpha([p1,p2,p3,P[:,i]]) for i = 1:size(P,2)]
-    minRadSph = min(filter(p-> !isnan(p) && p!=0,radiusSphere)...)
-    index4 = findall(x->x == minRadSph, radiusSphere)[1]
-    p4 = P[:, index4]
-    @assert p4 != p1 && p4 != p2 && p4 != p3 "FirstTetra, Planar dataset, unable to build first tetrahedron."
-
-    return sort!([index1,index2,index3,index4]) #gli indici devono essere quelli in P
+    return sort!(indices) #gli indici devono essere quelli in P
 end
 
 """
