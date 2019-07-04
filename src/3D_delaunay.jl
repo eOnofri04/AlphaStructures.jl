@@ -1,21 +1,22 @@
 # α è un piano perpendicolare agli assi e che si sposta a metà del pointset,
 # piano ortogonale ad ogni chiamata di dewall
 """
-	RightSide(point::Array{Float64,1}, axis::Array{Int8,1}, off::Float64)::Bool
+	RightSide(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Bool
 
-Return true if the point is in the half-space indicated by the normal.
+Return `true` if the point is in the half-space indicated by plane defined by normal `axis` and point `off`.
 """
-function RightSide(point::Array{Float64,1}, axis::Array{Int8,1}, off::Float64)::Bool
+function RightSide(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Bool
 	return Lar.dot(point,axis) > off
 end
 
 """
-    SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
+    SplitValue(P::Lar.Points, axis::Array{Float64,1})::Float64
 
 Return threshold value to split pointset `P`.
 """
-function SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
-	coord = findall(x->x==1,axis)[1]
+#DA RIVEDERE
+function SplitValue(P::Lar.Points, axis::Array{Float64,1})::Float64
+	coord = Int64(findall(x->x==1,axis)[1])
 	valueP = sort(unique(P[coord,:]))
 	@assert length(valueP) > 1 "not exist splitting plane"
     numberPoint = length(valueP)
@@ -24,11 +25,11 @@ function SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
 end
 
 """
-    pointsetPartition(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
+    pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
 
 Return two subsets of pointset `P` split by α plane defined by `axis` and `off`.
 """
-function pointsetPartition(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
+function pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
 	right = [RightSide(P[:,i],axis,off) for i = 1:size(P,2)]
 	left = .![RightSide(P[:,i],axis,off) for i = 1:size(P,2)]
 	Pminus = P[:,left]
@@ -37,7 +38,7 @@ function pointsetPartition(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Tu
 end
 
 """
-    MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Array{Int64,1}
+    MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
 
 The MakeFirstWallSimplex function selects the point p1 ∈ `P` nearest to the plane `α`. Then it selects a
 second point p2 such that: (a) p2 is on the other side of α from p1 , and (b) p2 is the point in P with the
@@ -45,7 +46,7 @@ minimum Euclidean distance from p1 . Then, it seeks the point p3 at which the ra
 about 1-face (p1 , p2 ) and point p3 is minimized: the points (p1 , p2 , p3 ) are a 2-face of the DT(P). The
 process continues in the same way until the required first d-simplex is built.
 """
-function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Array{Int64,1}
+function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
 
 	d = size(P,1)+1 # dimension of upper_simplex
 	indices = Int64[]
@@ -103,7 +104,7 @@ Given a face f and a plane α returns
  -  -1 if f is completely contained in NegHalfspace(α)
  -   1 if f is completely contained in PosHalfspace(α)
 """
-function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
+function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Float64,1}, off::Float64)::Int64
 
 	p1,p2,p3 = [P[:,i] for i in f]
 
@@ -140,11 +141,33 @@ with f contains no point iff, face f is part of the Convex Hull of the pointset 
 correctly returns no adjacent simplex and, in this case only, M akeSimplex returns null.
 """
 function MakeSimplex(f,P)
-	#devo dividere il pointser in punti sopra e sotto la faccia
-	#e cercare nei due insiemi il minimo raggio della sfera che si cerca
-	plane = Lar.cross(P[:,f[2]]-P[:,f[1]],P[:,f[3]]-P[:,f[1]])
+	df = length(f) 	#dimension face
+	d = size(P,1)+1 #dimension upper_simplex
+	axis = Lar.cross(P[:,f[2]]-P[:,f[1]],P[:,f[3]]-P[:,f[1]])
 	off = Lar.dot(plane,P[:,f[1]])
+	Pminus,Pplus = AlphaShape.pointsetPartition(P,axis,off)
 
+	for dim = df+1:d
+		radius = [AlphaShape.foundAlpha([simplexPoint...,Pminus[:,i]]) for i = 1:size(P,2)]
+    	minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
+    	index = findall(x->x == minRad, radius)[1]
+    	p = P[:, index]
+		@assert p ∉ simplexPoint  "FirstTetra, Planar dataset, unable to build first tetrahedron."
+		push!(simplexPoint,p)
+		push!(indices,index)
+	end
+
+	for dim = df+1:d
+		radius = [AlphaShape.foundAlpha([simplexPoint...,Pplus[:,i]]) for i = 1:size(P,2)]
+    	minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
+    	index = findall(x->x == minRad, radius)[1]
+    	p = P[:, index]
+		@assert p ∉ simplexPoint  "FirstTetra, Planar dataset, unable to build first tetrahedron."
+		push!(simplexPoint,p)
+		push!(indices,index)
+	end
+
+    return sort(indices)
 
 end
 
@@ -172,7 +195,7 @@ P. Cignoni, C. Montani, R. Scopigno
 "A Merge-First Divide and Conquer Algorithm for E^d  Delaunay Triangulation"
 CNUCE Internal Report C92/16 Oct 1992
 """
-function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Int8,1})::simplex_tassellation
+function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::simplex_tassellation
 
     @assert size(P,1) == 3  #in R^3
     @assert size(P,2) > 1 #almeno 2 punti
