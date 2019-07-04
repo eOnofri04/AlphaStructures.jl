@@ -1,4 +1,4 @@
-B - Bibliography
+# B - Bibliography
 
 [CT98] M. Teichmann and M. Capps. Surface reconstruction with anisotropic density-scaled alpha-shapes. In IEEE Visualization ’98 Proceedings, pages 67–72, San Francisco, CA, October 1998. ACM/SIGGRAPH Press.
 

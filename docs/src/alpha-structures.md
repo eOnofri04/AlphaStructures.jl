@@ -12,7 +12,7 @@ This problem also could be solved in many ways: ``\alpha``-complexes are one of 
 As Edelbrunner and Mücke said in their paper [EM92] ``\alpha``-shapes could be thinked as the following.
 Imagine a huge mass of ice-cream making up the space ``\mathbb R^d`` and containing the points ``S`` as "hard" chocolate pieces. Using one of these sphere-formed ice-cream spoons we carve out all parts of the ice-cream block we can reach without bumping into chocolate pieces, thereby even carving out holes in the inside (*eg.* parts not reachable by simply moving the spoon from the outside). We will eventually end up with a (not necessarily convex) object bounded by caps, arcs and points; we will call this object ``\alpha``-hull of ``S``. If we now straighten all "round" faces to triangles and line segments, we have an intuitive description of what is called the ``\alpha``-shape of ``S``, denoted by ``\mathcal T``.
 
-But what is ``\alpha`` after all? In the ice-cream analogy above, ``\alpha`` is the squared radius of the carving spoon. A very small value will allow us to eat up all of the ice-cream except the chocolate points themselves. Thus for ``\alpha \to 0`` the alpha shape degenerates to the sites set ``S``. On the other hand, a huge value of ``\alpha`` will prevent us even from moving the spoon between two points since it is too large and we will never spoon up the ice-cream lying in the inside of the convex hull of ``S``. Hence, the ``\alpha``-shape becomes the convex hull of ``S`` as ``\alpha \to \infty``.
+But what is ``\alpha`` after all? In the ice-cream analogy above, ``\alpha`` is the squared radius of the carving spoon. A very small value will allow us to eat up all of the ice-cream except the chocolate points themselves. Thus for ``\alpha \to 0`` the ``\alpha`` shape degenerates to the sites set ``S``. On the other hand, a huge value of ``\alpha`` will prevent us even from moving the spoon between two points since it is too large and we will never spoon up the ice-cream lying in the inside of the convex hull of ``S``. Hence, the ``\alpha``-shape becomes the convex hull of ``S`` as ``\alpha \to \infty``.
 
 
 
@@ -81,7 +81,7 @@ We now introduce the case of study of what happends if we vary the ``\alpha`` va
 
 The first observation we could make is that the bigger is the value ``\alpha`` the more simplices get into the complex ``\mathcal A``.
 
-It is although pretty clear that if a simplex is in ``\mathcal A`` for a certain ``\alpha`` than it will be in ``\mathcal A`` for every ``\alpha' \geq \alpha``. It then makes sense to search for the first value ``alpha`` such that each single simplex ``\sigma`` gets inside ``\mathcal A``. We will define it as:
+It is although pretty clear that if a simplex is in ``\mathcal A`` for a certain ``\alpha`` than it will be in ``\mathcal A`` for every ``\alpha' \geq \alpha``. It then makes sense to search for the first value ``\alpha`` such that each single simplex ``\sigma`` gets inside ``\mathcal A``. We will define it as:
 
 !!! definition
     Let ``\mathcal A_\infty(S) \equiv \mathcal D(S)`` the Delaunay complex of ``S``. For each simplex ``\sigma \in \mathcal D(S)`` we define the _charateristical ``\alpha`` of ``\sigma``_ like the infimum ``\alpha`` such that ``\sigma \in \mathcal A_\alpha(S)``:
@@ -89,7 +89,7 @@ It is although pretty clear that if a simplex is in ``\mathcal A`` for a certain
         \alpha_\sigma = \inf_{\alpha \geq 0}\{\sigma \in \mathcal A_\alpha(S)\}
     ```
 
-This last definition gives us a better way to build up the ``alpha``-Complex:
+This last definition gives us a better way to build up the ``\alpha``-Complex:
 ```math
     \mathcal A = \{\sigma \in \mathcal D(S) \mid \alpha_\sigma \leq \alpha\}
 ```
