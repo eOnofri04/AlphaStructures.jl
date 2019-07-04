@@ -3,7 +3,10 @@
 """
 	RightSide(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
 
-Return    if the point is in the half-space indicated by plane defined by normal `axis` and point `off`.
+Return
+	- `0`  if the point is on plane defined by normal `axis` and point `off`.
+	- `1`  if the point is in the positive half-space indicated by plane defined by normal `axis` and point `off`.
+	- `-1`  if the point is in the negatice half-space indicated by plane defined by normal `axis` and point `off`.
 """
 function SidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
 	side = round(Lar.dot(point,axis), sigdigits = 14)
@@ -133,6 +136,8 @@ function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Float64,1}, off
 end
 
 """
+	MakeSimplex(f::Array{Int64,1},P::Lar.Points)
+
 Given a face f , the adjacent simplex can be identified by using the Delaunay simplex definition: all
 the points p ∈ P are tested by checking the radius of the hypersphere which circumscribes p and the d
 vertices of f . In the pseudo code in Figure 3 the function MakeSimplex implements the adjacent simplex
@@ -145,7 +150,7 @@ with f contains no point iff, face f is part of the Convex Hull of the pointset 
 correctly returns no adjacent simplex and, in this case only, M akeSimplex returns null.
 """
 function MakeSimplex(f::Array{Int64,1},P::Lar.Points)
-
+	#DA MIGLIORARE
 	df = length(f) 	#dimension face
 	d = size(P,1)+1 #dimension upper_simplex
 	axis = Lar.cross(P[:,f[2]]-P[:,f[1]],P[:,f[3]]-P[:,f[1]])
@@ -192,20 +197,10 @@ function Update(element,list)
 end
 
 """
- DeWall
+	DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
 
- Given a vector v of n Point3 this function returns the tetrahedra list
- of the Delaunay triangulation of points. This Functions uses the
- MergeFirst Divide and Conquer algorithm DeWall [Cignoni 92].
-
- This algorithm make use of Speed up techniques suggested in the paper
- yelding an average linear performance (against a teorethical cubic worst
- case.
-
- [Cignoni 92]
-P. Cignoni, C. Montani, R. Scopigno
-"A Merge-First Divide and Conquer Algorithm for E^d  Delaunay Triangulation"
-CNUCE Internal Report C92/16 Oct 1992
+ Given a set of points this function returns the tetrahedra list
+ of the Delaunay triangulation.
 """
 function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
 
