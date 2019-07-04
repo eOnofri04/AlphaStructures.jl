@@ -1,6 +1,6 @@
 # 3.3 - Introduction to ``\alpha``-Structures
 
-Let ``S`` a set of ``n`` sites in ``\mathbb R^D`` (finite).
+Let as usual ``S`` a set of ``n`` sites in ``\mathbb R^D`` (finite).
 Since we are interested in real situation we will restrict to the case ``D \in \{2, 3\}``; however the following description could be simply enlarged for a general ``D`` value.
 
 Suppose we want to build is something like "the shape formed by these points".
@@ -19,8 +19,6 @@ But what is ``\alpha`` after all? In the ice-cream analogy above, ``\alpha`` is 
 ## Gemoetrical Concept
 
 We will shortly discuss all the geometrical concepts that are needed to understand what an ``\alpha``-structure is.
-
-In the following we assume that the set of sites ``S`` is made of points in a general position (no ``d+2`` points of ``S`` lie on a common ball). Of course this condition is not general (regardless of the name); however there’s a technique called SoS which "simulates an infinitesimal perturbation of the points", so that they are in general position afterwards.
 
 
 
@@ -97,7 +95,7 @@ This last definition gives us a better way to build up the ``alpha``-Complex:
 ```
 
 In particular this will be the key we use in our algorith to evaluate the ``\alpha``-structures.
-We will describe more precisely how to evaluate the charateristical ``\alpha`` in the _"... and Practice > Alpha Structures Implementation"_ [section](https://eonofri04.github.io/AlphaShape.jl/alpha-structures-impl/).
+We will describe more precisely how to evaluate the charateristical ``\alpha`` in the _"Alpha Structures Implementation"_ [section 4.2](https://eonofri04.github.io/AlphaShape.jl/alpha-structures-impl/).
 
 ## Other ``\alpha``-structures
 
