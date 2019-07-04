@@ -1,6 +1,15 @@
 # α è un piano perpendicolare agli assi e che si sposta a metà del pointset,
 # piano ortogonale ad ogni chiamata di dewall
 """
+	RightSide(point::Array{Float64,1}, axis::Array{Int8,1}, off::Float64)::Bool
+
+Return true if the point is in the half-space indicated by the normal.
+"""
+function RightSide(point::Array{Float64,1}, axis::Array{Int8,1}, off::Float64)::Bool
+	return Lar.dot(point,axis) > off
+end
+
+"""
     SplitValue(P::Lar.Points, axis::Array{Int8,1})::Float64
 
 Return threshold value to split pointset `P`.
@@ -20,9 +29,10 @@ end
 Return two subsets of pointset `P` split by α plane defined by `axis` and `off`.
 """
 function pointsetPartition(P::Lar.Points, axis::Array{Int8,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
-    coord = findall(x->x==1,axis)[1]
-    Pminus = P[:,findall(x-> x < off,P[coord,:])]
-    Pplus = P[:,findall(x-> x > off,P[coord,:])]
+	right = [RightSide(P[:,i],axis,off) for i = 1:size(P,2)]
+	left = .![RightSide(P[:,i],axis,off) for i = 1:size(P,2)]
+	Pminus = P[:,left]
+    Pplus = P[:,right]
     return Pminus,Pplus
 end
 
@@ -86,16 +96,6 @@ function Faces(t::Array{Int64,1})::Array{Array{Int64,1},1}
 end
 
 """
-	RightSide(point::Array{Float64,1}, axis::Array{Int8,1}, off::Float64)::Bool
-
-Return true if the point is in the half-space indicated by the normal.
-"""
-function RightSide(point::Array{Float64,1}, axis::Array{Int8,1}, off::Float64)::Bool
-	coord = findall(x->x==1,axis)[1]
-	return point[coord] > off
-end
-
-"""
 	Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
 
 Given a face f and a plane α returns
@@ -140,7 +140,12 @@ with f contains no point iff, face f is part of the Convex Hull of the pointset 
 correctly returns no adjacent simplex and, in this case only, M akeSimplex returns null.
 """
 function MakeSimplex(f,P)
-	#ToDo
+	#devo dividere il pointser in punti sopra e sotto la faccia
+	#e cercare nei due insiemi il minimo raggio della sfera che si cerca
+	plane = Lar.cross(P[:,f[2]]-P[:,f[1]],P[:,f[3]]-P[:,f[1]])
+	off = Lar.dot(plane,P[:,f[1]])
+
+
 end
 
 function Update(element,list)
@@ -205,8 +210,8 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Int8,1}):
 	# 4 - construct Sα, simplexWall
     while !isempty(AFL_α) #The Sα construction terminates when the AFL_α is empty
         f = popfirst!(AFL_α)
-        t = MakeSimplex(f,P) # return nothing iff f is in ConvexHull #ToDo
-        if t != nothing
+        t = MakeSimplex(f,P) #ne trova 2 devo prendere quello che non sta in DT
+        if t ∉ DT
             push!(upper_simplex,t)
             for ff in setdiff(Faces(t),[f])
 				inters = Intersect(P, f, axis, off)
