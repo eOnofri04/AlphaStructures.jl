@@ -77,9 +77,9 @@ Given a face f and a plane α returns
  -  -1 if f is completely contained in NegHalfspace(α)
  -   1 if f is completely contained in PosHalfspace(α)
 """
-function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Float64,1}, off::Float64)::Int64
+function Intersect(Ptot::Lar.Points, P::Lar.Points, f::Array{Int64,1} ,axis::Array{Float64,1}, off::Float64)::Int64
 
-	p1,p2,p3 = [P[:,i] for i in f]
+	p1,p2,p3 = [Ptot[:,i] for i in f]
 
 	v1 = SidePlane(p1, axis, off)
 	v2 = SidePlane(p2, axis, off)

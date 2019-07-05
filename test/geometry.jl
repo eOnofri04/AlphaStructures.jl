@@ -56,9 +56,9 @@ end
 	P = [  -1. -2. 3.  4.  5. -6.  ;
 			0.  1. 3. -2. -4.  2.  ;
 			1.  8. -5.  7.  4.  3.  ]
-	@test AlphaShape.Intersect(P, [2,4,6], [1.,0,0], 3.2) == 0
-	@test AlphaShape.Intersect(P, [1,4,5], [0,1.,0], 3.2) == -1
-	@test AlphaShape.Intersect(P, [2,4,5], [0,0,1.], 3.2) == 1
+	@test AlphaShape.Intersect(P, P, [2,4,6], [1.,0,0], 3.2) == 0
+	@test AlphaShape.Intersect(P, P, [1,4,5], [0,1.,0], 3.2) == -1
+	@test AlphaShape.Intersect(P, P, [2,4,5], [0,0,1.], 3.2) == 1
 end
 
 @testset "Found Center" begin

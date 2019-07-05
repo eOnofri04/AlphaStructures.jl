@@ -13,7 +13,7 @@ about 1-face (p1 , p2 ) and point p3 is minimized:
 the points (p1 , p2 , p3 ) are a 2-face of the DT(P).
 The process continues in the same way until the required first d-simplex is built.
 """
-function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
+function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
 
 	d = size(P,1)+1 # dimension of upper_simplex
 	@assert d < 5 "Error: Function not yet Programmed."
@@ -27,7 +27,7 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float6
 	distPoint = [AlphaShape.distPointPlane(P[:,i],axis, off) for i = 1:size(Pminus,2)]
 	indMin = findmin(distPoint)[2]
 	p1 = Pminus[:, indMin]
-    index = findall(x -> x == [p1...], [P[:,i] for i = 1:size(P,2)])[1]
+    index = findall(x -> x == [p1...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 	push!(indices,index)
 
 	@assert !isempty(Pplus) "Error: Not enough points."
@@ -36,7 +36,7 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float6
     distance = [Lar.norm(p1-Pplus[:,i]) for i = 1:size(Pplus,2)]
     ind2 = findmin(distance)[2]
     p2 = Pplus[:, ind2]
-    index = findall(x -> x == [p2...], [P[:,i] for i = 1:size(P,2)])[1]
+    index = findall(x -> x == [p2...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 	push!(indices,index)
 
     #The other points are that with previous ones builds the smallest hypersphere.
@@ -45,8 +45,9 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float6
 	for dim = length(simplexPoint)+1:d
 		radius = [AlphaShape.foundAlpha([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
     	minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
-    	index = findall(x->x == minRad, radius)[1]
-    	p = P[:, index]
+    	ind = findall(x->x == minRad, radius)[1]
+    	p = P[:, ind]
+		index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 		@assert p ∉ simplexPoint  "Error: Planar dataset, unable to build first simplex."
 		push!(simplexPoint,p)
 		push!(indices,index)
@@ -63,15 +64,15 @@ One of halfspace associated with `f` contains no point iff face `f` is part of
 the Convex Hull of the pointset P;
 in this case the algorithm correctly returns no adjacent simplex and returns `nothing`.
 """
-function MakeSimplex(f::Array{Int64,1},P::Lar.Points)
+function MakeSimplex(f::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 	#DA MIGLIORARE
 	df = length(f) 	#dimension face
 	d = size(P,1)+1 #dimension upper_simplex
-	axis = Lar.cross(P[:,f[2]]-P[:,f[1]],P[:,f[3]]-P[:,f[1]])
-	off = Lar.dot(axis,P[:,f[1]])
+	axis = Lar.cross(Ptot[:,f[2]]-Ptot[:,f[1]],Ptot[:,f[3]]-Ptot[:,f[1]])
+	off = Lar.dot(axis,Ptot[:,f[1]])
 	Pminus,Pplus = AlphaShape.pointsetPartition(P,axis,off)
 
-	simplexPoint = [P[:,v] for v in f]
+	simplexPoint = [Ptot[:,v] for v in f]
 
 	if !isempty(Pminus)
 		for dim = df+1:d
@@ -80,7 +81,7 @@ function MakeSimplex(f::Array{Int64,1},P::Lar.Points)
 	    	ind = findall(x->x == minRad, radius)[1]
 	    	p = Pminus[:, ind]
 			@assert p ∉ simplexPoint " Planar dataset"
-		    index = findall(x -> x == [p...], [P[:,i] for i = 1:size(P,2)])[1]
+		    index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 			t1 = sort([f...,index])
 		end
 	else t1 = nothing
@@ -93,7 +94,7 @@ function MakeSimplex(f::Array{Int64,1},P::Lar.Points)
 	    	ind = findall(x->x == minRad, radius)[1]
 	    	p = Pplus[:, ind]
 			@assert p ∉ simplexPoint " Planar dataset"
-		    index = findall(x -> x == [p...], [P[:,i] for i = 1:size(P,2)])[1]
+		    index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 			t2 = sort([f...,index])
 		end
 	else t2 = nothing
@@ -121,7 +122,7 @@ end
 Given a set of points this function returns the upper simplex list
 of the Delaunay triangulation.
 """
-function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
+function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
 
     @assert size(P,1) == 3  #in R^3
 
@@ -142,13 +143,13 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1
 
 	# 3 - construct first tetrahedra if necessary
     if isempty(AFL)
-        t = AlphaShape.MakeFirstWallSimplex(P,axis,off) #ToDo da migliorare
+        t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off) #ToDo da migliorare
         AFL = AlphaShape.Faces(t) # d-1 - faces of t
         push!(DT,t)
     end
 
     for f in AFL
-		inters = AlphaShape.Intersect(P, f, axis, off)
+		inters = AlphaShape.Intersect(Ptot, P, f, axis, off)
         if inters == 0 #intersected by plane α
             push!(AFL_α,f)
         elseif inters == -1 #in NegHalfspace(α)
@@ -161,12 +162,12 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1
 	# 4 - construct Sα, simplexWall
     while !isempty(AFL_α) #The Sα construction terminates when the AFL_α is empty
         f = popfirst!(AFL_α)
-        T = AlphaShape.MakeSimplex(f,P) #ne trova 2 devo prendere quello che non sta in DT
+        T = AlphaShape.MakeSimplex(f, Ptot, P) #ne trova 2 devo prendere quello che non sta in DT
 		for t in T
 			if t != nothing && t ∉ DT
 	            push!(DT,t)
 	            for ff in setdiff(AlphaShape.Faces(t),[f])
-					inters = AlphaShape.Intersect(P, ff, axis, off)
+					inters = AlphaShape.Intersect(Ptot,P, ff, axis, off)
 	                if inters == 0
 	                    AFL_α = AlphaShape.Update(ff,AFL_α)
 	                elseif inters == -1
@@ -181,10 +182,10 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1
 
     newaxis = circshift(axis,1)
     if !isempty(AFLminus)
-        DT = union(DT,AlphaShape.DeWall(Pminus,AFLminus,newaxis))
+        DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis))
     end
     if !isempty(AFLplus)
-        DT = union(DT,AlphaShape.DeWall(Pplus,AFLplus,newaxis))
+        DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis))
     end
     return DT
 end
