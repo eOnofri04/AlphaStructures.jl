@@ -43,14 +43,19 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 	#for point in P
 	simplexPoint = [p1,p2]
 	for dim = length(simplexPoint)+1:d
-		radius = [AlphaShape.foundRadius([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
-    	minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
-    	ind = findall(x->x == minRad, radius)[1]
-    	p = P[:, ind]
-		index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
-		@assert p ∉ simplexPoint  "Error: Planar dataset, unable to build first simplex."
-		push!(simplexPoint,p)
-		push!(indices,index)
+		try
+			radius = [AlphaShape.foundRadius([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
+
+			minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
+	    	ind = findall(x->x == minRad, radius)[1]
+	    	p = P[:, ind]
+
+			index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
+			push!(simplexPoint,p)
+			push!(indices,index)
+		catch
+			return indices = []
+		end
 	end
 
     return sort(indices)
@@ -76,26 +81,34 @@ function MakeSimplex(f::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 
 	if !isempty(Pminus)
 		for dim = df+1:d
-			radius = [AlphaShape.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
-	    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
-	    	ind = findall(x->x == minRad, radius)[1]
-	    	p = Pminus[:, ind]
-			@assert p ∉ simplexPoint " Planar dataset"
-		    index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
-			t1 = sort([f...,index])
+			try
+				radius = [AlphaShape.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
+		    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
+		    	ind = findall(x->x == minRad, radius)[1]
+		    	p = Pminus[:, ind]
+				@assert p ∉ simplexPoint " Planar dataset"
+			    index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
+				t1 = sort([f...,index])
+			catch
+				t1 = nothing
+			end
 		end
 	else t1 = nothing
 	end
 
 	if !isempty(Pplus)
 		for dim = df+1:d
-			radius = [AlphaShape.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
-	    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
-	    	ind = findall(x->x == minRad, radius)[1]
-	    	p = Pplus[:, ind]
-			@assert p ∉ simplexPoint " Planar dataset"
-		    index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
-			t2 = sort([f...,index])
+			try
+				radius = [AlphaShape.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
+		    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
+		    	ind = findall(x->x == minRad, radius)[1]
+		    	p = Pplus[:, ind]
+				@assert p ∉ simplexPoint " Planar dataset"
+			    index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
+				t2 = sort([f...,index])
+			catch
+				t2 = nothing
+			end
 		end
 	else t2 = nothing
 	end
@@ -144,8 +157,12 @@ function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis
 	# 3 - construct first tetrahedra if necessary
     if isempty(AFL)
         t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off) #ToDo da migliorare
-        AFL = AlphaShape.Faces(t) # d-1 - faces of t
-        push!(DT,t)
+		if !isempty(t)
+			AFL = AlphaShape.Faces(t) # d-1 - faces of t
+        	push!(DT,t)
+		else
+			return DT
+		end
     end
 
     for f in AFL
@@ -165,6 +182,7 @@ function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis
         T = AlphaShape.MakeSimplex(f, Ptot, P) #ne trova 2 devo prendere quello che non sta in DT
 		for t in T
 			if t != nothing && t ∉ DT
+				#PROBLEMA STA QUI va in Loop forse MakeSimplex non funziona
 	            push!(DT,t)
 	            for ff in setdiff(AlphaShape.Faces(t),[f])
 					inters = AlphaShape.Intersect(Ptot,P, ff, axis, off)
@@ -182,10 +200,10 @@ function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis
 
     newaxis = circshift(axis,1)
     if !isempty(AFLminus)
-        DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis))
+    	DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis))
     end
     if !isempty(AFLplus)
-        DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis))
+    	DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis))
     end
     return DT
 end
