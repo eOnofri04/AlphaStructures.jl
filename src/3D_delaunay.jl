@@ -4,11 +4,17 @@
 """
     MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
 
-The MakeFirstWallSimplex function selects the point p1 ∈ `P` nearest to the plane `α`. Then it selects a
-second point p2 such that: (a) p2 is on the other side of α from p1 , and (b) p2 is the point in P with the
-minimum Euclidean distance from p1 . Then, it seeks the point p3 at which the radius of the circum-circle
-about 1-face (p1 , p2 ) and point p3 is minimized: the points (p1 , p2 , p3 ) are a 2-face of the DT(P). The
-process continues in the same way until the required first d-simplex is built.
+Return the first simplex of Delaunay triangulation.
+
+---
+The MakeFirstWallSimplex function selects the point p1 ∈ `P` nearest to the plane `α`.
+Then it selects a second point p2 such that:
+(a) p2 is on the other side of α from p1, and
+(b) p2 is the point in P with the minimum Euclidean distance from p1.
+Then, it seeks the point p3 at which the radius of the circum-circle
+about 1-face (p1 , p2 ) and point p3 is minimized:
+the points (p1 , p2 , p3 ) are a 2-face of the DT(P).
+The process continues in the same way until the required first d-simplex is built.
 """
 function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
 
@@ -55,16 +61,10 @@ end
 """
 	MakeSimplex(f::Array{Int64,1},P::Lar.Points)
 
-Given a face f , the adjacent simplex can be identified by using the Delaunay simplex definition: all
-the points p ∈ P are tested by checking the radius of the hypersphere which circumscribes p and the d
-vertices of f . In the pseudo code in Figure 3 the function MakeSimplex implements the adjacent simplex
-construction. The analysis of the points p ∈ P is limited by considering only those points which lie
-in the outer halfspace with respect to face f (i.e. the halfspace which does not contain the previously
-generated simplex that contains the face f ). MakeSimplex selects the point which minimizes the function
-dd (Delaunay distance):
-with r and c the radius and the center of the circumsphere around f and p. The outer halfspace associated
-with f contains no point iff, face f is part of the Convex Hull of the pointset P ; in this case the algorithm
-correctly returns no adjacent simplex and, in this case only, M akeSimplex returns null.
+Given a face `f`, return the adjacent simplices.
+One of halfspace associated with `f` contains no point iff face `f` is part of
+the Convex Hull of the pointset P;
+in this case the algorithm correctly returns no adjacent simplex and returns `nothing`.
 """
 function MakeSimplex(f::Array{Int64,1},P::Lar.Points)
 	#DA MIGLIORARE
@@ -108,7 +108,7 @@ end
 """
 	Update(element,list)
 
-Return update list: if element is in list, delete element, altrimenti push the element
+Return update `list`: if `element` ∈ `list`, delete `element`, else push the `element`.
 """
 function Update(element,list)
     if element ∈ list
@@ -121,8 +121,8 @@ end
 """
 	DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
 
- Given a set of points this function returns the tetrahedra list
- of the Delaunay triangulation.
+Given a set of points this function returns the upper simplex list 
+of the Delaunay triangulation.
 """
 function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
 
