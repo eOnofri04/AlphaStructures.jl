@@ -121,7 +121,7 @@ end
 Given a set of points this function returns the upper simplex list
 of the Delaunay triangulation.
 """
-function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
+function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
 
     @assert size(P,1) == 3  #in R^3
 
@@ -181,10 +181,10 @@ function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis
 
     newaxis = circshift(axis,1)
     if !isempty(AFLminus)
-        DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis))
+        DT = union(DT,AlphaShape.DeWall(Pminus,AFLminus,newaxis))
     end
     if !isempty(AFLplus)
-        DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis))
+        DT = union(DT,AlphaShape.DeWall(Pplus,AFLplus,newaxis))
     end
     return DT
 end
