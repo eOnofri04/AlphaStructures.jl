@@ -121,10 +121,9 @@ end
 Given a set of points this function returns the upper simplex list
 of the Delaunay triangulation.
 """
-function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
+function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
 
     @assert size(P,1) == 3  #in R^3
-    @assert size(P,2) > 1 #almeno 2 punti
 
     # 0 - initialization of list
     AFL_α = Array{Int64,1}[]      # (d-1)faces intersected by plane α;
@@ -134,8 +133,11 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1
 
     # 1 - Select the splitting plane α; defined by axis and an origin point `off`
     off = AlphaShape.SplitValue(P,axis)
+	if off == nothing
+		return DT
+	end
 
-    # 2 - construct two subsets P− and P+ ;
+	# 2 - construct two subsets P− and P+ ;
     Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
 
 	# 3 - construct first tetrahedra if necessary
@@ -179,10 +181,10 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1
 
     newaxis = circshift(axis,1)
     if !isempty(AFLminus)
-        DT = union(DT,AlphaShape.DeWall(Pminus,AFLminus,newaxis))
+        DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis))
     end
     if !isempty(AFLplus)
-        DT = union(DT,AlphaShape.DeWall(Pplus,AFLplus,newaxis))
+        DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis))
     end
     return DT
 end

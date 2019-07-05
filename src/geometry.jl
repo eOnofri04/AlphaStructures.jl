@@ -15,7 +15,7 @@ function SidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64
 end
 
 """
-    SplitValue(P::Lar.Points, axis::Array{Float64,1})::Float64
+    SplitValue(P::Lar.Points, axis::Array{Float64,1})
 
 Return threshold value for splitting plane α of pointset `P`. The splitting
 plane α is selected as a plane orthogonal to the axes (X, Y or Z in E^3 ), so:
@@ -23,14 +23,17 @@ plane α is selected as a plane orthogonal to the axes (X, Y or Z in E^3 ), so:
 	- axis = [0,1.,0] or
 	- axis = [0,0,1.].
 """
-function SplitValue(P::Lar.Points, axis::Array{Float64,1})::Float64
+function SplitValue(P::Lar.Points, axis::Array{Float64,1})
 	@assert axis == [1.,0,0] || axis == [0,1.,0] || axis == [0,0,1.] "Error: not a plane orthogonal to the axes "
 	coord = findall(x->x==1.,axis)[1]
 	valueP = sort(unique(P[coord,:]))
-	@assert length(valueP) > 1 "not exist splitting plane"
     numberPoint = length(valueP)
-    off = (valueP[floor(Int,numberPoint/2)] + valueP[floor(Int,numberPoint/2)+1])/2
+	if numberPoint == 1
+		return nothing
+	else
+    	off = (valueP[floor(Int,numberPoint/2)] + valueP[floor(Int,numberPoint/2)+1])/2
     return off
+	end
 end
 
 """
@@ -87,7 +90,7 @@ function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Float64,1}, off
 
  	v3 = SidePlane(p3, axis, off)
 
-	@assert v1 != 0 &&  v2 != 0 && v3 != 0 "Error: Face on Plane"
+	#@assert v1 != 0 &&  v2 != 0 && v3 != 0 "Error: Face on Plane"
 
 	if v1 != v3
 		return 0

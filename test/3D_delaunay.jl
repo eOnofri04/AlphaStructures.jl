@@ -23,6 +23,12 @@ end
 end
 
 @testset "MakeSimplex" begin
+	P = [ 0. 1. 0  0  2.;
+	 	  0  0  1. 0  2.;
+		  0  0  0  1. 2.]
+	@test AlphaShape.MakeSimplex([2,3,4],P) == ([1,2,3,4],[2,3,4,5])
+	@test AlphaShape.MakeSimplex([2,3,5],P) == ([2,3,4,5],nothing)
+	@test AlphaShape.MakeSimplex([1,2,3],P) == (nothing,[1,2,3,4])
 end
 
 @testset "Update" begin
@@ -35,6 +41,7 @@ end
 @testset "DeWall" begin
 	AFL = Array{Int64,1}[]
 	axis = [1.,0.,0.]
+
 	P = [  -1.  1    1.5  2   ;
 			0.  0.2  1.3  1.  ;
 			0.  0.   0.   1.   ]
@@ -45,4 +52,9 @@ end
 			0.  1. 3. -2. -4.  2.  ;
 			1.  8. -5.  7.  4.  3.  ]
 	@test length(AlphaShape.DeWall(T,AFL,axis)) == 11
+
+	Q = [ 0. 1. 0  0  2.;
+	 	  0  0  1. 0  2.;
+		  0  0  0  1. 2.]
+	@test AlphaShape.DeWall(Q,AFL,axis) == [[1,2,3,4],[2,3,4,5]]
 end
