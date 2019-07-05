@@ -154,12 +154,12 @@ function foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
 end
 
 """ DaRinominare foundRadius
-	foundAlpha(T::Array{Array{Float64,1},1})::Float64
+	foundRadius(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.
 If three or more points are collinear it returns `NaN`.
 """
-function foundAlpha(T::Array{Array{Float64,1},1})::Float64
+function foundRadius(T::Array{Array{Float64,1},1})::Float64
 
 	@assert length(T) > 0 "ERROR: at least one points is needed."
 	dim = length(T[1])

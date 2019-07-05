@@ -86,38 +86,38 @@ end
 
 end
 
-@testset "Found α" begin
+@testset "Found Radius" begin
 
-	@testset "Points Found α" begin
-		@test AlphaShape.foundAlpha(([[1.]])) == 0.0
-		@test AlphaShape.foundAlpha(([[1., 1.]])) == 0.0
-		@test AlphaShape.foundAlpha(([[1., 1., 1.]])) == 0.0
-		# @test AlphaShape.foundAlpha(([[1., 1., 1., 1.]])) == 0.0
+	@testset "Points Found Radius" begin
+		@test AlphaShape.foundRadius(([[1.]])) == 0.0
+		@test AlphaShape.foundRadius(([[1., 1.]])) == 0.0
+		@test AlphaShape.foundRadius(([[1., 1., 1.]])) == 0.0
+		# @test AlphaShape.foundRadius(([[1., 1., 1., 1.]])) == 0.0
 	end
 
-	@testset "1D Found α" begin
-		@test AlphaShape.foundAlpha(([[1.], [3.]])) == 1.0
-		@test AlphaShape.foundAlpha(([[1.], [1.]])) == 0.0
+	@testset "1D Found Radius" begin
+		@test AlphaShape.foundRadius(([[1.], [3.]])) == 1.0
+		@test AlphaShape.foundRadius(([[1.], [1.]])) == 0.0
 	end
 
-	@testset "2D Found α" begin
+	@testset "2D Found Radius" begin
 		T = [[1., 1.], [2., 2.]]
 		P = [[1., 0.], [2., 0.], [3., 0.]]
 		Q = [[0., 0.], [2., 0.], [0., 2.]]
-		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
-		@test isnan(AlphaShape.foundAlpha(P))
-		@test isapprox(AlphaShape.foundAlpha(Q), sqrt(2), atol=1e-4)
+		@test AlphaShape.foundRadius(T) == round(sqrt(2)/2,sigdigits=14)
+		@test isnan(AlphaShape.foundRadius(P))
+		@test isapprox(AlphaShape.foundRadius(Q), sqrt(2), atol=1e-4)
 	end
 
-	@testset "3D Found α" begin
+	@testset "3D Found Radius" begin
 		T = [[1., 1., 0.], [2., 2., 0.]]
 		P = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.]]
 		Q = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,1.]]
 		R = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,0.]]
-		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
-		@test isapprox(AlphaShape.foundAlpha(P), 1., atol=1e-4)
-		@test AlphaShape.foundAlpha(Q) == 1.
-		@test isnan(AlphaShape.foundAlpha(R))
+		@test AlphaShape.foundRadius(T) == round(sqrt(2)/2,sigdigits=14)
+		@test isapprox(AlphaShape.foundRadius(P), 1., atol=1e-4)
+		@test AlphaShape.foundRadius(Q) == 1.
+		@test isnan(AlphaShape.foundRadius(R))
 	end
 
 end

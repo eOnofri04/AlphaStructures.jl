@@ -40,7 +40,7 @@ end
 		up_simplex = [1, 2, 3]
 		point = V[:, setdiff(up_simplex, simplex)]
 		T=[ V[:, v] for v in simplex ]
-		@test AlphaShape.vertexInCircumball(T, AlphaShape.foundAlpha(T), point)
+		@test AlphaShape.vertexInCircumball(T, AlphaShape.foundRadius(T), point)
 	end
 
 	@testset "3D Vertex in Circumball" begin
@@ -55,7 +55,7 @@ end
 			up_simplex = [1, 2, 3]
 			point = V[:, setdiff(up_simplex, simplex)]
 			T=[ V[:, v] for v in simplex ]
-			@test AlphaShape.vertexInCircumball(T, AlphaShape.foundAlpha(T), point)
+			@test AlphaShape.vertexInCircumball(T, AlphaShape.foundRadius(T), point)
 		end
 
 		@testset "triangle and tetrahedron" begin
@@ -68,7 +68,7 @@ end
 			up_simplex = [1, 2, 3, 4]
 			point = V[:, setdiff(up_simplex, simplex)]
 			T=[ V[:, v] for v in simplex ]
-			@test AlphaShape.vertexInCircumball(T, AlphaShape.foundAlpha(T), point)
+			@test AlphaShape.vertexInCircumball(T, AlphaShape.foundRadius(T), point)
 		end
 
 	end

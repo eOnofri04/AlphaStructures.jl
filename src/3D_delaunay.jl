@@ -43,7 +43,7 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 	#for point in P
 	simplexPoint = [p1,p2]
 	for dim = length(simplexPoint)+1:d
-		radius = [AlphaShape.foundAlpha([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
+		radius = [AlphaShape.foundRadius([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
     	minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
     	ind = findall(x->x == minRad, radius)[1]
     	p = P[:, ind]
@@ -76,7 +76,7 @@ function MakeSimplex(f::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 
 	if !isempty(Pminus)
 		for dim = df+1:d
-			radius = [AlphaShape.foundAlpha([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
+			radius = [AlphaShape.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
 	    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 	    	ind = findall(x->x == minRad, radius)[1]
 	    	p = Pminus[:, ind]
@@ -89,7 +89,7 @@ function MakeSimplex(f::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 
 	if !isempty(Pplus)
 		for dim = df+1:d
-			radius = [AlphaShape.foundAlpha([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
+			radius = [AlphaShape.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
 	    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 	    	ind = findall(x->x == minRad, radius)[1]
 	    	p = Pplus[:, ind]

@@ -2,7 +2,7 @@
 #	In this file there is
 #	 - delaunayTriangulation(V::Lar.Points)
 #	 - foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-#	 - foundAlpha(T::Array{Array{Float64,1},1})::Float64
+#	 - foundRadius(T::Array{Array{Float64,1},1})::Float64
 #	 - vertexInCircumball(T::Array{Array{Float64,1},1},
 #			α_char::Float64,
 #			point::Array{Float64,2}
@@ -38,7 +38,7 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 	elseif dim == 3
 		axis = [1.,0.,0.]
 		AFL = Array{Int64,1}[]
-		upper_simplex = AlphaShape.DeWall(V,AFL,axis)
+		upper_simplex = AlphaShape.DeWall(V,V,AFL,axis)
 	end
 
 	sort!.(upper_simplex)
@@ -120,7 +120,7 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 		for i = 1 : length(Cells[d]) # simplex in Cells[d]
 			simplex = Cells[d][i]
 			T = [ V[:, v] for v in simplex ] # simplices points coordinates
-			α_char[d][i] = foundAlpha(T);
+			α_char[d][i] = foundRadius(T);
 		end
 	end
 
