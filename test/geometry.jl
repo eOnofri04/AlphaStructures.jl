@@ -4,6 +4,12 @@ else
 	using Test
 end
 
+@testset "SidePlane" begin
+	@test AlphaShape.SidePlane([-4.,5.,6.],[1.,0,0],3.) == -1
+	@test AlphaShape.SidePlane([1.,1.,0.],[1.,1.,1.],2.) == 0
+	@test AlphaShape.SidePlane([0.,0.,0.],[1.,3.,5.],-1.) == 1
+end
+
 @testset "SplitValue" begin
 	P = [ -1. -2.  3.  4.  5.  ;
 		  -1.  2.  3. -2. -3.  ;
@@ -38,6 +44,12 @@ end
 	@test AlphaShape.Faces([1,2]) == [[1],[2]]
 	@test AlphaShape.Faces([1,2,3]) == [[1,2],[1,3],[2,3]]
 	@test AlphaShape.Faces([1,2,3,4]) == [[1,2,3],[1,2,4],[1,3,4],[2,3,4]]
+end
+
+@testset "distPointPlane" begin
+	@test AlphaShape.distPointPlane([-4.,2.,3.],[1.,0.,0.],3.) == 7.
+	@test AlphaShape.distPointPlane([1.,2.,10.],[1.,1.,0.],3.) == 0.
+	@test isapprox(AlphaShape.distPointPlane([1.,1.,1.],[1.,1.,1.],0.),sqrt(3))
 end
 
 @testset "Intersect" begin
