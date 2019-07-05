@@ -29,67 +29,6 @@ end
 
 end
 
-@testset "Found Center" begin
-
-	@testset "Points Found Center" begin
-		@test AlphaShape.foundCenter([[1.]]) == [1.]
-		@test AlphaShape.foundCenter([[1., 1.]]) == [1., 1.]
-		@test AlphaShape.foundCenter([[1., 1., 1.]]) == [1., 1., 1.]
-	end
-
-	@testset "Edges Found Center" begin
-		@test AlphaShape.foundCenter([[1.], [3.]]) == [2.0]
-		@test AlphaShape.foundCenter([[1.,1.], [3.,3.]]) == [2.0, 2.0]
-		@test AlphaShape.foundCenter([[1.,1.,1.], [3.,3.,3.]]) == [2.0, 2.0, 2.0]
-	end
-
-	@testset "Triangles Found Center" begin
-		@test AlphaShape.foundCenter([[0.,0.], [0.,1.], [1.,0.]]) == [0.5, 0.5]
-		@test AlphaShape.foundCenter([[0.,0.,0.], [0.,1.,0.], [1.,0.,0.]]) == [0.5,0.5,0.0]
-	end
-
-	@testset "Tetrahedrons Found Center" begin
-		@test AlphaShape.foundCenter([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [0.,0.,1.]]) == [0.5, 0.5, 0.5]
-	end
-
-end
-
-@testset "Found α" begin
-
-	@testset "Points Found α" begin
-		@test AlphaShape.foundAlpha(([[1.]])) == 0.0
-		@test AlphaShape.foundAlpha(([[1., 1.]])) == 0.0
-		@test AlphaShape.foundAlpha(([[1., 1., 1.]])) == 0.0
-		# @test AlphaShape.foundAlpha(([[1., 1., 1., 1.]])) == 0.0
-	end
-
-	@testset "1D Found α" begin
-		@test AlphaShape.foundAlpha(([[1.], [3.]])) == 1.0
-		@test AlphaShape.foundAlpha(([[1.], [1.]])) == 0.0
-	end
-
-	@testset "2D Found α" begin
-		T = [[1., 1.], [2., 2.]]
-		P = [[1., 0.], [2., 0.], [3., 0.]]
-		Q = [[0., 0.], [2., 0.], [0., 2.]]
-		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
-		@test isnan(AlphaShape.foundAlpha(P))
-		@test isapprox(AlphaShape.foundAlpha(Q), sqrt(2), atol=1e-4)
-	end
-
-	@testset "3D Found α" begin
-		T = [[1., 1., 0.], [2., 2., 0.]]
-		P = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.]]
-		Q = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,1.]]
-		R = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,0.]]
-		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
-		@test isapprox(AlphaShape.foundAlpha(P), 1., atol=1e-4)
-		@test AlphaShape.foundAlpha(Q) == 1.
-		@test isnan(AlphaShape.foundAlpha(R))
-	end
-
-end
-
 @testset "Vertex in Circumball" begin
 
 	@testset "2D Vertex in Circumball" begin

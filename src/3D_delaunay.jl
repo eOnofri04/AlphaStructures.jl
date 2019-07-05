@@ -13,36 +13,38 @@ process continues in the same way until the required first d-simplex is built.
 function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
 
 	d = size(P,1)+1 # dimension of upper_simplex
+	@assert d < 5 "Error: Function not yet Programmed."
 	indices = Int64[]
 
-	coord = findall(x -> x == 1., axis)[1]
     Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
 
+	@assert !isempty(Pminus) "Error: Not enough points."
     #The first point of the face is the nearest to middle plane in negative halfspace.
     #for point in Pminus
-    maxcoord = max( Pminus[coord,:]...)
-    index = findall(x -> x == maxcoord, P[coord,:])[1]
-    p1 = P[:,index]
+	distPoint = [AlphaShape.distPointPlane(P[:,i],axis, off) for i = 1:size(Pminus,2)]
+	indMin = findmin(distPoint)[2]
+	p1 = Pminus[:, indMin]
+    index = findall(x -> x == [p1...], [P[:,i] for i = 1:size(P,2)])[1]
 	push!(indices,index)
 
+	@assert !isempty(Pplus) "Error: Not enough points."
     #The 2nd point of the face is the euclidean nearest to first point that is in the positive halfspace
     #for point in Pplus
     distance = [Lar.norm(p1-Pplus[:,i]) for i = 1:size(Pplus,2)]
-    minDist = min(filter(p-> !isnan(p) && p!=0,distance)...)
-    ind2 = findall(x -> x == minDist, distance)[1]
+    ind2 = findmin(distance)[2]
     p2 = Pplus[:, ind2]
     index = findall(x -> x == [p2...], [P[:,i] for i = 1:size(P,2)])[1]
 	push!(indices,index)
 
     #The other points are that with previous ones builds the smallest hypersphere.
-
+	#for point in P
 	simplexPoint = [p1,p2]
 	for dim = length(simplexPoint)+1:d
 		radius = [AlphaShape.foundAlpha([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
     	minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
     	index = findall(x->x == minRad, radius)[1]
     	p = P[:, index]
-		@assert p ∉ simplexPoint  "FirstTetra, Planar dataset, unable to build first tetrahedron."
+		@assert p ∉ simplexPoint  "Error: Planar dataset, unable to build first simplex."
 		push!(simplexPoint,p)
 		push!(indices,index)
 	end

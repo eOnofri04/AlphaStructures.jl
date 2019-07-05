@@ -17,10 +17,14 @@ end
 """
     SplitValue(P::Lar.Points, axis::Array{Float64,1})::Float64
 
-Return threshold value to split pointset `P`.
+Return threshold value for splitting plane α of pointset `P`. The splitting
+plane α is selected as a plane orthogonal to the axes (X, Y or Z in E^3 ), so:
+	- axis = [1.,0,0] or
+	- axis = [0,1.,0] or
+	- axis = [0,0,1.].
 """
-#DA RIVEDERE
 function SplitValue(P::Lar.Points, axis::Array{Float64,1})::Float64
+	@assert axis == [1.,0,0] || axis == [0,1.,0] || axis == [0,0,1.] "Error: not a plane orthogonal to the axes "
 	coord = findall(x->x==1.,axis)[1]
 	valueP = sort(unique(P[coord,:]))
 	@assert length(valueP) > 1 "not exist splitting plane"
@@ -52,6 +56,17 @@ function Faces(t::Array{Int64,1})::Array{Array{Int64,1},1}
 end
 
 """
+	distPointPlane(point::Array{Float64,1},axis::Array{Float64,1},off::Float64)::Float64
+
+Return the distance between `point` and plane α defined by `axis` and `off`.
+"""
+function distPointPlane(point::Array{Float64,1},axis::Array{Float64,1},off::Float64)::Float64
+	num = abs(axis[1]*point[1]+axis[2]*point[2]+axis[3]*point[3]-off)
+	den = sqrt(axis[1]^2+axis[2]^2+axis[3]^2)
+	return num/den
+end
+
+"""
 	Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
 
 Given a face f and a plane α returns
@@ -72,15 +87,12 @@ function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Float64,1}, off
 
  	v3 = SidePlane(p3, axis, off)
 
- 	if v1 != v3
+	@assert v1 != 0 &&  v2 != 0 && v3 != 0 "Error: Face on Plane"
+
+	if v1 != v3
 		return 0
     else
-		if v1 == 1
-			return  1
-		elseif v1 == -1
-			return -1
-		else return 0 #potrebbe stare tutta sul piano
-		end
+		return v1
 	end
 end
 
@@ -138,7 +150,7 @@ function foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
 	return center
 end
 
-"""
+""" DaRinominare foundRadius
 	foundAlpha(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.
@@ -152,9 +164,8 @@ function foundAlpha(T::Array{Array{Float64,1},1})::Float64
 	k = length(T) - 1
 	@assert k <= dim +1 "ERROR: too much points."
 
-	# number approximation
 	center = AlphaShape.foundCenter(T)
-	alpha = round(Lar.norm(T[1] - center), sigdigits = 14)
+	alpha = round(Lar.norm(T[1] - center), sigdigits = 14) # number approximation
 
 	return alpha
 end
