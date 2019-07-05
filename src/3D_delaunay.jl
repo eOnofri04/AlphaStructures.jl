@@ -1,6 +1,3 @@
-# α è un piano perpendicolare agli assi e che si sposta a metà del pointset,
-# piano ortogonale ad ogni chiamata di dewall
-
 """
     MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
 
@@ -121,7 +118,7 @@ end
 """
 	DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
 
-Given a set of points this function returns the upper simplex list 
+Given a set of points this function returns the upper simplex list
 of the Delaunay triangulation.
 """
 function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
