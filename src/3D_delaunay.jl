@@ -1,47 +1,5 @@
 # α è un piano perpendicolare agli assi e che si sposta a metà del pointset,
 # piano ortogonale ad ogni chiamata di dewall
-"""
-	RightSide(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
-
-Return
-	- `0`  if the point is on plane defined by normal `axis` and point `off`.
-	- `1`  if the point is in the positive half-space indicated by plane defined by normal `axis` and point `off`.
-	- `-1`  if the point is in the negatice half-space indicated by plane defined by normal `axis` and point `off`.
-"""
-function SidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
-	side = round(Lar.dot(point,axis), sigdigits = 14)
-	if  side == off return 0
-	elseif side > off return 1
-	elseif side < off return -1
-	end
-end
-
-"""
-    SplitValue(P::Lar.Points, axis::Array{Float64,1})::Float64
-
-Return threshold value to split pointset `P`.
-"""
-#DA RIVEDERE
-function SplitValue(P::Lar.Points, axis::Array{Float64,1})::Float64
-	coord = Int64(findall(x->x==1,axis)[1])
-	valueP = sort(unique(P[coord,:]))
-	@assert length(valueP) > 1 "not exist splitting plane"
-    numberPoint = length(valueP)
-    off = (valueP[floor(Int,numberPoint/2)] + valueP[floor(Int,numberPoint/2)+1])/2
-    return off
-end
-
-"""
-    pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
-
-Return two subsets of pointset `P` split by α plane defined by `axis` and `off`.
-"""
-function pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
-	side = [AlphaShape.SidePlane(P[:,i],axis,off) for i = 1:size(P,2)]
-	Pminus = P[:,side.== -1 ]
-    Pplus = P[:,side.== 1]
-    return Pminus,Pplus
-end
 
 """
     MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
@@ -57,7 +15,7 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float6
 	d = size(P,1)+1 # dimension of upper_simplex
 	indices = Int64[]
 
-	coord = findall(x -> x == 1, axis)[1]
+	coord = findall(x -> x == 1., axis)[1]
     Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
 
     #The first point of the face is the nearest to middle plane in negative halfspace.
@@ -79,7 +37,7 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float6
     #The other points are that with previous ones builds the smallest hypersphere.
 
 	simplexPoint = [p1,p2]
-	for dim = 3:d
+	for dim = length(simplexPoint)+1:d
 		radius = [AlphaShape.foundAlpha([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
     	minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
     	index = findall(x->x == minRad, radius)[1]
@@ -90,49 +48,6 @@ function MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float6
 	end
 
     return sort(indices)
-end
-
-"""
-    Faces(t::Array{Int64,1})::Array{Array{Int64,1},1}
-
-Return `d-1`-faces of a `d`-simplex.
-"""
-function Faces(t::Array{Int64,1})::Array{Array{Int64,1},1}
-    d = length(t)
-    return collect(Combinatorics.combinations(t, d-1))
-end
-
-"""
-	Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
-
-Given a face f and a plane α returns
- -   0 if f intersect α
- -  -1 if f is completely contained in NegHalfspace(α)
- -   1 if f is completely contained in PosHalfspace(α)
-"""
-function Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Float64,1}, off::Float64)::Int64
-
-	p1,p2,p3 = [P[:,i] for i in f]
-
-	v1 = SidePlane(p1, axis, off)
-	v2 = SidePlane(p2, axis, off)
-
-	if v1 != v2
-		return 0;
-	end
-
- 	v3 = SidePlane(p3, axis, off)
-
- 	if v1 != v3
-		return 0
-    else
-		if v1 == 1
-			return  1
-		elseif v1 == -1
-			return -1
-		else return 0 #potrebbe stare tutta sul piano
-		end
-	end
 end
 
 """
@@ -188,6 +103,11 @@ function MakeSimplex(f::Array{Int64,1},P::Lar.Points)
 	return t1,t2
 end
 
+"""
+	Update(element,list)
+
+Return update list: if element is in list, delete element, altrimenti push the element
+"""
 function Update(element,list)
     if element ∈ list
         setdiff!(list, [element])
@@ -242,7 +162,7 @@ function DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1
         f = popfirst!(AFL_α)
         T = AlphaShape.MakeSimplex(f,P) #ne trova 2 devo prendere quello che non sta in DT
 		for t in T
-			if t!=nothing && t ∉ DT
+			if t != nothing && t ∉ DT
 	            push!(DT,t)
 	            for ff in setdiff(AlphaShape.Faces(t),[f])
 					inters = AlphaShape.Intersect(P, ff, axis, off)
