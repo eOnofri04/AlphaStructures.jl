@@ -67,6 +67,7 @@ end
 		@test AlphaShape.foundCenter([[1.]]) == [1.]
 		@test AlphaShape.foundCenter([[1., 1.]]) == [1., 1.]
 		@test AlphaShape.foundCenter([[1., 1., 1.]]) == [1., 1., 1.]
+		# @test AlphaShape.foundCenter(([[1., 1., 1., 1.]])) == [1., 1., 1., 1.]
 	end
 
 	@testset "Edges Found Center" begin
@@ -104,7 +105,7 @@ end
 		T = [[1., 1.], [2., 2.]]
 		P = [[1., 0.], [2., 0.], [3., 0.]]
 		Q = [[0., 0.], [2., 0.], [0., 2.]]
-		@test AlphaShape.foundRadius(T) == round(sqrt(2)/2,sigdigits=14)
+		@test AlphaShape.foundRadius(T) == round(sqrt(2)/2, sigdigits=14)
 		@test isnan(AlphaShape.foundRadius(P))
 		@test isapprox(AlphaShape.foundRadius(Q), sqrt(2), atol=1e-4)
 	end

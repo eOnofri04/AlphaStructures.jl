@@ -123,7 +123,7 @@ Given a set of points this function returns the upper simplex list
 of the Delaunay triangulation.
 """
 function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
-
+	#se punti planari o pochi punti deve tornare DT=[] e non fermare il corso dell'algoritmo
     @assert size(P,1) == 3  #in R^3
 
     # 0 - initialization of list

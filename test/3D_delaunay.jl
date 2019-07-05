@@ -57,4 +57,11 @@ end
 	 	  0  0  1. 0  2.;
 		  0  0  0  1. 2.]
 	@test AlphaShape.DeWall(Q,Q,AFL,axis) == [[1,2,3,4],[2,3,4,5]]
+
+	@testset "points on a plane" begin
+		V = [ 0. 0. 0  0  0.;
+	 	  	  2. 0  1. 0  2.;
+		  	  0  0  0  1. 2.]
+		  @test AlphaShape.DeWall(V,V,AFL,axis) == []
+	end
 end

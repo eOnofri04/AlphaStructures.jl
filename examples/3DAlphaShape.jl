@@ -19,3 +19,7 @@ filename = "examples/OBJ/lowpolytree.obj";
 V,EVs,FVs = Lar.obj2lar(filename)
 
 Plasm.view(V,[[i] for i = 1:size(V,2)])
+
+AFL = Array{Int64,1}[]
+axis = [1.,0.,0.]
+AlphaShape.DeWall(V,V,AFL,axis)
