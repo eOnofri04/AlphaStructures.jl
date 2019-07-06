@@ -1,5 +1,5 @@
 """
-    MakeFirstWallSimplex(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
+    MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
 
 Return the first simplex of Delaunay triangulation.
 
@@ -62,7 +62,7 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 end
 
 """
-	MakeSimplex(f::Array{Int64,1},P::Lar.Points)
+	MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 
 Given a face `f`, return the adjacent simplices.
 One of halfspace associated with `f` contains no point iff face `f` is part of
@@ -83,7 +83,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 	if [pointIn...] in [Pplus[:,v] for v in 1:size(Pplus,2)]
 		if !isempty(Pminus)
 			for dim = df+1:d
-				try
+				try #da verificare queste
 					radius = [AlphaShape.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
 			    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 			    	ind = findall(x->x == minRad, radius)[1]
@@ -132,22 +132,30 @@ function Update(element,list)
 end
 
 """
-	DeWall(P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
+	DeWall(Ptot::Lar.Points,
+		P::Lar.Points,
+		AFL::Array{Array{Int64,1},1},
+		axis::Array{Float64,1},
+		lista::DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}
+		)::Array{Array{Int64,1},1}
 
 Given a set of points this function returns the upper simplex list
 of the Delaunay triangulation.
 """
-	lista = DataStructures.Dict{}()
-function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1},lista)::Array{Array{Int64,1},1}
+function DeWall(Ptot::Lar.Points,
+				P::Lar.Points,
+				AFL::Array{Array{Int64,1},1},
+				axis::Array{Float64,1},
+				tetraDict::DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}})::Array{Array{Int64,1},1}
 	#se punti planari o pochi punti deve tornare DT=[] e non fermare il corso dell'algoritmo
 	@assert size(P,1) == 3  #in R^3
 
 	# 0 - initialization of list
-	AFL_α = Array{Int64,1}[]      # (d-1)faces intersected by plane α;
-	AFLplus = Array{Int64,1}[]    # (d-1)faces completely contained in PosHalfspace(α);
-	AFLminus = Array{Int64,1}[]   # (d-1)faces completely contained in NegHalfspace(α).
-	DT = Array{Int64,1}[]
-	tetra=[]
+	AFL_α = Array{Int64,1}[]    # (d-1)faces intersected by plane α;
+	AFLplus = Array{Int64,1}[]  # (d-1)faces completely contained in PosHalfspace(α);
+	AFLminus = Array{Int64,1}[] # (d-1)faces completely contained in NegHalfspace(α).
+	DT = Array{Int64,1}[]		# Delaunay triangulation
+	tetra = Int64[] 			# definition
 
 	# 1 - Select the splitting plane α; defined by axis and an origin point `off`
 	off = AlphaShape.SplitValue(P,axis)
@@ -163,7 +171,7 @@ function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis
 		t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off) #ToDo da migliorare
 		if !isempty(t)
 			AFL = AlphaShape.Faces(t)# d-1 - faces of t
-			lista[AFL]=t
+			tetraDict[ AFL ] = t
 			push!(DT,t)
 		else
 			return DT
@@ -184,26 +192,24 @@ function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis
 	# 4 - construct Sα, simplexWall
 	while !isempty(AFL_α) #The Sα construction terminates when the AFL_α is empty
     	f = popfirst!(AFL_α)
-		for triangle in keys(lista)
+		for triangle in keys(tetraDict)
 			if f in triangle
-				tetra = get(lista,triangle,1)
+				tetra = get(tetraDict,triangle,1)
 			end
 		end
     	T = AlphaShape.MakeSimplex(f, tetra, Ptot, P) #ne trova 2 devo prendere quello che non sta in DT
 			if T != nothing && T ∉ DT
-				#PROBLEMA STA QUI: dobbiamo dirgli da quale tetraedro deriva la faccia
-				#così da sapere da che parte cercare il vertice
 				faces = AlphaShape.Faces(T) # d-1 - faces of t
-				lista[faces] = T
+				tetraDict[ faces ] = T
 				push!(DT,T)
 				for ff in setdiff(faces,[f])
 					inters = AlphaShape.Intersect(Ptot, P, ff, axis, off)
 					if inters == 0
-						AFL_α = AlphaShape.Update(ff,AFL_α)
+						AFL_α = AlphaShape.Update(ff, AFL_α)
 					elseif inters == -1
-						AFLminus = AlphaShape.Update(ff,AFLminus)
+						AFLminus = AlphaShape.Update(ff, AFLminus)
 					elseif inters == 1
-						AFLplus = AlphaShape.Update(ff,AFLplus)
+						AFLplus = AlphaShape.Update(ff, AFLplus)
 					end
 				end
 			end
@@ -211,10 +217,10 @@ function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis
 
 	newaxis = circshift(axis,1)
 	if !isempty(AFLminus)
-    	DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis,lista))
+    	DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
 	end
 	if !isempty(AFLplus)
-		DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis,lista))
+		DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
 	end
 	return DT
 end
