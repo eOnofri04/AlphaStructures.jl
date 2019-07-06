@@ -69,51 +69,53 @@ One of halfspace associated with `f` contains no point iff face `f` is part of
 the Convex Hull of the pointset P;
 in this case the algorithm correctly returns no adjacent simplex and returns `nothing`.
 """
-function MakeSimplex(f::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
+function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 	#DA MIGLIORARE
 	df = length(f) 	#dimension face
 	d = size(P,1)+1 #dimension upper_simplex
 	axis = Lar.cross(Ptot[:,f[2]]-Ptot[:,f[1]],Ptot[:,f[3]]-Ptot[:,f[1]])
 	off = Lar.dot(axis,Ptot[:,f[1]])
 	Pminus,Pplus = AlphaShape.pointsetPartition(P,axis,off)
+	pointIn = Ptot[:,setdiff(tetra,f)]
 
 	simplexPoint = [Ptot[:,v] for v in f]
 
-	if !isempty(Pminus)
-		for dim = df+1:d
-			try
-				radius = [AlphaShape.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
-		    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
-		    	ind = findall(x->x == minRad, radius)[1]
-		    	p = Pminus[:, ind]
-				@assert p ∉ simplexPoint " Planar dataset"
-			    index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
-				t1 = sort([f...,index])
-			catch
-				t1 = nothing
+	if [pointIn...] in [Pplus[:,v] for v in 1:size(Pplus,2)]
+		if !isempty(Pminus)
+			for dim = df+1:d
+				try
+					radius = [AlphaShape.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
+			    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
+			    	ind = findall(x->x == minRad, radius)[1]
+			    	p = Pminus[:, ind]
+					@assert p ∉ simplexPoint " Planar dataset"
+					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
+					t = sort([f...,index])
+				catch
+					t = nothing
+				end
 			end
+		else t = nothing
 		end
-	else t1 = nothing
-	end
-
-	if !isempty(Pplus)
-		for dim = df+1:d
-			try
-				radius = [AlphaShape.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
-		    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
-		    	ind = findall(x->x == minRad, radius)[1]
-		    	p = Pplus[:, ind]
-				@assert p ∉ simplexPoint " Planar dataset"
-			    index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
-				t2 = sort([f...,index])
-			catch
-				t2 = nothing
+	else
+		if !isempty(Pplus)
+			for dim = df+1:d
+				try
+					radius = [AlphaShape.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
+			    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
+			    	ind = findall(x->x == minRad, radius)[1]
+			    	p = Pplus[:, ind]
+					@assert p ∉ simplexPoint " Planar dataset"
+					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
+					t = sort([f...,index])
+				catch
+					t = nothing
+				end
 			end
+		else t = nothing
 		end
-	else t2 = nothing
 	end
-
-	return t1,t2
+	return t
 end
 
 """
@@ -135,75 +137,84 @@ end
 Given a set of points this function returns the upper simplex list
 of the Delaunay triangulation.
 """
-function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1})::Array{Array{Int64,1},1}
+	lista = DataStructures.Dict{}()
+function DeWall(Ptot::Lar.Points,P::Lar.Points,AFL::Array{Array{Int64,1},1},axis::Array{Float64,1},lista)::Array{Array{Int64,1},1}
 	#se punti planari o pochi punti deve tornare DT=[] e non fermare il corso dell'algoritmo
-    @assert size(P,1) == 3  #in R^3
+	@assert size(P,1) == 3  #in R^3
 
-    # 0 - initialization of list
-    AFL_α = Array{Int64,1}[]      # (d-1)faces intersected by plane α;
-    AFLplus = Array{Int64,1}[]    # (d-1)faces completely contained in PosHalfspace(α);
-    AFLminus = Array{Int64,1}[]   # (d-1)faces completely contained in NegHalfspace(α).
-    DT = Array{Int64,1}[]
+	# 0 - initialization of list
+	AFL_α = Array{Int64,1}[]      # (d-1)faces intersected by plane α;
+	AFLplus = Array{Int64,1}[]    # (d-1)faces completely contained in PosHalfspace(α);
+	AFLminus = Array{Int64,1}[]   # (d-1)faces completely contained in NegHalfspace(α).
+	DT = Array{Int64,1}[]
+	tetra=[]
 
-    # 1 - Select the splitting plane α; defined by axis and an origin point `off`
-    off = AlphaShape.SplitValue(P,axis)
+	# 1 - Select the splitting plane α; defined by axis and an origin point `off`
+	off = AlphaShape.SplitValue(P,axis)
 	if off == nothing
 		return DT
 	end
 
 	# 2 - construct two subsets P− and P+ ;
-    Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
+	Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
 
 	# 3 - construct first tetrahedra if necessary
-    if isempty(AFL)
-        t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off) #ToDo da migliorare
+	if isempty(AFL)
+		t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off) #ToDo da migliorare
 		if !isempty(t)
-			AFL = AlphaShape.Faces(t) # d-1 - faces of t
-        	push!(DT,t)
+			AFL = AlphaShape.Faces(t)# d-1 - faces of t
+			lista[AFL]=t
+			push!(DT,t)
 		else
 			return DT
 		end
-    end
+	end
 
-    for f in AFL
+	for f in AFL
 		inters = AlphaShape.Intersect(Ptot, P, f, axis, off)
-        if inters == 0 #intersected by plane α
-            push!(AFL_α,f)
-        elseif inters == -1 #in NegHalfspace(α)
-            push!(AFLminus,f)
-        elseif inters == 1 #in PosHalfspace(α)
-            push!(AFLplus,f)
-        end
-    end
+    	if inters == 0 #intersected by plane α
+        	push!(AFL_α,f)
+		elseif inters == -1 #in NegHalfspace(α)
+        	push!(AFLminus,f)
+    	elseif inters == 1 #in PosHalfspace(α)
+        	push!(AFLplus,f)
+    	end
+	end
 
 	# 4 - construct Sα, simplexWall
-    while !isempty(AFL_α) #The Sα construction terminates when the AFL_α is empty
-        f = popfirst!(AFL_α)
-        T = AlphaShape.MakeSimplex(f, Ptot, P) #ne trova 2 devo prendere quello che non sta in DT
-		for t in T
-			if t != nothing && t ∉ DT
-				#PROBLEMA STA QUI va in Loop forse MakeSimplex non funziona
-	            push!(DT,t)
-	            for ff in setdiff(AlphaShape.Faces(t),[f])
-					inters = AlphaShape.Intersect(Ptot,P, ff, axis, off)
-	                if inters == 0
-	                    AFL_α = AlphaShape.Update(ff,AFL_α)
-	                elseif inters == -1
-	                    AFLminus = AlphaShape.Update(ff,AFLminus)
-	                elseif inters == 1
-	                    AFLplus = AlphaShape.Update(ff,AFLplus)
-	                end
-	            end
-	        end
+	while !isempty(AFL_α) #The Sα construction terminates when the AFL_α is empty
+    	f = popfirst!(AFL_α)
+		for triangle in keys(lista)
+			if f in triangle
+				tetra = get(lista,triangle,1)
+			end
 		end
-    end
+    	T = AlphaShape.MakeSimplex(f, tetra, Ptot, P) #ne trova 2 devo prendere quello che non sta in DT
+			if T != nothing && T ∉ DT
+				#PROBLEMA STA QUI: dobbiamo dirgli da quale tetraedro deriva la faccia
+				#così da sapere da che parte cercare il vertice
+				faces = AlphaShape.Faces(T) # d-1 - faces of t
+				lista[faces] = T
+				push!(DT,T)
+				for ff in setdiff(faces,[f])
+					inters = AlphaShape.Intersect(Ptot, P, ff, axis, off)
+					if inters == 0
+						AFL_α = AlphaShape.Update(ff,AFL_α)
+					elseif inters == -1
+						AFLminus = AlphaShape.Update(ff,AFLminus)
+					elseif inters == 1
+						AFLplus = AlphaShape.Update(ff,AFLplus)
+					end
+				end
+			end
+	end
 
-    newaxis = circshift(axis,1)
-    if !isempty(AFLminus)
-    	DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis))
-    end
-    if !isempty(AFLplus)
-    	DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis))
-    end
-    return DT
+	newaxis = circshift(axis,1)
+	if !isempty(AFLminus)
+    	DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis,lista))
+	end
+	if !isempty(AFLplus)
+		DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis,lista))
+	end
+	return DT
 end
