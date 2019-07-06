@@ -13,11 +13,11 @@ about 1-face (p1 , p2 ) and point p3 is minimized:
 the points (p1 , p2 , p3 ) are a 2-face of the DT(P).
 The process continues in the same way until the required first d-simplex is built.
 """
-function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
-
+function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float64,1}, off::Float64)
 	d = size(P,1)+1 # dimension of upper_simplex
 	@assert d < 5 "Error: Function not yet Programmed."
 	indices = Int64[]
+	found = true
 
     Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
 
@@ -54,8 +54,19 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 			push!(simplexPoint,p)
 			push!(indices,index)
 		catch
-			return indices = []
+			return []
 		end
+	end
+
+	for i = 1:size(Ptot,2)
+		T = [ Ptot[:, v] for v in indices ]
+		if AlphaShape.vertexInCircumball(T,AlphaShape.foundRadius(T)-1.e-10,Ptot[:,[i]])
+			found = false
+		end
+	end
+
+	if !found
+		return nothing
 	end
 
     return sort(indices)
@@ -71,12 +82,14 @@ in this case the algorithm correctly returns no adjacent simplex and returns `no
 """
 function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 	#DA MIGLIORARE
+	found = true
 	df = length(f) 	#dimension face
 	d = size(P,1)+1 #dimension upper_simplex
 	axis = Lar.cross(Ptot[:,f[2]]-Ptot[:,f[1]],Ptot[:,f[3]]-Ptot[:,f[1]])
 	off = Lar.dot(axis,Ptot[:,f[1]])
 	Pminus,Pplus = AlphaShape.pointsetPartition(P,axis,off)
 	pointIn = Ptot[:,setdiff(tetra,f)]
+	t=Int64[]
 
 	simplexPoint = [Ptot[:,v] for v in f]
 
@@ -92,10 +105,10 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 					t = sort([f...,index])
 				catch
-					t = nothing
+					return nothing
 				end
 			end
-		else t = nothing
+		else return nothing
 		end
 	else
 		if !isempty(Pplus)
@@ -109,12 +122,24 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 					t = sort([f...,index])
 				catch
-					t = nothing
+					return nothing
 				end
 			end
-		else t = nothing
+		else return nothing
 		end
 	end
+
+	for i = 1:size(Ptot,2)
+		T = [ Ptot[:, v] for v in t ]
+		if AlphaShape.vertexInCircumball(T,AlphaShape.foundRadius(T)-1.e-10,Ptot[:,[i]])
+			found = false
+		end
+	end
+
+	if !found
+		return nothing
+	end
+
 	return t
 end
 
@@ -150,12 +175,15 @@ function DeWall(Ptot::Lar.Points,
 	#se punti planari o pochi punti deve tornare DT=[] e non fermare il corso dell'algoritmo
 	@assert size(P,1) == 3  #in R^3
 
+	print("entro ")
+
 	# 0 - initialization of list
 	AFL_α = Array{Int64,1}[]    # (d-1)faces intersected by plane α;
 	AFLplus = Array{Int64,1}[]  # (d-1)faces completely contained in PosHalfspace(α);
 	AFLminus = Array{Int64,1}[] # (d-1)faces completely contained in NegHalfspace(α).
 	DT = Array{Int64,1}[]		# Delaunay triangulation
-	tetra = Int64[] 			# definition
+	tetra = Int64[]
+	f = Int64[] 			# definition
 
 	# 1 - Select the splitting plane α; defined by axis and an origin point `off`
 	off = AlphaShape.SplitValue(P,axis)
@@ -197,7 +225,8 @@ function DeWall(Ptot::Lar.Points,
 				tetra = get(tetraDict,triangle,1)
 			end
 		end
-    	T = AlphaShape.MakeSimplex(f, tetra, Ptot, P) #ne trova 2 devo prendere quello che non sta in DT
+    	T = AlphaShape.MakeSimplex(f, tetra, Ptot, P)
+		@show T
 			if T != nothing && T ∉ DT
 				faces = AlphaShape.Faces(T) # d-1 - faces of t
 				tetraDict[ faces ] = T

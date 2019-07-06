@@ -1,5 +1,5 @@
 include("../src/AlphaShape.jl")
-using Plasm, LinearAlgebraicRepresentation
+using Plasm, LinearAlgebraicRepresentation, DataStructures
 Lar = LinearAlgebraicRepresentation
 
 filename = "examples/OBJ/teapot.obj";
@@ -22,4 +22,5 @@ Plasm.view(V,[[i] for i = 1:size(V,2)])
 
 AFL = Array{Int64,1}[]
 axis = [1.,0.,0.]
-AlphaShape.DeWall(V,V,AFL,axis)
+tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()
+DT = AlphaShape.DeWall(V,V,AFL,axis,tetraDict)
