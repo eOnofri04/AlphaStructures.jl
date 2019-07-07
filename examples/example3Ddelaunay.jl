@@ -10,9 +10,10 @@ function Point3D(n)
     return V
 end
 
-V = Point3D(10)
+V = Point3D(50)
 VV = [[i] for i =1:size(V,2)]
 Plasm.view(V,VV)
+Ptot=copy(P)
 AFL = Array{Int64,1}[]
 axis = [1.,0.,0.]
 tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()

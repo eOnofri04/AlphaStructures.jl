@@ -54,13 +54,13 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 			push!(simplexPoint,p)
 			push!(indices,index)
 		catch
-			return []
+			return nothing
 		end
 	end
 
 	for i = 1:size(Ptot,2)
-		T = [ Ptot[:, v] for v in indices ]
-		if AlphaShape.vertexInCircumball(T,AlphaShape.foundRadius(T)-1.e-10,Ptot[:,[i]])
+		if AlphaShape.vertexInCircumball(simplexPoint,AlphaShape.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
+			print("non trovo")
 			found = false
 		end
 	end
@@ -101,7 +101,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 			    	ind = findall(x->x == minRad, radius)[1]
 			    	p = Pminus[:, ind]
-					@assert p ∉ simplexPoint " Planar dataset"
+					#@assert p ∉ simplexPoint " Planar dataset"
 					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 					t = sort([f...,index])
 				catch
@@ -118,7 +118,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 			    	ind = findall(x->x == minRad, radius)[1]
 			    	p = Pplus[:, ind]
-					@assert p ∉ simplexPoint " Planar dataset"
+					#@assert p ∉ simplexPoint " Planar dataset"
 					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 					t = sort([f...,index])
 				catch
@@ -138,22 +138,9 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 
 	if !found
 		return nothing
+	else
+		return t
 	end
-
-	return t
-end
-
-"""
-	Update(element,list)
-
-Return update `list`: if `element` ∈ `list`, delete `element`, else push the `element`.
-"""
-function Update(element,list)
-    if element ∈ list
-        setdiff!(list, [element])
-    else push!(list,element)
-	end
-	return list
 end
 
 """
@@ -182,8 +169,8 @@ function DeWall(Ptot::Lar.Points,
 	AFLplus = Array{Int64,1}[]  # (d-1)faces completely contained in PosHalfspace(α);
 	AFLminus = Array{Int64,1}[] # (d-1)faces completely contained in NegHalfspace(α).
 	DT = Array{Int64,1}[]		# Delaunay triangulation
-	tetra = Int64[]
-	f = Int64[] 			# definition
+	tetra = Int64[]# definition
+	f = Int64[] # definition
 
 	# 1 - Select the splitting plane α; defined by axis and an origin point `off`
 	off = AlphaShape.SplitValue(P,axis)
@@ -197,7 +184,7 @@ function DeWall(Ptot::Lar.Points,
 	# 3 - construct first tetrahedra if necessary
 	if isempty(AFL)
 		t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off) #ToDo da migliorare
-		if !isempty(t)
+		if t!=nothing
 			AFL = AlphaShape.Faces(t)# d-1 - faces of t
 			tetraDict[ AFL ] = t
 			push!(DT,t)

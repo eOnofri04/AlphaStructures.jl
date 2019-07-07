@@ -47,27 +47,6 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 end
 
 """
-	vertexInCircumball(
-		T::Array{Array{Float64,1},1},
-		α_char::Float64,
-		point::Array{Float64,2}
-	)::Bool
-
-Determine if a point is inner of the circumball determined by `T` points
-	and radius `α_char`.
-
-"""
-function vertexInCircumball(
-		T::Array{Array{Float64,1},1},
-		α_char::Float64,
-		point::Array{Float64,2}
-	)::Bool
-
-	center = AlphaShape.foundCenter(T)
-	return Lar.norm(point - center) <= α_char
-end
-
-"""
 	alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.

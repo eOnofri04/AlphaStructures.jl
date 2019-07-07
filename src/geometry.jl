@@ -1,4 +1,17 @@
 """
+	Update(element,list)
+
+Return update `list`: if `element` ∈ `list`, delete `element`, else push the `element`.
+"""
+function Update(element,list)
+    if element ∈ list
+        setdiff!(list, [element])
+    else push!(list,element)
+	end
+	return list
+end
+
+"""
 	RightSide(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
 
 Return
@@ -171,4 +184,25 @@ function foundRadius(T::Array{Array{Float64,1},1})::Float64
 	alpha = round(Lar.norm(T[1] - center), sigdigits = 14) # number approximation
 
 	return alpha
+end
+
+"""
+	vertexInCircumball(
+		T::Array{Array{Float64,1},1},
+		α_char::Float64,
+		point::Array{Float64,2}
+	)::Bool
+
+Determine if a point is inner of the circumball determined by `T` points
+	and radius `α_char`.
+
+"""
+function vertexInCircumball(
+		T::Array{Array{Float64,1},1},
+		α_char::Float64,
+		point::Array{Float64,2}
+	)::Bool
+
+	center = AlphaShape.foundCenter(T)
+	return Lar.norm(point - center) <= α_char
 end

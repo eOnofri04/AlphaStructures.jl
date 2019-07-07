@@ -4,6 +4,13 @@ else
 	using Test
 end
 
+@testset "Update" begin
+	@test AlphaShape.Update(1,[2,3,4]) == [2,3,4,1]
+	@test AlphaShape.Update(4,[2,3,4]) == [2,3]
+	@test AlphaShape.Update([3,4],[[1,2],[2,3]]) == [[1,2],[2,3],[3,4]]
+	@test AlphaShape.Update([1,2],[[1,2],[2,3]]) == [[2,3]]
+end
+
 @testset "SidePlane" begin
 	@test AlphaShape.SidePlane([-4.,5.,6.],[1.,0,0],3.) == -1
 	@test AlphaShape.SidePlane([1.,1.,0.],[1.,1.,1.],2.) == 0
@@ -119,6 +126,52 @@ end
 		@test isapprox(AlphaShape.foundRadius(P), 1., atol=1e-4)
 		@test AlphaShape.foundRadius(Q) == 1.
 		@test isnan(AlphaShape.foundRadius(R))
+	end
+
+end
+
+@testset "Vertex in Circumball" begin
+
+	@testset "2D Vertex in Circumball" begin
+		V=[
+			0. 1. 0.;
+			0. 0. 1.
+		]
+		simplex = [2, 3]
+		up_simplex = [1, 2, 3]
+		point = V[:, setdiff(up_simplex, simplex)]
+		T=[ V[:, v] for v in simplex ]
+		@test AlphaShape.vertexInCircumball(T, AlphaShape.foundRadius(T), point)
+	end
+
+	@testset "3D Vertex in Circumball" begin
+
+		@testset "edge and triangle" begin
+			V=[
+				0. 1. 0.;
+				0. 0. 1.;
+				0. 0. 0.
+			]
+			simplex = [2, 3]
+			up_simplex = [1, 2, 3]
+			point = V[:, setdiff(up_simplex, simplex)]
+			T=[ V[:, v] for v in simplex ]
+			@test AlphaShape.vertexInCircumball(T, AlphaShape.foundRadius(T), point)
+		end
+
+		@testset "triangle and tetrahedron" begin
+			V=[
+				0. 1. 0. 0.;
+				0. 0. 1. 0.;
+				0. 0. 0. 1.
+			]
+			simplex = [2, 3, 4]
+			up_simplex = [1, 2, 3, 4]
+			point = V[:, setdiff(up_simplex, simplex)]
+			T=[ V[:, v] for v in simplex ]
+			@test AlphaShape.vertexInCircumball(T, AlphaShape.foundRadius(T), point)
+		end
+
 	end
 
 end
