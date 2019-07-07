@@ -20,6 +20,8 @@ V,EVs,FVs = Lar.obj2lar(filename)
 
 Plasm.view(V,[[i] for i = 1:size(V,2)])
 
+#prima dobbiamo riempire con i punti interni
+
 AFL = Array{Int64,1}[]
 axis = [1.,0.,0.]
 tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()

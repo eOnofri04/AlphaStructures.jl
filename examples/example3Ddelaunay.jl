@@ -10,13 +10,14 @@ function Point3D(n)
     return V
 end
 
-V = Point3D(50)
+V = Point3D(100)
 VV = [[i] for i =1:size(V,2)]
 Plasm.view(V,VV)
-Ptot=copy(P)
 AFL = Array{Int64,1}[]
-axis = [1.,0.,0.]
+axis = [0.,1.,0.] #se non funziona con un asse provo con un altro
 tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()
 DT = AlphaShape.DeWall(V,V,AFL,axis,tetraDict)
+
+
 Plasm.view(V,DT)
-Plasm.viewexploded(V,DT)(2.,2.,2.)
+Plasm.viewexploded(V,DT)(1.2,1.2,1.2)
