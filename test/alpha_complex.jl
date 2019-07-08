@@ -24,7 +24,13 @@ end
 	end
 
 	@testset "3D delaunayTriangulation" begin
-
+		V = [
+			0.0 1.0 0.0 2.0 0.0 1.0 0.0 2.0;
+			0.0 0.0 1.0 2.0 0.0 0.0 1.0 2.0;
+			0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
+		]
+		D = AlphaShape.delaunayTriangulation(V)
+		@test D == [[1,2,3,5],[2,3,4,6],[2,3,5,6],[3,4,6,7],[3,5,6,7],[4,6,7,8]]
 	end
 
 end
@@ -74,7 +80,26 @@ end
 	end
 
 	@testset "3D α Filter" begin
+		V = [
+			0.0 1.0 0.0 0.0 1.0 0.0;
+			0.0 0.0 1.0 0.0 0.0 1.0;
+			0.0 0.0 0.0 1.0 1.0 1.0
+		]
 
+		# Expected Output
+		VV = [[1],[2],[3],[4],[5],[6]]
+		CV = [[1,2,3,4],[2,3,4,5],[3,4,5,6]]
+
+		# Evaluation
+		filter = AlphaShape.alphaFilter(V)
+
+		@test length(unique(keys(filter))) == 4
+		@test isapprox(unique(keys(filter)),
+			[0.0, 0.5, 0.7071, 0.8660 ], atol=1e-4
+		)
+		@test length(unique(values(filter))) == 31
+		@test sort([v for v in unique(values(filter)) if length(v) == 1]) == VV
+		@test sort([v for v in unique(values(filter)) if length(v) == 4]) == CV
 	end
 
 end
@@ -133,7 +158,34 @@ end
 	end
 
 	@testset "3D α Simplex" begin
+		# Input Data
+		V = [
+			0.0  1.0  0.0  0.0  2.0;
+			0.0  0.0  1.0  0.0  2.0;
+			0.0  0.0  0.0  1.0  2.0
+		]
+		filtration = AlphaShape.alphaFilter(V)
 
+		# α = 0.0
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.0)
+		@test α_simplices[1] == [[1],[2],[3],[4],[5]]
+		@test isempty(α_simplices[2])
+		@test isempty(α_simplices[3])
+		@test isempty(α_simplices[4])
+		# α = 0.5
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.5)
+		@test α_simplices[2] == [[1,2],[1,3],[1,4]]
+		@test isempty(α_simplices[3])
+		@test isempty(α_simplices[4])
+		# α = 1.0
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.0)
+		@test α_simplices[2] == [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+		@test α_simplices[3] == [[1,2,3],[1,2,4],[1,3,4],[2,3,4]]
+		@test α_simplices[4] == [[1,2,3,4]]
+
+		# α = 1.5
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.6)
+		@test α_simplices[4] == [[1,2,3,4],[2,3,4,5]]
 	end
 
 end

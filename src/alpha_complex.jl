@@ -38,7 +38,8 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 	elseif dim == 3
 		axis = [1.,0.,0.]
 		AFL = Array{Int64,1}[]
-		upper_simplex = AlphaShape.DeWall(V,V,AFL,axis)
+		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
+		upper_simplex = AlphaShape.DeWall(V,V,AFL,axis,tetraDict)
 	end
 
 	sort!.(upper_simplex)

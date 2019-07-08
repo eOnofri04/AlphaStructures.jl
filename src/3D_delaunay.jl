@@ -60,6 +60,7 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 		end
 	end
 
+	#no points inside the circumball
 	for i = 1:size(Ptot,2)
 		if AlphaShape.vertexInCircumball(simplexPoint,AlphaShape.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
 			found = false
@@ -105,6 +106,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 			    	ind = findall(x->x == minRad, radius)[1]
 			    	p = Pminus[:, ind]
+					push!(simplexPoint,p)
 					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 					t = sort([f...,index])
 				catch
@@ -121,6 +123,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 			    	ind = findall(x->x == minRad, radius)[1]
 			    	p = Pplus[:, ind]
+					push!(simplexPoint,p)
 					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 					t = sort([f...,index])
 				catch
@@ -131,9 +134,9 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 		end
 	end
 
+	#no points inside the circumball
 	for i = 1:size(Ptot,2)
-		T = [ Ptot[:, v] for v in t ]
-		if AlphaShape.vertexInCircumball(T,AlphaShape.foundRadius(T)-1.e-10,Ptot[:,[i]])
+		if AlphaShape.vertexInCircumball(simplexPoint,AlphaShape.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
 			found = false
 		end
 	end
@@ -184,7 +187,7 @@ function DeWall(Ptot::Lar.Points,
 
 	# 3 - construct first tetrahedra if necessary
 	if isempty(AFL)
-		t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off) #ToDo da migliorare
+		t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off)
 		if t != nothing
 			AFL = AlphaShape.Faces(t)# d-1 - faces of t
 			tetraDict[ AFL ] = t
@@ -218,10 +221,12 @@ function DeWall(Ptot::Lar.Points,
 
     	T = AlphaShape.MakeSimplex(f, tetra, Ptot, P)
 		if T != nothing && T ∉ DT
-			faces = AlphaShape.Faces(T) # d-1 - faces of t
-			tetraDict[ faces ] = T
 			push!(DT,T)
-			for ff in setdiff(faces, [f])
+
+			faces = setdiff(AlphaShape.Faces(T), [f]) # d-1 - faces of t
+			tetraDict[ faces ] = T
+
+			for ff in faces
 				inters = AlphaShape.Intersect(Ptot, P, ff, axis, off)
 				if inters == 0
 					AFL_α = AlphaShape.Update(ff, AFL_α)
