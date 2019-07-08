@@ -41,7 +41,9 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 
     #The other points are that with previous ones builds the smallest hypersphere.
 	#for point in P
+
 	simplexPoint = [p1,p2]
+
 	for dim = length(simplexPoint)+1:d
 		try
 			radius = [AlphaShape.foundRadius([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
@@ -60,7 +62,6 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 
 	for i = 1:size(Ptot,2)
 		if AlphaShape.vertexInCircumball(simplexPoint,AlphaShape.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
-			print("non trovo")
 			found = false
 		end
 	end
@@ -75,21 +76,24 @@ end
 """
 	MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 
-Given a face `f`, return the adjacent simplices.
+Given a face `f`, return the adjacent simplices in the outer halfspace,
+that is in the opposite halfspace of where tetra lies.
 One of halfspace associated with `f` contains no point iff face `f` is part of
 the Convex Hull of the pointset P;
 in this case the algorithm correctly returns no adjacent simplex and returns `nothing`.
 """
 function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
-	#DA MIGLIORARE
+
 	found = true
+	t = Int64[]
 	df = length(f) 	#dimension face
 	d = size(P,1)+1 #dimension upper_simplex
+
 	axis = Lar.cross(Ptot[:,f[2]]-Ptot[:,f[1]],Ptot[:,f[3]]-Ptot[:,f[1]])
 	off = Lar.dot(axis,Ptot[:,f[1]])
 	Pminus,Pplus = AlphaShape.pointsetPartition(P,axis,off)
+
 	pointIn = Ptot[:,setdiff(tetra,f)]
-	t=Int64[]
 
 	simplexPoint = [Ptot[:,v] for v in f]
 
@@ -101,7 +105,6 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 			    	ind = findall(x->x == minRad, radius)[1]
 			    	p = Pminus[:, ind]
-					#@assert p ∉ simplexPoint " Planar dataset"
 					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 					t = sort([f...,index])
 				catch
@@ -118,7 +121,6 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			    	minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 			    	ind = findall(x->x == minRad, radius)[1]
 			    	p = Pplus[:, ind]
-					#@assert p ∉ simplexPoint " Planar dataset"
 					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 					t = sort([f...,index])
 				catch
@@ -148,8 +150,8 @@ end
 		P::Lar.Points,
 		AFL::Array{Array{Int64,1},1},
 		axis::Array{Float64,1},
-		lista::DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}
-		)::Array{Array{Int64,1},1}
+		lista::DataStructures.Dict{Lar.Cells,1},Array{Int64,1}}
+		)::Lar.Cells
 
 Given a set of points this function returns the upper simplex list
 of the Delaunay triangulation.
@@ -158,11 +160,10 @@ function DeWall(Ptot::Lar.Points,
 				P::Lar.Points,
 				AFL::Array{Array{Int64,1},1},
 				axis::Array{Float64,1},
-				tetraDict::DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}})::Array{Array{Int64,1},1}
+				tetraDict::DataStructures.Dict{Lar.Cells,Array{Int64,1}})::Lar.Cells
+
 	#se punti planari o pochi punti deve tornare DT=[] e non fermare il corso dell'algoritmo
 	@assert size(P,1) == 3  #in R^3
-
-	print("entro ")
 
 	# 0 - initialization of list
 	AFL_α = Array{Int64,1}[]    # (d-1)faces intersected by plane α;
@@ -184,7 +185,7 @@ function DeWall(Ptot::Lar.Points,
 	# 3 - construct first tetrahedra if necessary
 	if isempty(AFL)
 		t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off) #ToDo da migliorare
-		if t!=nothing
+		if t != nothing
 			AFL = AlphaShape.Faces(t)# d-1 - faces of t
 			tetraDict[ AFL ] = t
 			push!(DT,t)
@@ -196,39 +197,42 @@ function DeWall(Ptot::Lar.Points,
 	for f in AFL
 		inters = AlphaShape.Intersect(Ptot, P, f, axis, off)
     	if inters == 0 #intersected by plane α
-        	push!(AFL_α,f)
+        	push!(AFL_α, f)
 		elseif inters == -1 #in NegHalfspace(α)
-        	push!(AFLminus,f)
+        	push!(AFLminus, f)
     	elseif inters == 1 #in PosHalfspace(α)
-        	push!(AFLplus,f)
+        	push!(AFLplus, f)
     	end
 	end
 
 	# 4 - construct Sα, simplexWall
 	while !isempty(AFL_α) #The Sα construction terminates when the AFL_α is empty
-    	f = popfirst!(AFL_α)
+
+		f = popfirst!(AFL_α)
+
 		for triangle in keys(tetraDict)
 			if f in triangle
 				tetra = get(tetraDict,triangle,1)
 			end
 		end
+
     	T = AlphaShape.MakeSimplex(f, tetra, Ptot, P)
-		@show T
-			if T != nothing && T ∉ DT
-				faces = AlphaShape.Faces(T) # d-1 - faces of t
-				tetraDict[ faces ] = T
-				push!(DT,T)
-				for ff in setdiff(faces,[f])
-					inters = AlphaShape.Intersect(Ptot, P, ff, axis, off)
-					if inters == 0
-						AFL_α = AlphaShape.Update(ff, AFL_α)
-					elseif inters == -1
-						AFLminus = AlphaShape.Update(ff, AFLminus)
-					elseif inters == 1
-						AFLplus = AlphaShape.Update(ff, AFLplus)
-					end
+		if T != nothing && T ∉ DT
+			faces = AlphaShape.Faces(T) # d-1 - faces of t
+			tetraDict[ faces ] = T
+			push!(DT,T)
+			for ff in setdiff(faces, [f])
+				inters = AlphaShape.Intersect(Ptot, P, ff, axis, off)
+				if inters == 0
+					AFL_α = AlphaShape.Update(ff, AFL_α)
+				elseif inters == -1
+					AFLminus = AlphaShape.Update(ff, AFLminus)
+				elseif inters == 1
+					AFLplus = AlphaShape.Update(ff, AFLplus)
 				end
 			end
+		end
+
 	end
 
 	newaxis = circshift(axis,1)
@@ -238,5 +242,6 @@ function DeWall(Ptot::Lar.Points,
 	if !isempty(AFLplus)
 		DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
 	end
+
 	return DT
 end

@@ -77,8 +77,8 @@ end
 Return the distance between `point` and plane α defined by `axis` and `off`.
 """
 function distPointPlane(point::Array{Float64,1},axis::Array{Float64,1},off::Float64)::Float64
-	num = abs(axis[1]*point[1]+axis[2]*point[2]+axis[3]*point[3]-off)
-	den = sqrt(axis[1]^2+axis[2]^2+axis[3]^2)
+	num = abs(Lar.dot(point,axis)-off)
+	den = Lar.norm(axis)
 	return num/den
 end
 
@@ -102,8 +102,6 @@ function Intersect(Ptot::Lar.Points, P::Lar.Points, f::Array{Int64,1} ,axis::Arr
 	end
 
  	v3 = SidePlane(p3, axis, off)
-
-	#@assert v1 != 0 &&  v2 != 0 && v3 != 0 "Error: Face on Plane"
 
 	if v1 != v3
 		return 0
@@ -166,7 +164,7 @@ function foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
 	return center
 end
 
-""" DaRinominare foundRadius
+""" 
 	foundRadius(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.

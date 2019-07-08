@@ -4,7 +4,8 @@ else
 	using Test
 end
 
-using DataStructures
+using DataStructures ,LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
 
 @testset "MakeFirstWallSimplex" begin
 	P = [  -1.  1    1.5  2   ;
@@ -39,7 +40,7 @@ end
 	axis = [1.,0.,0.]
 
 	@testset "one tetrahedron" begin
-		tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()
+		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
 		P = [  -1.  1    1.5  2   ;
 				0.  0.2  1.3  1.  ;
 				0.  0.   0.   1.   ]
@@ -47,7 +48,7 @@ end
 	end
 
 	@testset "generic examples" begin
-		tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()
+		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
 		P = [  -1. -2. 3.  4.  5. -6.  ;
 				0.  1. 3. -2. -4.  2.  ;
 				1.  8. -5.  7.  4.  3.  ]
@@ -55,7 +56,7 @@ end
 	end
 
 	@testset "two tetrahedron" begin
-		tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()
+		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
 		P = [ 0. 1. 0  0  2.;
 		 	  0  0  1. 0  2.;
 			  0  0  0  1. 2.]
@@ -63,7 +64,7 @@ end
 	end
 
 	@testset "points on a plane" begin
-		tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()
+		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
 		P = [ 0. 0. 0  0  0.;
 	 	  	  2. 0  1. 0  2.;
 		  	  0  0  0  1. 2.]
@@ -71,7 +72,7 @@ end
 	end
 
 	@testset "cube" begin
-		tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()
+		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
 		P = [	0. 1 0 1 0. 1 0 1;
 				0. 0 1 1 0. 0 1 1;
 				0. 0 0 0 1. 1 1 1]
