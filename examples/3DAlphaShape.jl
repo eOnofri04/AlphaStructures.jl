@@ -24,5 +24,9 @@ Plasm.view(V,[[i] for i = 1:size(V,2)])
 
 AFL = Array{Int64,1}[]
 axis = [1.,0.,0.]
-tetraDict = DataStructures.Dict{Array{Array{Int64,1},1},Array{Int64,1}}()
+tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
 DT = AlphaShape.DeWall(V,V,AFL,axis,tetraDict)
+
+
+W = convert(Lar.Points,hcat(V[1,:],V[2,:])')
+Plasm.view(W,[[i] for i = 1:size(W,2)])
