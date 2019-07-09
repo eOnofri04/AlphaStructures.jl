@@ -1,23 +1,43 @@
+#
+#	This file contains:
+#	 - update(element, list)
+#	 - sidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
+#	 - splitValue(P::Lar.Points, axis::Array{Float64,1})
+#	 - pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
+#	 - faces(t::Array{Int64,1})::Array{Array{Int64,1},1}
+#	 - distPointPlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Float64
+#	 - intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
+#	 - foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
+#	 - foundRadius(T::Array{Array{Float64,1},1})::Float64
+#	 - vertexInCircumball(T::Array{Array{Float64,1},1},
+#			α_char::Float64,
+#			point::Array{Float64,2}
+#		):: Bool
+
+
 """
 	Update(element,list)
 
 Return update `list`: if `element` ∈ `list`, delete `element`, else push the `element`.
 """
-function Update(element,list)
-    if element ∈ list
-        setdiff!(list, [element])
-    else push!(list,element)
+function Update(element, list)
+	if element ∈ list
+        	setdiff!(list, [element])
+	else
+		push!(list, element)
 	end
 	return list
 end
 
-"""
-	RightSide(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
 
-Return
-	- `0`  if the point is on plane defined by normal `axis` and point `off`.
-	- `1`  if the point is in the positive half-space indicated by plane defined by normal `axis` and point `off`.
-	- `-1`  if the point is in the negatice half-space indicated by plane defined by normal `axis` and point `off`.
+
+"""
+	SidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
+
+Given a `point` and a hyperplane `α` (defined by a normal `axis` and a contant term `off`) it returns:
+ - `+0`  if `point` is on plane.
+ - `+1`  if `point` is in the positive half-space.
+ - `-1`  if `point` is in the negative half-space.
 """
 function SidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
 	side = round(Lar.dot(point,axis), sigdigits = 14)
@@ -27,11 +47,13 @@ function SidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64
 	end
 end
 
+
+
 """
     SplitValue(P::Lar.Points, axis::Array{Float64,1})
 
 Return threshold value for splitting plane α of pointset `P`. The splitting
-plane α is selected as a plane orthogonal to the axes (X, Y or Z in E^3 ), so:
+plane α is selected as a plane orthogonal to the axes (X, Y or Z in ``E^3`` ), so:
 	- axis = [1.,0,0] or
 	- axis = [0,1.,0] or
 	- axis = [0,0,1.].
@@ -40,14 +62,16 @@ function SplitValue(P::Lar.Points, axis::Array{Float64,1})
 	@assert axis == [1.,0,0] || axis == [0,1.,0] || axis == [0,0,1.] "Error: not a plane orthogonal to the axes "
 	coord = findall(x->x==1.,axis)[1]
 	valueP = sort(unique(P[coord,:]))
-    numberPoint = length(valueP)
+	numberPoint = length(valueP)
 	if numberPoint == 1
 		return nothing
 	else
-    	off = (valueP[floor(Int,numberPoint/2)] + valueP[floor(Int,numberPoint/2)+1])/2
-    return off
+    		off = (valueP[floor(Int,numberPoint/2)] + valueP[floor(Int,numberPoint/2)+1])/2
+		return off
 	end
 end
+
+
 
 """
     pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
@@ -57,9 +81,11 @@ Return two subsets of pointset `P` split by α plane defined by `axis` and `off`
 function pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
 	side = [AlphaShape.SidePlane(P[:,i],axis,off) for i = 1:size(P,2)]
 	Pminus = P[:,side.== -1 ] #points in NegHalfspace(α)
-    Pplus = P[:,side.== 1] #points in PosHalfspace(α)
-    return Pminus,Pplus
+	Pplus = P[:,side.== 1] #points in PosHalfspace(α)
+	return Pminus,Pplus
 end
+
+
 
 """
     Faces(t::Array{Int64,1})::Array{Array{Int64,1},1}
@@ -71,10 +97,12 @@ function Faces(t::Array{Int64,1})::Array{Array{Int64,1},1}
     return collect(Combinatorics.combinations(t, d-1))
 end
 
+
+
 """
 	distPointPlane(point::Array{Float64,1},axis::Array{Float64,1},off::Float64)::Float64
 
-Return the distance between `point` and plane α defined by `axis` and `off`.
+Return the distance between `point` and hyperplane α defined by `axis` and `off`.
 """
 function distPointPlane(point::Array{Float64,1},axis::Array{Float64,1},off::Float64)::Float64
 	num = abs(Lar.dot(point,axis)-off)
@@ -82,13 +110,15 @@ function distPointPlane(point::Array{Float64,1},axis::Array{Float64,1},off::Floa
 	return num/den
 end
 
+
+
 """
 	Intersect(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
 
-Given a face f and a plane α returns
- -   0 if f intersect α
- -  -1 if f is completely contained in NegHalfspace(α)
- -   1 if f is completely contained in PosHalfspace(α)
+Given a face `f` and a plane `α` (defined by the normal `axis` and the contant term `off`) it returns:
+ - `+0` if `f` intersect `α`
+ - `+1` if `f` is completely contained in the positive half space of `α`
+ - `-1` if `f` is completely contained in the negative half space of `α`
 """
 function Intersect(Ptot::Lar.Points, P::Lar.Points, f::Array{Int64,1} ,axis::Array{Float64,1}, off::Float64)::Int64
 
