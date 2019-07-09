@@ -109,7 +109,7 @@ With this knowledge it is pretty clear that we can sort the simplices via their 
     ```
 
 In particular this will be the key we use in our algorith to evaluate the ``\alpha``-structures.
-We will describe more precisely how to evaluate the charateristical ``\alpha`` in the _"Alpha Structures Implementation"_ [section 4.2](https://eonofri04.github.io/AlphaShape.jl/alpha-structures-impl/).
+We will describe more precisely how to evaluate the charateristical ``\alpha`` in the _"Alpha Structures Implementation"_ [section 4.2](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures-impl/).
 
 ## Other ``\alpha``-structures
 

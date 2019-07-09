@@ -4,8 +4,8 @@ using Documenter, AlphaShape
 
 makedocs(
 	format = :html,
-	sitename = "AlphaShape.jl",
-	assets = ["assets/AlphaShape.css", "assets/logo.png"],
+	sitename = "AlphaStructures.jl",
+	assets = ["assets/AlphaStructures.css", "assets/logo.png"],
 	pages = [
 		"1 - Home" => "index.md",
 		"2 - Getting Started" => "gettingStarted.md",

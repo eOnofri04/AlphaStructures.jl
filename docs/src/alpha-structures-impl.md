@@ -1,6 +1,6 @@
 # 4.2 - Alpha Structures Implementation
 
-As previously said in [section 3.3](https://eonofri04.github.io/AlphaShape.jl/alpha-structures/) we have addressed the problem of evaluate ``\alpha``-strutcures via ``\alpha``-filtering evaluation (namely the evaluation of the charateritcial ``\alpha`` for each simplex).
+As previously said in [section 3.3](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures/) we have addressed the problem of evaluate ``\alpha``-strutcures via ``\alpha``-filtering evaluation (namely the evaluation of the charateritcial ``\alpha`` for each simplex).
 
 ## The tasks
 
@@ -9,7 +9,7 @@ We could decompose the problem into three tasks:
  - evaluate the charateristical ``\alpha``
  - sort the simplices according to their ``\alpha``.
 
-The first task to solve is to evaluate the Triangulation. However we have discussed this problem in the [previous section](https://eonofri04.github.io/AlphaShape.jl/delaunay-impl/).
+The first task to solve is to evaluate the Triangulation. However we have discussed this problem in the [previous section](https://eonofri04.github.io/AlphaStructures.jl/delaunay-impl/).
 
 The last task also is pretty simple and teherefore we will not talk about it in this context.
 
@@ -19,7 +19,7 @@ The real problem occurs then when we want to evaluate the charateristical ``\alp
 
 ### Evaluate Charateristical ``\alpha``
 
-In order to obtain a simple method to evaluate charateristical ``\alpha`` so that it is dimensional indipendent we could use the dual of the Delaunay Triangulation we have described in [section 3.2](https://eonofri04.github.io/AlphaShape.jl/voronoy/): the Voronoy Diagram.
+In order to obtain a simple method to evaluate charateristical ``\alpha`` so that it is dimensional indipendent we could use the dual of the Delaunay Triangulation we have described in [section 3.2](https://eonofri04.github.io/AlphaStructures.jl/voronoy/): the Voronoy Diagram.
 
 In fact the following relation occurs:
 !!! fact
@@ -48,7 +48,7 @@ This key feature is the one we have used in our implementation. In fact, the pro
 
 ## The Implementation
 
-The solution we have proposed is located in the `alphaFilter` function (in [this](https://github.com/eOnofri04/AlphaShape.jl/blob/master/src/alpha_complex.jl) file):
+The solution we have proposed is located in the `alphaFilter` function (in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/alpha_complex.jl) file):
 ```@docs
 AlphaShape.alphaFilter
 ```

@@ -1,8 +1,8 @@
-# 1 - AlphaShape.jl
+# 1 - AlphaStructures.jl
 
-`AlphaShape.jl` is a [Julia](http://julialang.org) library that provides some tool for point cloud analysis.
+`AlphaStructures.jl` is a [Julia](http://julialang.org) library that provides some tool for point cloud analysis.
 
-With `AlphaShape.jl` you can:
+With `AlphaStructures.jl` you can:
  - evaluate the ``\alpha``-Shape of a point cloud
  - compute the ``\alpha``-Filtration of a point cloud
  - build the ``\alpha``-Complex of a point cloud
@@ -13,7 +13,7 @@ In this documentation we present the problem and the related solution we have im
 
 ## Dependencies
 
-`AlphaShape.jl` has the following dependeces:
+`AlphaStructures.jl` has the following dependeces:
  - [```Combinatorics.jl```](https://github.com/JuliaMath/Combinatorics.jl) by Julia Math
  - [```DataStructures.jl```](https://github.com/JuliaCollections/DataStructures.jl) by Julia Collections
  - [```LinearAlgebraicRepresentation```](https://github.com/cvdlab/LinearAlgebraicRepresentation.jl) by CVD Lab
