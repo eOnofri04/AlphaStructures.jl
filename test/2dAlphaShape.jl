@@ -8,7 +8,7 @@ end
 
 	V=[0 1 0 1; 0 0 1/2 1/2]
 	EV=[[1,2],[2,4],[4,3],[3,1]]
-	Vi, Ve, VVi, VVe = AlphaShape.pointsRand(V, EV, 1000, 10000);
+	Vi, Ve, VVi, VVe = AlphaStructures.pointsRand(V, EV, 1000, 10000);
 	@test size(Vi, 2) == 1000
 	@test size(Ve, 2) == 10000
 	@test length(VVi) == 1000

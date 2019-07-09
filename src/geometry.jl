@@ -79,7 +79,7 @@ end
 Return two subsets of pointset `P` split by α plane defined by `axis` and `off`.
 """
 function pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
-	side = [AlphaShape.SidePlane(P[:,i],axis,off) for i = 1:size(P,2)]
+	side = [AlphaStructures.SidePlane(P[:,i],axis,off) for i = 1:size(P,2)]
 	Pminus = P[:,side.== -1 ] #points in NegHalfspace(α)
 	Pplus = P[:,side.== 1] #points in PosHalfspace(α)
 	return Pminus,Pplus
@@ -208,7 +208,7 @@ function foundRadius(T::Array{Array{Float64,1},1})::Float64
 	k = length(T) - 1
 	@assert k <= dim +1 "ERROR: too much points."
 
-	center = AlphaShape.foundCenter(T)
+	center = AlphaStructures.foundCenter(T)
 	alpha = round(Lar.norm(T[1] - center), sigdigits = 14) # number approximation
 
 	return alpha
@@ -231,6 +231,6 @@ function vertexInCircumball(
 		point::Array{Float64,2}
 	)::Bool
 
-	center = AlphaShape.foundCenter(T)
+	center = AlphaStructures.foundCenter(T)
 	return Lar.norm(point - center) <= α_char
 end

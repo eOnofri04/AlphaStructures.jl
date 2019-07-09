@@ -1,3 +1,5 @@
+include("../src/AlphaStructures.jl")
+
 using Plasm, LinearAlgebraicRepresentation, DataStructures
 Lar = LinearAlgebraicRepresentation
 
@@ -17,7 +19,7 @@ Plasm.view(V,VV)
 AFL = Array{Int64,1}[]
 axis = [1.,0.,0.] #se non trova niente con un asse provo con un altro
 tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-DT = AlphaShape.DeWall(V,V,AFL,axis,tetraDict)
+DT = AlphaStructures.DeWall(V,V,AFL,axis,tetraDict)
 
 
 Plasm.view(V,DT)

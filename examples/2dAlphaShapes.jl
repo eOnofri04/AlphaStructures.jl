@@ -1,4 +1,5 @@
-include("../src/AlphaShape.jl")
+include("../src/AlphaStructures.jl")
+
 using Plasm, LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
@@ -25,7 +26,7 @@ Given a Lar complex `(V, EV)`, this method evaluates and gives back:
 
 # Examples
 ```jldoctest
-julia> Vi, Ve, VVi, VVe = AlphaShape.pointsRand(V, EV, 1000, 1000);
+julia> Vi, Ve, VVi, VVe = AlphaStructures.pointsRand(V, EV, 1000, 1000);
 ```
 """
 function pointsRand(
@@ -64,8 +65,8 @@ Vi, Ve, VVi, VVe = pointsRand(V, EV, 1000, 10000);
 Plasm.view(Vi, VVi)
 Plasm.view(Ve, VVe)
 
-filtration = AlphaShape.alphaFilter(Vi);
-VV,EV,FV = AlphaShape.alphaSimplex(V,filtration,0.02)
+filtration = AlphaStructures.alphaFilter(Vi);
+VV,EV,FV = AlphaStructures.alphaSimplex(V,filtration,0.02)
 
 Plasm.view(Vi, VV)
 Plasm.view(Vi, EV)
