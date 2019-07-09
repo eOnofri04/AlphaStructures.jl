@@ -42,7 +42,7 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 end
 
 """
-	alphaFilter(S::Lar.Points)::DataStructures.SortedMultiDict{}
+	alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
@@ -50,9 +50,9 @@ This method evaluates the ``\alpha``-filter over the sites `S`.
 
 # Examples
 ```jldoctest
-julia> S = [1. 2. 1. 2.; 0. 0. 1. 2. ];
+julia> V = [1. 2. 1. 2.; 0. 0. 1. 2. ];
 
-julia> AlphaStructures.alphaFilter(S)
+julia> AlphaStructures.alphaFilter(V)
 SortedMultiDict(Base.Order.ForwardOrdering(),
 	0.0 => [1],
 	0.0 => [2],
@@ -69,14 +69,14 @@ SortedMultiDict(Base.Order.ForwardOrdering(),
 
 ```
 """
-function alphaFilter(S::Lar.Points)::DataStructures.SortedMultiDict{}
+function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 
-	dim = size(S, 1)
+	dim = size(V, 1)
 
-	# 1 - Delaunay triangulation of `S`
+	# 1 - Delaunay triangulation of ``V``
 
 	Cells = [Array{Array{Int64,1},1}() for i=1:dim]  #Generalize definition
-	Cells[dim] = delaunayTriangulation(S)
+	Cells[dim] = delaunayTriangulation(V)
 
 	# 2 - 1..d-1 Cells Construction
 	# Cells[d] = Array{Int64}[]
@@ -122,7 +122,7 @@ function alphaFilter(S::Lar.Points)::DataStructures.SortedMultiDict{}
 	filtration = DataStructures.SortedMultiDict{Float64, Array{Int64,1}}()
 
 	# each point => α_char = 0.
-	for i = 1 : size(S, 2)
+	for i = 1 : size(V, 2)
 		insert!(filtration, 0., [i])
 	end
 
