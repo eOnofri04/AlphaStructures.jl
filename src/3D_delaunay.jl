@@ -1,10 +1,33 @@
+#
+#	This file contains:
+#	 - makeFirstWallSimplex(
+#			Ptot::Lar.Points,
+#			P::Lar.Points,
+#			axis::Array{Float64,1},
+#			off::Float64
+#		)::Array{Int64,1}
+#	 - makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
+#	 - deWall(
+#			Ptot::Lar.Points,
+#			P::Lar.Points,
+#			AFL::Array{Array{Int64,1},1},
+#			axis::Array{Float64,1},
+#			lista::DataStructures.Dict{Lar.Cells,1},Array{Int64,1}}
+#		)::Lar.Cells
+#
+
 """
-    MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Array{Int64,1}
+    makeFirstWallSimplex(
+    	Ptot::Lar.Points,
+    	P::Lar.Points,
+    	axis::Array{Float64,1},
+    	off::Float64
+    )::Array{Int64,1}
 
 Return the first simplex of Delaunay triangulation.
 
 ---
-The MakeFirstWallSimplex function selects the point p1 ∈ `P` nearest to the plane `α`.
+The makeFirstWallSimplex function selects the point p1 ∈ `P` nearest to the plane `α`.
 Then it selects a second point p2 such that:
 (a) p2 is on the other side of α from p1, and
 (b) p2 is the point in P with the minimum Euclidean distance from p1.
@@ -13,7 +36,7 @@ about 1-face (p1 , p2 ) and point p3 is minimized:
 the points (p1 , p2 , p3 ) are a 2-face of the DT(P).
 The process continues in the same way until the required first d-simplex is built.
 """
-function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float64,1}, off::Float64)
+function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float64,1}, off::Float64)
 	d = size(P,1)+1 # dimension of upper_simplex
 	@assert d < 5 "Error: Function not yet Programmed."
 	indices = Int64[]
@@ -75,7 +98,7 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 end
 
 """
-	MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
+	makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 
 Given a face `f`, return the adjacent simplices in the outer halfspace,
 that is in the opposite halfspace of where tetra lies.
@@ -83,7 +106,7 @@ One of halfspace associated with `f` contains no point iff face `f` is part of
 the Convex Hull of the pointset P;
 in this case the algorithm correctly returns no adjacent simplex and returns `nothing`.
 """
-function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
+function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 
 	found = true
 	t = Int64[]
@@ -151,7 +174,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 end
 
 """
-	DeWall(
+	deWall(
 		Ptot::Lar.Points,
 		P::Lar.Points,
 		AFL::Array{Array{Int64,1},1},
@@ -162,7 +185,7 @@ end
 Given a set of points this function returns the upper simplex list
 of the Delaunay triangulation.
 """
-function DeWall(
+function deWall(
 		Ptot::Lar.Points,
 		P::Lar.Points,
 		AFL::Array{Array{Int64,1},1},
@@ -182,7 +205,7 @@ function DeWall(
 	f = Int64[] # definition
 
 	# 1 - Select the splitting plane α; defined by axis and an origin point `off`
-	off = AlphaStructures.SplitValue(P,axis)
+	off = AlphaStructures.splitValue(P,axis)
 	if off == nothing
 		return DT
 	end
@@ -192,9 +215,9 @@ function DeWall(
 
 	# 3 - construct first tetrahedra if necessary
 	if isempty(AFL)
-		t = AlphaStructures.MakeFirstWallSimplex(Ptot,P,axis,off)
+		t = AlphaStructures.makeFirstWallSimplex(Ptot,P,axis,off)
 		if t != nothing
-			AFL = AlphaStructures.Faces(t)# d-1 - faces of t
+			AFL = AlphaStructures.simplexFaces(t)# d-1 - faces of t
 			tetraDict[ AFL ] = t
 			push!(DT,t)
 		else
@@ -203,7 +226,7 @@ function DeWall(
 	end
 
 	for f in AFL
-		inters = AlphaStructures.Intersect(Ptot, P, f, axis, off)
+		inters = AlphaStructures.planarIntersection(Ptot, P, f, axis, off)
     		if inters == 0 #intersected by plane α
         		push!(AFL_α, f)
 		elseif inters == -1 #in NegHalfspace(α)
@@ -224,21 +247,21 @@ function DeWall(
 			end
 		end
 
-    		T = AlphaStructures.MakeSimplex(f, tetra, Ptot, P)
+    		T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
 		if T != nothing && T ∉ DT
 			push!(DT,T)
 
-			faces = setdiff(AlphaStructures.Faces(T), [f]) # d-1 - faces of t
+			faces = setdiff(AlphaStructures.simplexFaces(T), [f]) # d-1 - faces of t
 			tetraDict[ faces ] = T
 
 			for ff in faces
-				inters = AlphaStructures.Intersect(Ptot, P, ff, axis, off)
+				inters = AlphaStructures.planarIntersection(Ptot, P, ff, axis, off)
 				if inters == 0
-					AFL_α = AlphaStructures.Update(ff, AFL_α)
+					AFL_α = AlphaStructures.update(ff, AFL_α)
 				elseif inters == -1
-					AFLminus = AlphaStructures.Update(ff, AFLminus)
+					AFLminus = AlphaStructures.update(ff, AFLminus)
 				elseif inters == 1
-					AFLplus = AlphaStructures.Update(ff, AFLplus)
+					AFLplus = AlphaStructures.update(ff, AFLplus)
 				end
 			end
 		end
@@ -247,10 +270,10 @@ function DeWall(
 
 	newaxis = circshift(axis,1)
 	if !isempty(AFLminus)
-    		DT = union(DT,AlphaStructures.DeWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
+    		DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
 	end
 	if !isempty(AFLplus)
-		DT = union(DT,AlphaStructures.DeWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
+		DT = union(DT,AlphaStructures.deWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
 	end
 
 	return DT

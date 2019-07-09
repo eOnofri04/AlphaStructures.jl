@@ -1,6 +1,4 @@
-include("../src/AlphaStructures.jl")
-
-using Plasm, LinearAlgebraicRepresentation, DataStructures
+using AlphaStructures, DataStructures, LinearAlgebraicRepresentation, Plasm
 Lar = LinearAlgebraicRepresentation
 
 filename = "examples/OBJ/teapot.obj";
@@ -26,7 +24,7 @@ Plasm.view(V,[[i] for i = 1:size(V,2)])
 AFL = Array{Int64,1}[]
 axis = [1.,0.,0.]
 tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-DT = AlphaStructures.DeWall(V,V,AFL,axis,tetraDict)
+DT = AlphaStructures.deWall(V,V,AFL,axis,tetraDict)
 
 
 W = convert(Lar.Points,hcat(V[1,:],V[2,:])')

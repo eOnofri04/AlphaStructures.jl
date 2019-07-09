@@ -1,6 +1,4 @@
-include("../src/AlphaStructures.jl")
-
-using Plasm, LinearAlgebraicRepresentation
+using AlphaStructures, LinearAlgebraicRepresentation, Plasm
 Lar = LinearAlgebraicRepresentation
 
 """
@@ -71,3 +69,14 @@ VV,EV,FV = AlphaStructures.alphaSimplex(V,filtration,0.02)
 Plasm.view(Vi, VV)
 Plasm.view(Vi, EV)
 Plasm.view(Vi, FV)
+
+filter_key = unique(keys(filtration))
+
+granular = 15
+
+reduced_filter = filter_key[sort(abs.(rand(Int, granular).%length(filter_key)))]
+
+for α in reduced_filter
+	VV,EV,FV = AlphaStructures.alphaSimplex(V, filtration, α)
+	Plasm.view(Vi, EV)
+end

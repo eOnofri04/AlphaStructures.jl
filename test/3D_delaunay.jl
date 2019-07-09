@@ -7,35 +7,35 @@ end
 using DataStructures, LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
-@testset "MakeFirstWallSimplex" begin
+@testset "makeFirstWallSimplex" begin
 	P = [  -1.  1    1.5  2   ;
 			0.  0.2  1.3  1.  ;
 			0.  0.   0.   1.   ]
 
 	axis = [1.,0,0]
-	off = AlphaStructures.SplitValue(P,axis)
-	@test AlphaStructures.MakeFirstWallSimplex(P,P,axis,off) == [1,2,3,4]
+	off = AlphaStructures.splitValue(P,axis)
+	@test AlphaStructures.makeFirstWallSimplex(P,P,axis,off) == [1,2,3,4]
 
 	axis = [0,1.,0]
-	off = AlphaStructures.SplitValue(P,axis)
-	@test AlphaStructures.MakeFirstWallSimplex(P,P,axis,off) ==  [1,2,3,4]
+	off = AlphaStructures.splitValue(P,axis)
+	@test AlphaStructures.makeFirstWallSimplex(P,P,axis,off) ==  [1,2,3,4]
 
 	axis = [0,0,1.]
-	off = AlphaStructures.SplitValue(P,axis)
-	@test AlphaStructures.MakeFirstWallSimplex(P,P,axis,off) == [1,2,3,4]
+	off = AlphaStructures.splitValue(P,axis)
+	@test AlphaStructures.makeFirstWallSimplex(P,P,axis,off) == [1,2,3,4]
 
 end
 
-@testset "MakeSimplex" begin
+@testset "makeSimplex" begin
 	P = [ 0. 1. 0  0  2.;
 	 	  0  0  1. 0  2.;
 		  0  0  0  1. 2.]
-	@test AlphaStructures.MakeSimplex([2,3,4],[1,2,3,4],P,P) == [2,3,4,5]
-	@test AlphaStructures.MakeSimplex([2,3,5],[2,3,4,5],P,P) == nothing
-	@test AlphaStructures.MakeSimplex([2,3,4],[2,3,4,5],P,P) == [1,2,3,4]
+	@test AlphaStructures.makeSimplex([2,3,4],[1,2,3,4],P,P) == [2,3,4,5]
+	@test AlphaStructures.makeSimplex([2,3,5],[2,3,4,5],P,P) == nothing
+	@test AlphaStructures.makeSimplex([2,3,4],[2,3,4,5],P,P) == [1,2,3,4]
 end
 
-@testset "DeWall" begin
+@testset "deWall" begin
 	AFL = Array{Int64,1}[]
 	axis = [1.,0.,0.]
 
@@ -44,7 +44,7 @@ end
 		P = [  -1.  1    1.5  2   ;
 				0.  0.2  1.3  1.  ;
 				0.  0.   0.   1.   ]
-		@test AlphaStructures.DeWall(P,P,AFL,axis,tetraDict) == [[1,2,3,4]]
+		@test AlphaStructures.deWall(P,P,AFL,axis,tetraDict) == [[1,2,3,4]]
 	end
 
 	@testset "generic examples" begin
@@ -52,7 +52,7 @@ end
 		P = [  -1. -2. 3.  4.  5. -6.  ;
 				0.  1. 3. -2. -4.  2.  ;
 				1.  8. -5.  7.  4.  3.  ]
-		@test length(AlphaStructures.DeWall(P,P,AFL,axis,tetraDict)) == 5
+		@test length(AlphaStructures.deWall(P,P,AFL,axis,tetraDict)) == 5
 	end
 
 	@testset "two tetrahedron" begin
@@ -60,7 +60,7 @@ end
 		P = [ 0. 1. 0  0  2.;
 		 	  0  0  1. 0  2.;
 			  0  0  0  1. 2.]
-		@test AlphaStructures.DeWall(P,P,AFL,axis,tetraDict) == [[1,2,3,4],[2,3,4,5]]
+		@test AlphaStructures.deWall(P,P,AFL,axis,tetraDict) == [[1,2,3,4],[2,3,4,5]]
 	end
 
 	@testset "points on a plane" begin
@@ -68,7 +68,7 @@ end
 		P = [ 0. 0. 0  0  0.;
 	 	  	  2. 0  1. 0  2.;
 		  	  0  0  0  1. 2.]
-		@test AlphaStructures.DeWall(P,P,AFL,axis,tetraDict) == []
+		@test AlphaStructures.deWall(P,P,AFL,axis,tetraDict) == []
 	end
 
 	@testset "cube" begin
@@ -76,7 +76,7 @@ end
 		P = [	0. 1 0 1 0. 1 0 1;
 				0. 0 1 1 0. 0 1 1;
 				0. 0 0 0 1. 1 1 1]
-		@test length(AlphaStructures.DeWall(P,P,AFL,axis,tetraDict)) == 6
+		@test length(AlphaStructures.deWall(P,P,AFL,axis,tetraDict)) == 6
 	end
 
 end
