@@ -1,6 +1,4 @@
-include("../src/AlphaStructures.jl")
-
-using Plasm, LinearAlgebraicRepresentation, DataStructures
+using AlphaStructures, DataStructures, LinearAlgebraicRepresentation, Plasm
 Lar = LinearAlgebraicRepresentation
 
 filename = "examples/OBJ/teapot.obj";

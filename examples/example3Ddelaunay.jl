@@ -1,6 +1,4 @@
-include("../src/AlphaStructures.jl")
-
-using Plasm, LinearAlgebraicRepresentation, DataStructures
+using AlphaStructures, DataStructures, LinearAlgebraicRepresentation, Plasm
 Lar = LinearAlgebraicRepresentation
 
 function Point3D(n)
