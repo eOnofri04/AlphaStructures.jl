@@ -4,27 +4,27 @@ else
 	using Test
 end
 
-@testset "Update" begin
-	@test AlphaStructures.Update(1,[2,3,4]) == [2,3,4,1]
-	@test AlphaStructures.Update(4,[2,3,4]) == [2,3]
-	@test AlphaStructures.Update([3,4],[[1,2],[2,3]]) == [[1,2],[2,3],[3,4]]
-	@test AlphaStructures.Update([1,2],[[1,2],[2,3]]) == [[2,3]]
+@testset "update" begin
+	@test AlphaStructures.update(1,[2,3,4]) == [2,3,4,1]
+	@test AlphaStructures.update(4,[2,3,4]) == [2,3]
+	@test AlphaStructures.update([3,4],[[1,2],[2,3]]) == [[1,2],[2,3],[3,4]]
+	@test AlphaStructures.update([1,2],[[1,2],[2,3]]) == [[2,3]]
 end
 
-@testset "SidePlane" begin
-	@test AlphaStructures.SidePlane([-4.,5.,6.],[1.,0,0],3.) == -1
-	@test AlphaStructures.SidePlane([1.,1.,0.],[1.,1.,1.],2.) == 0
-	@test AlphaStructures.SidePlane([0.,0.,0.],[1.,3.,5.],-1.) == 1
+@testset "sidePlane" begin
+	@test AlphaStructures.sidePlane([-4.,5.,6.],[1.,0,0],3.) == -1
+	@test AlphaStructures.sidePlane([1.,1.,0.],[1.,1.,1.],2.) == 0
+	@test AlphaStructures.sidePlane([0.,0.,0.],[1.,3.,5.],-1.) == 1
 end
 
-@testset "SplitValue" begin
+@testset "splitValue" begin
 	P = [ -1. -2.  3.  4.  5.  ;
 		  -1.  2.  3. -2. -3.  ;
 		   0.  0.  1.  1.  1.  ]
 
-	@test AlphaStructures.SplitValue(P,[1.,0,0]) == 1.0
-	@test AlphaStructures.SplitValue(P,[0,1.,0]) == -1.5
-	@test AlphaStructures.SplitValue(P,[0,0,1.]) == 0.5
+	@test AlphaStructures.splitValue(P,[1.,0,0]) == 1.0
+	@test AlphaStructures.splitValue(P,[0,1.,0]) == -1.5
+	@test AlphaStructures.splitValue(P,[0,0,1.]) == 0.5
 end
 
 @testset "pointsetPartition" begin
@@ -47,10 +47,10 @@ end
 	@test size(Pplus,2) == 1
 end
 
-@testset "Faces" begin
-	@test AlphaStructures.Faces([1,2]) == [[1],[2]]
-	@test AlphaStructures.Faces([1,2,3]) == [[1,2],[1,3],[2,3]]
-	@test AlphaStructures.Faces([1,2,3,4]) == [[1,2,3],[1,2,4],[1,3,4],[2,3,4]]
+@testset "simplexFaces" begin
+	@test AlphaStructures.simplexFaces([1,2]) == [[1],[2]]
+	@test AlphaStructures.simplexFaces([1,2,3]) == [[1,2],[1,3],[2,3]]
+	@test AlphaStructures.simplexFaces([1,2,3,4]) == [[1,2,3],[1,2,4],[1,3,4],[2,3,4]]
 end
 
 @testset "distPointPlane" begin
@@ -59,13 +59,13 @@ end
 	@test isapprox(AlphaStructures.distPointPlane([1.,1.,1.],[1.,1.,1.],0.),sqrt(3))
 end
 
-@testset "Intersect" begin
+@testset "planarIntersection" begin
 	P = [  -1. -2. 3.  4.  5. -6.  ;
 			0.  1. 3. -2. -4.  2.  ;
 			1.  8. -5.  7.  4.  3.  ]
-	@test AlphaStructures.Intersect(P, P, [2,4,6], [1.,0,0], 3.2) == 0
-	@test AlphaStructures.Intersect(P, P, [1,4,5], [0,1.,0], 3.2) == -1
-	@test AlphaStructures.Intersect(P, P, [2,4,5], [0,0,1.], 3.2) == 1
+	@test AlphaStructures.planarIntersection(P, P, [2,4,6], [1.,0,0], 3.2) == 0
+	@test AlphaStructures.planarIntersection(P, P, [1,4,5], [0,1.,0], 3.2) == -1
+	@test AlphaStructures.planarIntersection(P, P, [2,4,5], [0,0,1.], 3.2) == 1
 end
 
 @testset "Found Center" begin
