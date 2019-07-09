@@ -1,20 +1,12 @@
 #
-#	In this file there is
+#	In this file there is:
 #	 - delaunayTriangulation(V::Lar.Points)
-#	 - foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-#	 - foundAlpha(T::Array{Array{Float64,1},1})::Float64
-#	 - vertexInCircumball(T::Array{Array{Float64,1},1},
-#			α_char::Float64,
-#			point::Array{Float64,2}
-#		):: Bool
 #	 - alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 #	 - alphaSimplex(V::Lar.Points,
 #			filtration::DataStructures.SortedMultiDict{},
 #			α_threshold::Float64
 #		)::Array{Lar.Cells,1}
 #
-
-using DataStructures,Combinatorics
 
 """
 	delaunayTriangulation(V::Lar.Points)::Lar.Cells
@@ -38,108 +30,15 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
 
 	elseif dim == 3
-		# To Do
+		axis = [1.,0.,0.]
+		AFL = Array{Int64,1}[]
+		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
+		upper_simplex = AlphaShape.DeWall(V,V,AFL,axis,tetraDict)
 	end
 
 	sort!.(upper_simplex)
 
 	return sort(upper_simplex)
-end
-
-"""
-	foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-
-Determine center of a simplex defined by `T` points.
-
-"""
-function foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-	@assert length(T) > 0 "ERROR: at least one points is needed."
-	dim = length(T[1])
-	@assert dim < 4 "Error: Function not yet Programmed."
-	k = length(T)-1
-
-	if k == 0
-		center = T[1]
-
-	elseif k == 1
-		#for each dimension
-		center = (T[1] + T[2])/2
-
-	elseif k == 2
-		#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
-		if dim == 2
-			den = 2*Lar.det([T[2]-T[1] T[3]-T[1]])
-			det = (T[2]-T[1])*Lar.norm(T[3]-T[1])^2 -
-						(T[3]-T[1])*Lar.norm(T[2]-T[1])^2
-			num = [-det[2],det[1]]
-			center = T[1] + num / den
-
-		elseif dim == 3
-			#circumcenter of a triangle in R^3
-			num = Lar.norm(T[3]-T[1])^2 *
-					Lar.cross( Lar.cross(T[2]-T[1], T[3]-T[1]), T[2]-T[1] ) +
-				Lar.norm(T[2]-T[1])^2 *
-					Lar.cross( T[3]-T[1], Lar.cross(T[2]-T[1], T[3]-T[1] )
-			)
-			den = 2*Lar.norm( Lar.cross(T[2]-T[1], T[3]-T[1]) )^2
-			center = T[1] + num / den
-		end
-
-	elseif k == 3
-		#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
-		if dim == 3
-			num = Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1]) +
-				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1]) +
-				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1])
-			M = [T[2]-T[1] T[3]-T[1] T[4]-T[1]]
-			den = 2*Lar.det(M)
-			center = T[1] + num / den
-		end
-	end
-
-	return center
-end
-
-"""
-	foundAlpha(T::Array{Array{Float64,1},1})::Float64
-
-Return the value of the circumball radius of the given points.
-If three or more points are collinear it returns `NaN`.
-"""
-function foundAlpha(T::Array{Array{Float64,1},1})::Float64
-
-	@assert length(T) > 0 "ERROR: at least one points is needed."
-	dim = length(T[1])
-	@assert dim < 4 "Error: Function not yet Programmed."
-	k = length(T) - 1
-	@assert k <= dim +1 "ERROR: too much points."
-
-	# number approximation
-	center = AlphaShape.foundCenter(T)
-	alpha = round(Lar.norm(T[1] - center), sigdigits = 14)
-
-	return alpha
-end
-
-"""
-	vertexInCircumball(
-		T::Array{Array{Float64,1},1},
-		α_char::Float64,
-		point::Array{Float64,2}
-	)::Bool
-
-Determine if a point is inner of the circumball determined by `T` points
-	and radius `α_char`.
-
-"""
-function vertexInCircumball(
-		T::Array{Array{Float64,1},1},
-		α_char::Float64,
-		point::Array{Float64,2}
-	)::Bool
-
-	center = AlphaShape.foundCenter(T)
-	return Lar.norm(point - center) <= α_char
 end
 
 """
@@ -195,7 +94,7 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 		for i = 1 : length(Cells[d]) # simplex in Cells[d]
 			simplex = Cells[d][i]
 			T = [ V[:, v] for v in simplex ] # simplices points coordinates
-			α_char[d][i] = foundAlpha(T);
+			α_char[d][i] = foundRadius(T);
 		end
 	end
 

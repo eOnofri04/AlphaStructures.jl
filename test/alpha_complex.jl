@@ -24,114 +24,13 @@ end
 	end
 
 	@testset "3D delaunayTriangulation" begin
-
-	end
-
-end
-
-@testset "Found Center" begin
-
-	@testset "Points Found Center" begin
-		@test AlphaShape.foundCenter([[1.]]) == [1.]
-		@test AlphaShape.foundCenter([[1., 1.]]) == [1., 1.]
-		@test AlphaShape.foundCenter([[1., 1., 1.]]) == [1., 1., 1.]
-	end
-
-	@testset "Edges Found Center" begin
-		@test AlphaShape.foundCenter([[1.], [3.]]) == [2.0]
-		@test AlphaShape.foundCenter([[1.,1.], [3.,3.]]) == [2.0, 2.0]
-		@test AlphaShape.foundCenter([[1.,1.,1.], [3.,3.,3.]]) == [2.0, 2.0, 2.0]
-	end
-
-	@testset "Triangles Found Center" begin
-		@test AlphaShape.foundCenter([[0.,0.], [0.,1.], [1.,0.]]) == [0.5, 0.5]
-		@test AlphaShape.foundCenter([[0.,0.,0.], [0.,1.,0.], [1.,0.,0.]]) == [0.5,0.5,0.0]
-	end
-
-	@testset "Tetrahedrons Found Center" begin
-		@test AlphaShape.foundCenter([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [0.,0.,1.]]) == [0.5, 0.5, 0.5]
-	end
-
-end
-
-@testset "Found α" begin
-
-	@testset "Points Found α" begin
-		@test AlphaShape.foundAlpha(([[1.]])) == 0.0
-		@test AlphaShape.foundAlpha(([[1., 1.]])) == 0.0
-		@test AlphaShape.foundAlpha(([[1., 1., 1.]])) == 0.0
-		# @test AlphaShape.foundAlpha(([[1., 1., 1., 1.]])) == 0.0
-	end
-
-	@testset "1D Found α" begin
-		@test AlphaShape.foundAlpha(([[1.], [3.]])) == 1.0
-		@test AlphaShape.foundAlpha(([[1.], [1.]])) == 0.0
-	end
-
-	@testset "2D Found α" begin
-		T = [[1., 1.], [2., 2.]]
-		P = [[1., 0.], [2., 0.], [3., 0.]]
-		Q = [[0., 0.], [2., 0.], [0., 2.]]
-		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
-		@test isnan(AlphaShape.foundAlpha(P))
-		@test isapprox(AlphaShape.foundAlpha(Q), sqrt(2), atol=1e-4)
-	end
-
-	@testset "3D Found α" begin
-		T = [[1., 1., 0.], [2., 2., 0.]]
-		P = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.]]
-		Q = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,1.]]
-		R = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,0.]]
-		@test AlphaShape.foundAlpha(T) == round(sqrt(2)/2,sigdigits=14)
-		@test isapprox(AlphaShape.foundAlpha(P), 1., atol=1e-4)
-		@test AlphaShape.foundAlpha(Q) == 1.
-		@test isnan(AlphaShape.foundAlpha(R))
-	end
-
-end
-
-@testset "Vertex in Circumball" begin
-
-	@testset "2D Vertex in Circumball" begin
-		V=[
-			0. 1. 0.;
-			0. 0. 1.
+		V = [
+			0.0 1.0 0.0 2.0 0.0 1.0 0.0 2.0;
+			0.0 0.0 1.0 2.0 0.0 0.0 1.0 2.0;
+			0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
 		]
-		simplex = [2, 3]
-		up_simplex = [1, 2, 3]
-		point = V[:, setdiff(up_simplex, simplex)]
-		T=[ V[:, v] for v in simplex ]
-		@test AlphaShape.vertexInCircumball(T, AlphaShape.foundAlpha(T), point)
-	end
-
-	@testset "3D Vertex in Circumball" begin
-
-		@testset "edge and triangle" begin
-			V=[
-				0. 1. 0.;
-				0. 0. 1.;
-				0. 0. 0.
-			]
-			simplex = [2, 3]
-			up_simplex = [1, 2, 3]
-			point = V[:, setdiff(up_simplex, simplex)]
-			T=[ V[:, v] for v in simplex ]
-			@test AlphaShape.vertexInCircumball(T, AlphaShape.foundAlpha(T), point)
-		end
-
-		@testset "triangle and tetrahedron" begin
-			V=[
-				0. 1. 0. 0.;
-				0. 0. 1. 0.;
-				0. 0. 0. 1.
-			]
-			simplex = [2, 3, 4]
-			up_simplex = [1, 2, 3, 4]
-			point = V[:, setdiff(up_simplex, simplex)]
-			T=[ V[:, v] for v in simplex ]
-			@test AlphaShape.vertexInCircumball(T, AlphaShape.foundAlpha(T), point)
-		end
-
+		D = AlphaShape.delaunayTriangulation(V)
+		@test D == [[1,2,3,5],[2,3,4,6],[2,3,5,6],[3,4,6,7],[3,5,6,7],[4,6,7,8]]
 	end
 
 end
@@ -181,7 +80,26 @@ end
 	end
 
 	@testset "3D α Filter" begin
+		V = [
+			0.0 1.0 0.0 0.0 1.0 0.0;
+			0.0 0.0 1.0 0.0 0.0 1.0;
+			0.0 0.0 0.0 1.0 1.0 1.0
+		]
 
+		# Expected Output
+		VV = [[1],[2],[3],[4],[5],[6]]
+		CV = [[1,2,3,4],[2,3,4,5],[3,4,5,6]]
+
+		# Evaluation
+		filter = AlphaShape.alphaFilter(V)
+
+		@test length(unique(keys(filter))) == 4
+		@test isapprox(unique(keys(filter)),
+			[0.0, 0.5, 0.7071, 0.8660 ], atol=1e-4
+		)
+		@test length(unique(values(filter))) == 31
+		@test sort([v for v in unique(values(filter)) if length(v) == 1]) == VV
+		@test sort([v for v in unique(values(filter)) if length(v) == 4]) == CV
 	end
 
 end
@@ -240,7 +158,34 @@ end
 	end
 
 	@testset "3D α Simplex" begin
+		# Input Data
+		V = [
+			0.0  1.0  0.0  0.0  2.0;
+			0.0  0.0  1.0  0.0  2.0;
+			0.0  0.0  0.0  1.0  2.0
+		]
+		filtration = AlphaShape.alphaFilter(V)
 
+		# α = 0.0
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.0)
+		@test α_simplices[1] == [[1],[2],[3],[4],[5]]
+		@test isempty(α_simplices[2])
+		@test isempty(α_simplices[3])
+		@test isempty(α_simplices[4])
+		# α = 0.5
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.5)
+		@test α_simplices[2] == [[1,2],[1,3],[1,4]]
+		@test isempty(α_simplices[3])
+		@test isempty(α_simplices[4])
+		# α = 1.0
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.0)
+		@test α_simplices[2] == [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+		@test α_simplices[3] == [[1,2,3],[1,2,4],[1,3,4],[2,3,4]]
+		@test α_simplices[4] == [[1,2,3,4]]
+
+		# α = 1.5
+		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.6)
+		@test α_simplices[4] == [[1,2,3,4],[2,3,4,5]]
 	end
 
 end
