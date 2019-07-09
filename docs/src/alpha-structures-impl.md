@@ -50,7 +50,7 @@ This key feature is the one we have used in our implementation. In fact, the pro
 
 The solution we have proposed is located in the `alphaFilter` function (in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/alpha_complex.jl) file):
 ```@docs
-AlphaShape.alphaFilter
+AlphaStructures.alphaFilter
 ```
 
 ### The Pipeline

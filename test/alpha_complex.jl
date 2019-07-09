@@ -10,7 +10,7 @@ end
 		V = [
 			0. 1. 2. 9. 14. 12. 4. 7.
 		]
-		D = AlphaShape.delaunayTriangulation(V)
+		D = AlphaStructures.delaunayTriangulation(V)
 		@test D == [[1,2],[2,3],[3,7],[4,6],[4,8],[5,6],[7,8]]
 	end
 
@@ -19,7 +19,7 @@ end
 			0.0 1.0 0.0 2.0;
 			0.0 0.0 1.0 2.0
 		]
-		D = AlphaShape.delaunayTriangulation(V)
+		D = AlphaStructures.delaunayTriangulation(V)
 		@test D == [[1,2,3],[2,3,4]]
 	end
 
@@ -29,7 +29,7 @@ end
 			0.0 0.0 1.0 2.0 0.0 0.0 1.0 2.0;
 			0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
 		]
-		D = AlphaShape.delaunayTriangulation(V)
+		D = AlphaStructures.delaunayTriangulation(V)
 		@test D == [[1,2,3,5],[2,3,4,6],[2,3,5,6],[3,4,6,7],[3,5,6,7],[4,6,7,8]]
 	end
 
@@ -46,7 +46,7 @@ end
 		EV = [[1,3],[2,3],[2,4],[4,5],[5,6],[6,8],[7,8]]
 
 		# Evaluation
-		filter = AlphaShape.alphaFilter(V)
+		filter = AlphaStructures.alphaFilter(V)
 
 		@test length(unique(keys(filter))) == 4
 		@test unique(keys(filter)) == [0.0, 0.5, 1.0, 1.5]
@@ -67,7 +67,7 @@ end
 		FV = [[1, 2, 3],[2, 3, 4]]
 
 		# Evaluation
-		filter = AlphaShape.alphaFilter(V)
+		filter = AlphaStructures.alphaFilter(V)
 
 		@test length(unique(keys(filter))) == 5
 		@test isapprox(unique(keys(filter)),
@@ -91,7 +91,7 @@ end
 		CV = [[1,2,3,4],[2,3,4,5],[3,4,5,6]]
 
 		# Evaluation
-		filter = AlphaShape.alphaFilter(V)
+		filter = AlphaStructures.alphaFilter(V)
 
 		@test length(unique(keys(filter))) == 4
 		@test isapprox(unique(keys(filter)),
@@ -111,20 +111,20 @@ end
 		V = [
 			0.0 1.0 2.0 7.0 5.0 3.0 14.0 11.0
 		]
-		filtration = AlphaShape.alphaFilter(V)
+		filtration = AlphaStructures.alphaFilter(V)
 
 		# α = 0.0
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.0)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 0.0)
 		@test α_simplices[1] == [[1],[2],[3],[4],[5],[6],[7],[8]]
 		@test isempty(α_simplices[2])
 		# α = 0.5
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.5)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 0.5)
 		@test α_simplices[2] == [[1,2],[2,3],[3,6]]
 		# α = 1.0
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.0)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 1.0)
 		@test α_simplices[2] == [[1, 2], [2, 3], [3, 6], [4, 5], [5, 6]]
 		# α = 1.5
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.5)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 1.5)
 		@test α_simplices[2] == [[1, 2], [2, 3], [3, 6], [4, 5], [5, 6], [7, 8]]
 
 	end
@@ -135,23 +135,23 @@ end
 			0.0 1.0 0.0 2.0;
 			0.0 0.0 1.0 0.3
 		]
-		filtration = AlphaShape.alphaFilter(V)
+		filtration = AlphaStructures.alphaFilter(V)
 
 		# α = 0.0
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.0)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 0.0)
 		@test α_simplices[1] == [[1],[2],[3],[4]]
 		@test isempty(α_simplices[2])
 		@test isempty(α_simplices[3])
 		# α = 0.5
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.5)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 0.5)
 		@test α_simplices[2] == [[1,2],[1,3]]
 		@test isempty(α_simplices[3])
 		# α = 1.0
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.0)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 1.0)
 		@test α_simplices[2] == [[1,2],[1,3],[2,3],[2,4]]
 		@test α_simplices[3] == [[1,2,3]]
 		# α = 1.5
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.5)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 1.5)
 		@test α_simplices[2] == [[1,2],[1,3],[2,3],[2,4],[3,4]]
 		@test α_simplices[3] == [[1,2,3],[2,3,4]]
 
@@ -164,27 +164,27 @@ end
 			0.0  0.0  1.0  0.0  2.0;
 			0.0  0.0  0.0  1.0  2.0
 		]
-		filtration = AlphaShape.alphaFilter(V)
+		filtration = AlphaStructures.alphaFilter(V)
 
 		# α = 0.0
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.0)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 0.0)
 		@test α_simplices[1] == [[1],[2],[3],[4],[5]]
 		@test isempty(α_simplices[2])
 		@test isempty(α_simplices[3])
 		@test isempty(α_simplices[4])
 		# α = 0.5
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 0.5)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 0.5)
 		@test α_simplices[2] == [[1,2],[1,3],[1,4]]
 		@test isempty(α_simplices[3])
 		@test isempty(α_simplices[4])
 		# α = 1.0
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.0)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 1.0)
 		@test α_simplices[2] == [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
 		@test α_simplices[3] == [[1,2,3],[1,2,4],[1,3,4],[2,3,4]]
 		@test α_simplices[4] == [[1,2,3,4]]
 
 		# α = 1.5
-		α_simplices = AlphaShape.alphaSimplex(V, filtration, 1.6)
+		α_simplices = AlphaStructures.alphaSimplex(V, filtration, 1.6)
 		@test α_simplices[4] == [[1,2,3,4],[2,3,4,5]]
 	end
 

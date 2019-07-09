@@ -1,6 +1,6 @@
 push!(LOAD_PATH,"../src/")
 
-using Documenter, AlphaShape
+using Documenter, AlphaStructures
 
 makedocs(
 	format = :html,
