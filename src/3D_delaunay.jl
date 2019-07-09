@@ -19,12 +19,12 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 	indices = Int64[]
 	found = true
 
-	Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
+	Pminus,Pplus = AlphaStructures.pointsetPartition(P, axis, off)
 
 	@assert !isempty(Pminus) "Error: Not enough points."
 	#The first point of the face is the nearest to middle plane in negative halfspace.
 	#for point in Pminus
-	distPoint = [AlphaShape.distPointPlane(P[:,i],axis, off) for i = 1:size(Pminus,2)]
+	distPoint = [AlphaStructures.distPointPlane(P[:,i],axis, off) for i = 1:size(Pminus,2)]
 	indMin = findmin(distPoint)[2]
 	p1 = Pminus[:, indMin]
 	index = findall(x -> x == [p1...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
@@ -46,7 +46,7 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 
 	for dim = length(simplexPoint)+1:d
 		try
-			radius = [AlphaShape.foundRadius([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
+			radius = [AlphaStructures.foundRadius([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
 
 			minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
 			ind = findall(x->x == minRad, radius)[1]
@@ -62,7 +62,7 @@ function MakeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 
 	#no points inside the circumball
 	for i = 1:size(Ptot,2)
-		if AlphaShape.vertexInCircumball(simplexPoint,AlphaShape.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
+		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
 			found = false
 		end
 	end
@@ -92,7 +92,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 
 	axis = Lar.cross(Ptot[:,f[2]]-Ptot[:,f[1]],Ptot[:,f[3]]-Ptot[:,f[1]])
 	off = Lar.dot(axis,Ptot[:,f[1]])
-	Pminus,Pplus = AlphaShape.pointsetPartition(P,axis,off)
+	Pminus,Pplus = AlphaStructures.pointsetPartition(P,axis,off)
 
 	pointIn = Ptot[:,setdiff(tetra,f)]
 
@@ -102,7 +102,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 		if !isempty(Pminus)
 			for dim = df+1:d
 				try #da verificare queste
-					radius = [AlphaShape.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
+					radius = [AlphaStructures.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
 					minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 					ind = findall(x->x == minRad, radius)[1]
 					p = Pminus[:, ind]
@@ -120,7 +120,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 		if !isempty(Pplus)
 			for dim = df+1:d
 				try
-					radius = [AlphaShape.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
+					radius = [AlphaStructures.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
 					minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
 					ind = findall(x->x == minRad, radius)[1]
 					p = Pplus[:, ind]
@@ -138,7 +138,7 @@ function MakeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 
 	#no points inside the circumball
 	for i = 1:size(Ptot,2)
-		if AlphaShape.vertexInCircumball(simplexPoint,AlphaShape.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
+		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
 			found = false
 		end
 	end
@@ -182,19 +182,19 @@ function DeWall(
 	f = Int64[] # definition
 
 	# 1 - Select the splitting plane α; defined by axis and an origin point `off`
-	off = AlphaShape.SplitValue(P,axis)
+	off = AlphaStructures.SplitValue(P,axis)
 	if off == nothing
 		return DT
 	end
 
 	# 2 - construct two subsets P− and P+ ;
-	Pminus,Pplus = AlphaShape.pointsetPartition(P, axis, off)
+	Pminus,Pplus = AlphaStructures.pointsetPartition(P, axis, off)
 
 	# 3 - construct first tetrahedra if necessary
 	if isempty(AFL)
-		t = AlphaShape.MakeFirstWallSimplex(Ptot,P,axis,off)
+		t = AlphaStructures.MakeFirstWallSimplex(Ptot,P,axis,off)
 		if t != nothing
-			AFL = AlphaShape.Faces(t)# d-1 - faces of t
+			AFL = AlphaStructures.Faces(t)# d-1 - faces of t
 			tetraDict[ AFL ] = t
 			push!(DT,t)
 		else
@@ -203,7 +203,7 @@ function DeWall(
 	end
 
 	for f in AFL
-		inters = AlphaShape.Intersect(Ptot, P, f, axis, off)
+		inters = AlphaStructures.Intersect(Ptot, P, f, axis, off)
     		if inters == 0 #intersected by plane α
         		push!(AFL_α, f)
 		elseif inters == -1 #in NegHalfspace(α)
@@ -224,21 +224,21 @@ function DeWall(
 			end
 		end
 
-    		T = AlphaShape.MakeSimplex(f, tetra, Ptot, P)
+    		T = AlphaStructures.MakeSimplex(f, tetra, Ptot, P)
 		if T != nothing && T ∉ DT
 			push!(DT,T)
 
-			faces = setdiff(AlphaShape.Faces(T), [f]) # d-1 - faces of t
+			faces = setdiff(AlphaStructures.Faces(T), [f]) # d-1 - faces of t
 			tetraDict[ faces ] = T
 
 			for ff in faces
-				inters = AlphaShape.Intersect(Ptot, P, ff, axis, off)
+				inters = AlphaStructures.Intersect(Ptot, P, ff, axis, off)
 				if inters == 0
-					AFL_α = AlphaShape.Update(ff, AFL_α)
+					AFL_α = AlphaStructures.Update(ff, AFL_α)
 				elseif inters == -1
-					AFLminus = AlphaShape.Update(ff, AFLminus)
+					AFLminus = AlphaStructures.Update(ff, AFLminus)
 				elseif inters == 1
-					AFLplus = AlphaShape.Update(ff, AFLplus)
+					AFLplus = AlphaStructures.Update(ff, AFLplus)
 				end
 			end
 		end
@@ -247,10 +247,10 @@ function DeWall(
 
 	newaxis = circshift(axis,1)
 	if !isempty(AFLminus)
-    		DT = union(DT,AlphaShape.DeWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
+    		DT = union(DT,AlphaStructures.DeWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
 	end
 	if !isempty(AFLplus)
-		DT = union(DT,AlphaShape.DeWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
+		DT = union(DT,AlphaStructures.DeWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
 	end
 
 	return DT

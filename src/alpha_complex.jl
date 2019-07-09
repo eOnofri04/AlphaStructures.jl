@@ -33,7 +33,7 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 		axis = [1.,0.,0.]
 		AFL = Array{Int64,1}[]
 		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-		upper_simplex = AlphaShape.DeWall(V,V,AFL,axis,tetraDict)
+		upper_simplex = AlphaStructures.DeWall(V,V,AFL,axis,tetraDict)
 	end
 
 	sort!.(upper_simplex)
@@ -50,7 +50,7 @@ Return ordered collection of pairs `(alpha charatteristic, complex)`.
 ```jldoctest
 julia> V = [1. 2. 1. 2.; 0. 0. 1. 2. ];
 
-julia> AlphaShape.alphaFilter(V)
+julia> AlphaStructures.alphaFilter(V)
 SortedMultiDict(Base.Order.ForwardOrdering(),
 	0.0 => [1],
 	0.0 => [2],

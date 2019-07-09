@@ -1,4 +1,4 @@
-module AlphaShape
+module AlphaStructures
 	using LinearAlgebraicRepresentation, Triangle, Combinatorics, DataStructures
 	Lar = LinearAlgebraicRepresentation
 
