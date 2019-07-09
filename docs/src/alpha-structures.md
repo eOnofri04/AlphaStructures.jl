@@ -91,8 +91,22 @@ It is although pretty clear that if a simplex is in ``\mathcal A`` for a certain
 
 This last definition gives us a better way to build up the ``\alpha``-Complex:
 ```math
-    \mathcal A = \{\sigma \in \mathcal D(S) \mid \alpha_\sigma \leq \alpha\}
+    \mathcal A_\alpha = \{\sigma \in \mathcal D(S) \mid \alpha_\sigma \leq \alpha\}
 ```
+
+It is of particular interest note that the charateristical `\alpha` of each simplex is bigger or equal than those of the simplices (of lower degree) it is made of:
+```math
+    \alpha_\sigma \geq \alpha_{\sigma'} \quad \forall \sigma' \subseteq \sigma
+```
+
+With this knowledge it is pretty clear that we can sort the simplices via their charateristical ``\alpha`` like the comes in the ``\alpha``-complex. We therefore could define what we call _``\alpha``-Filtration_:
+
+!!! definition
+    Let ``\mathcal D`` the Delaunay triangulation of a set of Sites ``S``.
+    We define an ``\alpha``-Filtration of ``S`` like the sequence of Complexes that grows accordingly to the ``\alpha`` value, namely:
+    ```math
+        \emptyset \ =\ K_0 \subseteq K_{\alpha_1} \subseteq K_{\alpha_2} \subseteq \dots \subseteq K_{\alpha_k} \ =\ \mathcal D
+    ```
 
 In particular this will be the key we use in our algorith to evaluate the ``\alpha``-structures.
 We will describe more precisely how to evaluate the charateristical ``\alpha`` in the _"Alpha Structures Implementation"_ [section 4.2](https://eonofri04.github.io/AlphaShape.jl/alpha-structures-impl/).
