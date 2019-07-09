@@ -1,12 +1,6 @@
 #
-#	In this file there is
+#	In this file there is:
 #	 - delaunayTriangulation(V::Lar.Points)
-#	 - foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-#	 - foundRadius(T::Array{Array{Float64,1},1})::Float64
-#	 - vertexInCircumball(T::Array{Array{Float64,1},1},
-#			α_char::Float64,
-#			point::Array{Float64,2}
-#		):: Bool
 #	 - alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 #	 - alphaSimplex(V::Lar.Points,
 #			filtration::DataStructures.SortedMultiDict{},
