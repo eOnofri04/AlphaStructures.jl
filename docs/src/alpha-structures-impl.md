@@ -36,9 +36,15 @@ To simplify this notion we could refer to what happend in the two dimensional ca
      - an edge ``\overline{st}`` occurs in the ``alpha``-complex if and only if the voronoy regions of ``s`` and ``t`` meet in a common edge that is less far from ``s`` and ``t`` than ``\alpha``;
      - a triangle ``stq`` occurs in the ``alpha``-complex if and only if the voronoy regions of ``s``, ``t`` and ``q`` meet in a common point that is closer than ``\alpha`` from the points themselves.
 
-Of course we could overturn the point of view by looking what happend if we consider the ``d-1``-dimensional ball centered in the center of the circumball defined by the ``d`` sites of ``\sigma``.
-
+Of course we could overturn the point of view by looking what happend if we consider the ``d-1``-dimensional ball ``\mathcal B`` centered in the center of the circumball defined by the ``d`` sites of ``\sigma``.
 First of all we are sure it is well defined and unique since ``S`` satisfies the general position condition.
+The stated condition then assume the following form:
+!!! fact
+    A ``d``-dimensional simplex made of sites ``S'\subseteq S`` belongs to the ``\alpha``-complex if and only if the ball of radius ``alpha`` located in the circumcentre of ``S'`` intersects the Voronoy boundary hypersurface of the ``S`` cells.
+
+In particular the last statement implies that the charateristical ``\alpha`` of a simplex ``\sigma`` is alpways bigger or equal than the circumradius of the sites it is made of. Moreover for usual conditions (namely no higher dimensional obtuse-solid-angled simplices) the charateristical ``\alpha`` is preciselly that value.
+
+This key feature is the one we have used in our implementation. In fact, the problem of determine if a simplex is (or is not) obtuse-angled is pretty simple. It suffices to determine if its circumcentre is (or is not, respectivelly) located outside the simplex itself.
 
 ## The Implementation
 
