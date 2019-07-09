@@ -213,9 +213,9 @@ function DeWall(Ptot::Lar.Points,
 
 		f = popfirst!(AFL_α)
 
-		for triangle in keys(tetraDict)
-			if f in triangle
-				tetra = get(tetraDict,triangle,1)
+		for (k,v) in tetraDict
+			if f in k
+				tetra = v
 			end
 		end
 
