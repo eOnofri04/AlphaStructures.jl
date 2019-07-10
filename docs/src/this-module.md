@@ -4,6 +4,6 @@ In this module we have solved the problem of building an ``\alpha``-complex for 
 
 In [section 4.1](https://eonofri04.github.io/AlphaStructures.jl/delaunay-impl/) we will discuss how we have solved the Delauanay Triangulation problem for 3-dimensional spaces (since we have used [`Triangle.jl`](https://github.com/cvdlab/Triangle.jl) by CVD Lab for 2-dimensional planes).
 
-In [section 4.2](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures-impl/) we will talk about solving the problem of finding the charateristical ``\alpha`` of the simplices in order to build the ``\alpha``-Structures.
+In [section 4.2](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures-impl/) we will talk about solving the problem of finding the characteristical ``\alpha`` of the simplices in order to build the ``\alpha``-Structures.
 
 Lastly, in [section 4.3](https://eonofri04.github.io/AlphaStructures.jl/persistent-homology-impl/) we will give a brief overview of how we solved the Persistent Homology problem.
