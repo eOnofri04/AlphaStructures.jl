@@ -34,18 +34,46 @@ function delaunayWall(P::Lar.Points, ax = 1)
     Pminor = findall(x -> x < off, P[ax, :])
     Pmajor = findall(x -> x > off, P[ax, :])
 
+
+
+    #idxmajor = closerPoint(minor, P[:,Pmajor])
+    #major = P[:, Pmajor[idxmajor]]
+    #indices = [idxminor idxmajor]
+    #Psimplex = [minor major]
+
     idxminor = findmax(P[ax, Pminor])[2]
-    minor = P[:, Pminor[idxminor]]
+    indices = [idxminor]
+    Psimplex = P[:, Pminor[idxminor]][:,:]  #Array{Float64,2}
+    # idxmajor = findSimplexPoint(Psimplex, P[:, Pmajor])
+    # indices = [indices; idxmajor]           #Array{Int64,1}
+    # Psimplex = [Psimplex P[:, Pmajor[idxmajor]]]
 
-    idxmajor = closerPoint(minor, P[:,Pmajor])
-    major = P[:, Pmajor[idxmajor]]
-
-    indices = [idxminor idxmajor]
-    Psimplex = [minor major]
+    pointsSelection = Pmajor
 
     for d = 1 : dim+1
-        newidx = findSimplexPoint(Psimplex, P)
+        newidx = findSimplexPoint(Psimplex, P[:, pointsSelection])
+        indices = [indices; newidx]
+        Psimplex = [Psimplex P[:, newidx]]
+        pointsSelection = [i for i = 1 : n if i ∉ indices]
     end
 end
 
 function findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
+    simplexDim = size(Psimplex, 2)
+    assert(simplexDim <= size(Psimplex, 1),
+        "Cannot add another point to the simplex"
+    )
+    if simplexDim == 1
+        vector = P .- simplexDim[:, 1] ## P - point * ones(1, size(P, 2))
+        dist = sum(abs2, vector, dims = 1)
+        idx = findmin(dist[:])[2]
+    else
+        idx = findmin([AlphaStructures.findRadius([Psimplex P[:,col]]) for col = 1 : size(P, 2)])[2]
+    end
+
+    return idx
+end
+
+function findRadius(P::Lar.Points)
+    AlphaStructures.foundRadius([P[:,i] for i = 1 : size(P, 2)])
+end
