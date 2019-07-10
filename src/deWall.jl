@@ -4,8 +4,61 @@
 #
 #
 
-function firstDeWallSimplex(P::Lar.Points, ax::Array{Float64,1}, off::Float64)
+function firstDeWallSimplex(P::Lar.Points, ax::Int64, off::Float64)
 
+	"""
+        findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
+
+    Returnd the index of the closest point in `P` to the `Psimplex` points.
+    """
+    function findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
+        simplexDim = size(Psimplex, 2)
+        @assert simplexDim <= size(Psimplex, 1) "Cannot add
+			another point to the simplex"
+        #if simplexDim == 1
+        #    vector = P .- simplexDim[:, 1] ## P - point * ones(1, size(P, 2))
+        #    dist = sum(abs2, vector, dims = 1)
+        #    return findmin(dist[:])[2]
+        #end
+        findmin(
+            [
+                findRadius([Psimplex P[:,col]])
+                for col = 1 : size(P, 2)
+            ]
+    	)[2]
+    end
+
+	dim = size(P, 1)
+    n = size(P, 2)
+
+    # the first point of the simplex is the one with coordinate `ax` maximal
+    #  such that it is less than `off` (closer to α from minus)
+    newidx = findmax(P[ax, findall(x -> x < off, P[ax, :])])[2]
+    # indices will store the indices of the simplex ...
+    indices = [newidx]                      #Array{Int64,1}
+    # ... and `Psimplex` will store the corresponding points
+    Psimplex = P[:, Pminor[newidx]][:,:]    #Array{Float64,2}
+
+    # the second point must be seeken across those with coordinate `ax`
+    #  grater than `off`
+    Pselection = findall(x -> x > off, P[ax, :])
+
+    for d = 1 : dim
+        newidx = Pselection[findSimplexPoint(Psimplex, P[:, Pselection])]
+        indices = [indices; newidx]
+        Psimplex = [Psimplex P[:, newidx]]
+        Pselection = [i for i = 1 : n if i ∉ indices]
+    end
+
+    # Correctness check
+	center = findCenter(Psimplex)
+	radius = Lar.norm(center - Psimplex[:, 1])
+    for i = 1 : n
+		@assert Lar.norm(center - P[:, i]) >= radius "ERROR:
+			Unable to find first Simplex."
+	end
+
+	return indices
 end
 
 function delaunayWall(P::Lar.Points, ax = 1)
@@ -23,84 +76,31 @@ function delaunayWall(P::Lar.Points, ax = 1)
 
     #---------------------------------------------------------------------------
 
-    """
-        findRadius(P::Lar.Points)
-
-    Utility function to change Lar.Points->{Array{Array,1},1}
-    Will be removed ?
-    """
-    function findRadius(P::Lar.Points)::Float64
-        AlphaStructures.foundRadius([P[:,i] for i = 1 : size(P, 2)])
-    end
-
-	"""
-        findCenter(P::Lar.Points)
-
-    Utility function to change Lar.Points->{Array{Array,1},1}
-    Will be removed ?
-    """
-    function findCenter(P::Lar.Points)::Array{Float64,2}
-        AlphaStructures.foundCenter([P[:,i] for i = 1 : size(P, 2)])[:,:]
-    end
-
-    #---------------------------------------------------------------------------
-
-    """
-        findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
-
-    Returnd the index of the closest point in `P` to the `Psimplex` points.
-    """
-    function findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
-        simplexDim = size(Psimplex, 2)
-        @assert simplexDim <= size(Psimplex, 1
-			) "Cannot add another point to the simplex"
-        #if simplexDim == 1
-        #    vector = P .- simplexDim[:, 1] ## P - point * ones(1, size(P, 2))
-        #    dist = sum(abs2, vector, dims = 1)
-        #    idx = findmin(dist[:])[2]
-        #else
-            idx = findmin(
-                [
-                    findRadius([Psimplex P[:,col]])
-                    for col = 1 : size(P, 2)
-                ]
-            )[2]
-        #end
-
-        return idx
-    end
-
-    #---------------------------------------------------------------------------
-
     dim = size(P, 1)
     n = size(P, 2)
 
     off = findMedian(P, ax)
 
-    # the first point of the simplex is the one with coordinate `ax` maximal
-    #  such that it is less than `off` (closer to α from minus)
-    newidx = findmax(P[ax, findall(x -> x < off, P[ax, :])])[2]
-    # indices will store the indices of the simplex ...
-    indices = [newidx]                      #Array{Int64,1}
-    # ... and `Psimplex` will store the corresponding points
-    Psimplex = P[:, Pminor[newidx]][:,:]    #Array{Float64,2}
+    indices = firstDeWallSimplex(P, ax, off)
+end
 
-    # the second point must be seeken across those with coordinate `ax`
-    #  grater than `off`
-    Pselection = findall(x -> x > off, P[ax, :])
 
-    for d = 1 : dim+1
-        newidx = Pselection[findSimplexPoint(Psimplex, P[:, Pselection])]
-        indices = [indices; newidx]
-        Psimplex = [Psimplex P[:, newidx]]
-        Pselection = [i for i = 1 : n if i ∉ indices]
-    end
+"""
+	findRadius(P::Lar.Points)
 
-    # Correctness check
-	center = findCenter(Psimplex)
-	radius = Lar.norm(center - Psimplex[:, 1])
-    for i = 1 : n
-		@assert Lar.norm(center - P[:, i]) >= radius "ERROR:
-			Unable to find first Simplex."
-	end
+Utility function to change Lar.Points->{Array{Array,1},1}
+Will be removed ?
+"""
+function findRadius(P::Lar.Points)::Float64
+	AlphaStructures.foundRadius([P[:,i] for i = 1 : size(P, 2)])
+end
+
+"""
+	findCenter(P::Lar.Points)
+
+Utility function to change Lar.Points->{Array{Array,1},1}
+Will be removed ?
+"""
+function findCenter(P::Lar.Points)::Array{Float64,2}
+	AlphaStructures.foundCenter([P[:,i] for i = 1 : size(P, 2)])[:,:]
 end
