@@ -1,4 +1,5 @@
-using AlphaStructures, DataStructures, LinearAlgebraicRepresentation, Plasm
+using AlphaStructures
+using DataStructures, LinearAlgebraicRepresentation, Plasm
 Lar = LinearAlgebraicRepresentation
 
 filename = "examples/OBJ/teapot.obj";
