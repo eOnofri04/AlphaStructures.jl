@@ -10,70 +10,97 @@ end
 
 function delaunayWall(P::Lar.Points, ax = 1)
 
+    """
+        findMedian(P::Lar.Points, ax::Int64)::Float64
+
+    Returns the median of the `P` points across the `ax` axis
+    """
     function findMedian(P::Lar.Points, ax::Int64)::Float64
         xp = sort(unique(P[ax, :]))
         idx = Int64(floor(length(xp)/2))
         return (xp[idx] + xp[idx+1])/2
     end
 
-    """
+    #---------------------------------------------------------------------------
 
-    Returns the index of the closet point in `P` to `point`
     """
-    function closerPoint(minor::Array{Float64, 1}, P::Lar.Points)::Int64
-        vector = P .- minor ## P - minor * ones(1, size(P, 2))
-        dist = sum(abs2, vector, dims = 1)
-        return findmin(dist[:])[2]
+        findRadius(P::Lar.Points)
+
+    Utility function to change Lar.Points->{Array{Array,1},1}
+    Will be removed ?
+    """
+    function findRadius(P::Lar.Points)::Float64
+        AlphaStructures.foundRadius([P[:,i] for i = 1 : size(P, 2)])
     end
+
+	"""
+        findCenter(P::Lar.Points)
+
+    Utility function to change Lar.Points->{Array{Array,1},1}
+    Will be removed ?
+    """
+    function findCenter(P::Lar.Points)::Array{Float64,2}
+        AlphaStructures.foundCenter([P[:,i] for i = 1 : size(P, 2)])[:,:]
+    end
+
+    #---------------------------------------------------------------------------
+
+    """
+        findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
+
+    Returnd the index of the closest point in `P` to the `Psimplex` points.
+    """
+    function findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
+        simplexDim = size(Psimplex, 2)
+        @assert simplexDim <= size(Psimplex, 1
+			) "Cannot add another point to the simplex"
+        #if simplexDim == 1
+        #    vector = P .- simplexDim[:, 1] ## P - point * ones(1, size(P, 2))
+        #    dist = sum(abs2, vector, dims = 1)
+        #    idx = findmin(dist[:])[2]
+        #else
+            idx = findmin(
+                [
+                    findRadius([Psimplex P[:,col]])
+                    for col = 1 : size(P, 2)
+                ]
+            )[2]
+        #end
+
+        return idx
+    end
+
+    #---------------------------------------------------------------------------
 
     dim = size(P, 1)
     n = size(P, 2)
 
     off = findMedian(P, ax)
 
-    Pminor = findall(x -> x < off, P[ax, :])
-    Pmajor = findall(x -> x > off, P[ax, :])
+    # the first point of the simplex is the one with coordinate `ax` maximal
+    #  such that it is less than `off` (closer to α from minus)
+    newidx = findmax(P[ax, findall(x -> x < off, P[ax, :])])[2]
+    # indices will store the indices of the simplex ...
+    indices = [newidx]                      #Array{Int64,1}
+    # ... and `Psimplex` will store the corresponding points
+    Psimplex = P[:, Pminor[newidx]][:,:]    #Array{Float64,2}
 
-
-
-    #idxmajor = closerPoint(minor, P[:,Pmajor])
-    #major = P[:, Pmajor[idxmajor]]
-    #indices = [idxminor idxmajor]
-    #Psimplex = [minor major]
-
-    idxminor = findmax(P[ax, Pminor])[2]
-    indices = [idxminor]
-    Psimplex = P[:, Pminor[idxminor]][:,:]  #Array{Float64,2}
-    # idxmajor = findSimplexPoint(Psimplex, P[:, Pmajor])
-    # indices = [indices; idxmajor]           #Array{Int64,1}
-    # Psimplex = [Psimplex P[:, Pmajor[idxmajor]]]
-
-    pointsSelection = Pmajor
+    # the second point must be seeken across those with coordinate `ax`
+    #  grater than `off`
+    Pselection = findall(x -> x > off, P[ax, :])
 
     for d = 1 : dim+1
-        newidx = findSimplexPoint(Psimplex, P[:, pointsSelection])
+        newidx = Pselection[findSimplexPoint(Psimplex, P[:, Pselection])]
         indices = [indices; newidx]
         Psimplex = [Psimplex P[:, newidx]]
-        pointsSelection = [i for i = 1 : n if i ∉ indices]
-    end
-end
-
-function findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
-    simplexDim = size(Psimplex, 2)
-    assert(simplexDim <= size(Psimplex, 1),
-        "Cannot add another point to the simplex"
-    )
-    if simplexDim == 1
-        vector = P .- simplexDim[:, 1] ## P - point * ones(1, size(P, 2))
-        dist = sum(abs2, vector, dims = 1)
-        idx = findmin(dist[:])[2]
-    else
-        idx = findmin([AlphaStructures.findRadius([Psimplex P[:,col]]) for col = 1 : size(P, 2)])[2]
+        Pselection = [i for i = 1 : n if i ∉ indices]
     end
 
-    return idx
-end
-
-function findRadius(P::Lar.Points)
-    AlphaStructures.foundRadius([P[:,i] for i = 1 : size(P, 2)])
+    # Correctness check
+	center = findCenter(Psimplex)
+	radius = Lar.norm(center - Psimplex[:, 1])
+    for i = 1 : n
+		@assert Lar.norm(center - P[:, i]) >= radius "ERROR:
+			Unable to find first Simplex."
+	end
 end

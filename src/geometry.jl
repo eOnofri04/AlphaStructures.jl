@@ -194,7 +194,7 @@ function foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
 	return center
 end
 
-""" 
+"""
 	foundRadius(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.
