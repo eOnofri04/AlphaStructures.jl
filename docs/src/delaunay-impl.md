@@ -43,8 +43,8 @@ The process continues iteratively:
  - extract another face from AFL
  - until AFL is empty.
 
-## The Implementation
-The main functions to compute this are in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/3D_delaunay.jl) file)
+## The implementation
+The main functions to compute this are in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/3D_delaunay.jl) file
 ```@docs
 AlphaStructures.makeFirstWallSimplex
 ```
