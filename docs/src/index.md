@@ -28,7 +28,7 @@ and as additional dependece:
  - **Bold** is used to point out theory concepts.
  - `Monospace` is used for everything code related.
 
-## Table of Contenents
+## Table of Contents
 
 ```@contents
 ```

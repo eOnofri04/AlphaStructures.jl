@@ -55,7 +55,6 @@ AlphaStructures.makeSimplex
 AlphaStructures.deWall
 ```
 
-
 ### The Pipeline
 
  1. Select the plane π to split ``P``;
