@@ -58,7 +58,6 @@ AlphaStructures.deWall
 
 ### The Pipeline
 
-The approach we have followed could be summed up into the following pipeline:
  1. Select the plane π to split ``P``;
  2. Split ``P`` into two subset ``P^-`` and ``P^+``;
  3. Construct first simplex of ``S^π`` with `makeFirstWallSimplex`

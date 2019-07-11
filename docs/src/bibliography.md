@@ -1,5 +1,7 @@
 # B - Bibliography
 
+[CMS97] P. Cignoni , C. Montani , R. Scopigno (1997) "DeWall: A Fast Divide & Conquer Delaunay Triangulation Algorithm in E^d"
+
 [CT98] M. Teichmann and M. Capps. Surface reconstruction with anisotropic density-scaled alpha-shapes. In IEEE Visualization ’98 Proceedings, pages 67–72, San Francisco, CA, October 1998. ACM/SIGGRAPH Press.
 
 [Del34] B. Delaunay (1934). "Sur la sphère vide". Bulletin de l'Académie des Sciences de l'URSS, Classe des Sciences Mathématiques et Naturelles. 6: 793–800.
