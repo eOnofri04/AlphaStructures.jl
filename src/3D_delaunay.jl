@@ -38,13 +38,13 @@ The process continues in the same way until the required first d-simplex is buil
 """
 function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float64,1}, off::Float64)
 	d = size(P,1)+1 # dimension of upper_simplex
-	@assert d < 5 "Error: Function not yet Programmed."
+	@assert d < 5 "makeFirstWallSimplex: Function not yet Programmed."
 	indices = Int64[]
 	found = true
 
 	Pminus,Pplus = AlphaStructures.pointsetPartition(P, axis, off)
 
-	@assert !isempty(Pminus) "Error: Not enough points."
+	@assert !isempty(Pminus) "makeFirstWallSimplex: Not enough points."
 	#The first point of the face is the nearest to middle plane in negative halfspace.
 	#for point in Pminus
 	distPoint = [AlphaStructures.distPointPlane(P[:,i],axis, off) for i = 1:size(Pminus,2)]
@@ -53,7 +53,7 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 	index = findall(x -> x == [p1...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 	push!(indices,index)
 
-	@assert !isempty(Pplus) "Error: Not enough points."
+	@assert !isempty(Pplus) "makeFirstWallSimplex: Not enough points."
 	#The 2nd point of the face is the euclidean nearest to first point that is in the positive halfspace
 	#for point in Pplus
 	distance = [Lar.norm(p1-Pplus[:,i]) for i = 1:size(Pplus,2)]
@@ -90,9 +90,7 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 		end
 	end
 
-	if !found
-		return nothing
-	end
+    @assert found "makeFirstWallSimplex: first tetrahedron is not found"
 
 	return sort(indices)
 end
@@ -101,9 +99,9 @@ end
 	makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 
 Given a face `f`, return the adjacent simplices in the outer halfspace,
-that is in the opposite halfspace of where tetra lies.
+that is in the opposite halfspace of where `tetra` lies.
 One of halfspace associated with `f` contains no point iff face `f` is part of
-the Convex Hull of the pointset P;
+the Convex Hull of the pointset `P`;
 in this case the algorithm correctly returns no adjacent simplex and returns `nothing`.
 """
 function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
@@ -216,13 +214,9 @@ function deWall(
 	# 3 - construct first tetrahedra if necessary
 	if isempty(AFL)
 		t = AlphaStructures.makeFirstWallSimplex(Ptot,P,axis,off)
-		if t != nothing
-			AFL = AlphaStructures.simplexFaces(t)# d-1 - faces of t
-			tetraDict[ AFL ] = t
-			push!(DT,t)
-		else
-			return DT
-		end
+		AFL = AlphaStructures.simplexFaces(t)# d-1 - faces of t
+		tetraDict[ AFL ] = t
+		push!(DT,t)
 	end
 
 	for f in AFL
@@ -247,7 +241,8 @@ function deWall(
 			end
 		end
 
-    		T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
+    	T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
+
 		if T != nothing && T ∉ DT
 			push!(DT,T)
 

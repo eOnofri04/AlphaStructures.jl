@@ -1,11 +1,11 @@
-using AlphaStructures
+#using AlphaStructures
 using DataStructures, LinearAlgebraicRepresentation, Plasm
 Lar = LinearAlgebraicRepresentation
 
 function Point3D(n)
-    V=[0.;0.;0.]
+    V = rand(3)
     for i=1:n-1
-        Point = [rand();rand();rand()]
+        Point = rand(3)
         V=hcat(V,Point)
     end
     return V

@@ -59,7 +59,7 @@ plane α is selected as a plane orthogonal to the axes (X, Y or Z in ``E^3`` ), 
 	- axis = [0,0,1.].
 """
 function splitValue(P::Lar.Points, axis::Array{Float64,1})
-	@assert axis == [1.,0,0] || axis == [0,1.,0] || axis == [0,0,1.] "Error: not a plane orthogonal to the axes "
+	@assert axis == [1.,0,0] || axis == [0,1.,0] || axis == [0,0,1.] "splitValue: not a plane orthogonal to the axes "
 	coord = findall(x->x==1.,axis)[1]
 	valueP = sort(unique(P[coord,:]))
 	numberPoint = length(valueP)
@@ -80,8 +80,8 @@ Return two subsets of pointset `P` split by α plane defined by `axis` and `off`
 """
 function pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
 	side = [AlphaStructures.sidePlane(P[:,i],axis,off) for i = 1:size(P,2)]
-	Pminus = P[:,side.== -1 ] #points in NegHalfspace(α)
-	Pplus = P[:,side.== 1] #points in PosHalfspace(α)
+	Pminus = P[:,side.== -1 ] #points in negative halfspace
+	Pplus = P[:,side.== 1] #points in positive halfspace
 	return Pminus,Pplus
 end
 
@@ -147,9 +147,9 @@ Determine center of a simplex defined by `T` points.
 
 """
 function foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-	@assert length(T) > 0 "ERROR: at least one points is needed."
+	@assert length(T) > 0 "foundCenter: at least one points is needed."
 	dim = length(T[1])
-	@assert dim < 4 "Error: Function not yet Programmed."
+	@assert dim < 4 "foundCenter: Function not yet Programmed."
 	k = length(T)-1
 
 	if k == 0
@@ -194,7 +194,7 @@ function foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
 	return center
 end
 
-""" 
+"""
 	foundRadius(T::Array{Array{Float64,1},1})::Float64
 
 Return the value of the circumball radius of the given points.
@@ -202,11 +202,11 @@ If three or more points are collinear it returns `NaN`.
 """
 function foundRadius(T::Array{Array{Float64,1},1})::Float64
 
-	@assert length(T) > 0 "ERROR: at least one points is needed."
+	@assert length(T) > 0 "foundRadius: at least one points is needed."
 	dim = length(T[1])
-	@assert dim < 4 "Error: Function not yet Programmed."
+	@assert dim < 4 "foundRadius: Function not yet Programmed."
 	k = length(T) - 1
-	@assert k <= dim +1 "ERROR: too much points."
+	@assert k <= dim +1 "foundRadius: too much points."
 
 	center = AlphaStructures.foundCenter(T)
 	alpha = round(Lar.norm(T[1] - center), sigdigits = 14) # number approximation
@@ -223,7 +223,6 @@ end
 
 Determine if a point is inner of the circumball determined by `T` points
 	and radius `α_char`.
-
 """
 function vertexInCircumball(
 		T::Array{Array{Float64,1},1},
