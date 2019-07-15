@@ -6,31 +6,6 @@
 
 function firstDeWallSimplex(P::Lar.Points, ax::Int64, off::Float64)
 
-	"""
-        findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
-
-    Returnd the index of the closest point in `P` to the `Psimplex` points.
-    """
-    function findSimplexPoint(Psimplex::Lar.Points, P::Lar.Points)
-        simplexDim = size(Psimplex, 2)
-        @assert simplexDim <= size(Psimplex, 1) "Cannot add
-			another point to the simplex"
-        #if simplexDim == 1
-        #    vector = P .- simplexDim[:, 1] ## P - point * ones(1, size(P, 2))
-        #    dist = sum(abs2, vector, dims = 1)
-        #    return findmin(dist[:])[2]
-        #end
-
-        findmin(
-            [
-                findRadius([Psimplex P[:,col]])
-                for col = 1 : size(P, 2)
-            ]
-    	)[2]
-		# radlist = [findRadius([Psimplex P[:,col]]) for col = 1 : size(P, 2)]
-		# findmin(radlist)[2]
-    end
-
 	dim = size(P, 1)
     n = size(P, 2)
 
@@ -48,7 +23,7 @@ function firstDeWallSimplex(P::Lar.Points, ax::Int64, off::Float64)
     Pselection = findall(x -> x > off, P[ax, :])
 
     for d = 1 : dim
-        newidx = Pselection[findSimplexPoint(Psimplex, P[:, Pselection])]
+        newidx = Pselection[findClosestPoint(Psimplex, P[:, Pselection])]
         indices = [indices; newidx]
         Psimplex = [Psimplex P[:, newidx]]
         Pselection = [i for i = 1 : n if i ∉ indices]
@@ -85,33 +60,4 @@ function delaunayWall(P::Lar.Points, ax = 1)
     off = findMedian(P, ax)
 
     indices = firstDeWallSimplex(P, ax, off)
-end
-
-
-"""
-	findRadius(P::Lar.Points)
-
-Utility function to change Lar.Points->{Array{Array,1},1}
-Will be removed ?
-"""
-function findRadius(P::Lar.Points, center = false)
- 	c = AlphaStructures.foundCenter([P[:,i] for i = 1 : size(P, 2)])[:,:]
-	r = findmin([Lar.norm(c - P[:, i]) for i = 1 : size(P, 2)])[1]
-	if r == NaN
-		r = Inf
-	end
-	if center
-		return r, c
-	end
-	return r
-end
-
-"""
-	findCenter(P::Lar.Points)
-
-Utility function to change Lar.Points->{Array{Array,1},1}
-Will be removed ?
-"""
-function findCenter(P::Lar.Points)::Array{Float64,2}
-	AlphaStructures.foundCenter([P[:,i] for i = 1 : size(P, 2)])[:,:]
 end
