@@ -233,3 +233,31 @@ function vertexInCircumball(
 	center = AlphaStructures.foundCenter(T)
 	return Lar.norm(point - center) <= α_char
 end
+
+
+
+
+"""
+	oppositeHalfSpacePoints(
+			P::Lar.Points,
+			face::Array{Array{Int64,1},1},
+			point::Int64
+		)::Array{Int64,1}
+Returns the index list of the points `P` located in the halfspace defined by
+`face` points that do not contains the point `point`.
+"""
+function oppositeHalfSpacePoints(
+		P::Lar.Points,
+		face::Array{Int64,1},
+		point::Int64
+	)::Array{Int64,1}
+
+	axis = Lar.cross(P[:,face[2]] - P[:,face[1]], P[:,face[3]] - P[:,face[1]])
+	off = Lar.dot(axis,P[:,face[1]])
+	position = Lar.dot(P[:,point],axis)
+	if position < off
+		return [i for i = 1:size(P,2) if Lar.dot(P[:,i], axis) > off]
+	else
+		return [i for i = 1:size(P,2) if Lar.dot(P[:,i], axis) < off]
+	end
+end
