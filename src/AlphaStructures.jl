@@ -1,6 +1,9 @@
 module AlphaStructures
-	using LinearAlgebraicRepresentation, Triangle, Combinatorics, DataStructures
+	using LinearAlgebra
+	using LinearAlgebraicRepresentation, Triangle
+	using Combinatorics, DataStructures
 	Lar = LinearAlgebraicRepresentation
+	LA = LinearAlgebra
 
 	include("alpha_complex.jl")
 	include("3D_delaunay.jl")

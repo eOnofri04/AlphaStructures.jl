@@ -68,64 +68,73 @@ end
 	@test AlphaStructures.planarIntersection(P, P, [2,4,5], [0,0,1.], 3.2) == 1
 end
 
-@testset "Found Center" begin
+@testset "Find Center" begin
 
-	@testset "Points Found Center" begin
-		@test AlphaStructures.foundCenter([[1.]]) == [1.]
-		@test AlphaStructures.foundCenter([[1., 1.]]) == [1., 1.]
-		@test AlphaStructures.foundCenter([[1., 1., 1.]]) == [1., 1., 1.]
-		# @test AlphaStructures.foundCenter(([[1., 1., 1., 1.]])) == [1., 1., 1., 1.]
+	P = [
+		0.0 1.0 0.0 0.0
+		0.0 0.0 1.0 0.0
+		0.0 0.0 0.0 1.0
+	]
+
+	@testset "Points Find Center" begin
+		@test AlphaStructures.findCenter(P[1:1, 2:2]) == [1.0]
+		@test AlphaStructures.findCenter(P[1:2, 2:2]) == [1.0, 0.0]
+		@test AlphaStructures.findCenter(P[1:3, 2:2]) == [1., 0.0, 0.0]
 	end
 
-	@testset "Edges Found Center" begin
-		@test AlphaStructures.foundCenter([[1.], [3.]]) == [2.0]
-		@test AlphaStructures.foundCenter([[1.,1.], [3.,3.]]) == [2.0, 2.0]
-		@test AlphaStructures.foundCenter([[1.,1.,1.], [3.,3.,3.]]) == [2.0, 2.0, 2.0]
+	@testset "Edges Find Center" begin
+		@test AlphaStructures.findCenter(P[1:1, 1:2]) == [0.5]
+		@test AlphaStructures.findCenter(P[1:2, 1:2]) == [0.5, 0.0]
+		@test AlphaStructures.findCenter(P[1:3, 1:2]) == [0.5, 0.0, 0.0]
 	end
 
-	@testset "Triangles Found Center" begin
-		@test AlphaStructures.foundCenter([[0.,0.], [0.,1.], [1.,0.]]) == [0.5, 0.5]
-		@test AlphaStructures.foundCenter([[0.,0.,0.], [0.,1.,0.], [1.,0.,0.]]) == [0.5,0.5,0.0]
+	@testset "Triangles Find Center" begin
+		@test AlphaStructures.findCenter(P[1:2, 1:3]) == [0.5, 0.5]
+		@test AlphaStructures.findCenter(P[1:3, 1:3]) == [0.5, 0.5, 0.0]
 	end
 
-	@testset "Tetrahedrons Found Center" begin
-		@test AlphaStructures.foundCenter([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [0.,0.,1.]]) == [0.5, 0.5, 0.5]
+	@testset "Tetrahedrons Find Center" begin
+		@test AlphaStructures.findCenter(P[1:3, 1:4]) == [0.5, 0.5, 0.5]
 	end
 
 end
 
-@testset "Found Radius" begin
+@testset "Find Radius" begin
 
-	@testset "Points Found Radius" begin
-		@test AlphaStructures.foundRadius(([[1.]])) == 0.0
-		@test AlphaStructures.foundRadius(([[1., 1.]])) == 0.0
-		@test AlphaStructures.foundRadius(([[1., 1., 1.]])) == 0.0
-		# @test AlphaStructures.foundRadius(([[1., 1., 1., 1.]])) == 0.0
+	P = [
+		0.0 1.0 0.0 0.0 0.0
+		0.0 0.0 1.0 0.0 0.0
+		0.0 0.0 0.0 1.0 1.0
+	]
+
+	@testset "Points Find Radius" begin
+		@test AlphaStructures.findRadius(P[1:1, 2:2]) == 0.0
+		@test AlphaStructures.findRadius(P[1:2, 2:2]) == 0.0
+		@test AlphaStructures.findRadius(P[1:3, 2:2]) == 0.0
 	end
 
-	@testset "1D Found Radius" begin
-		@test AlphaStructures.foundRadius(([[1.], [3.]])) == 1.0
-		@test AlphaStructures.foundRadius(([[1.], [1.]])) == 0.0
+	@testset "Edges Find Center" begin
+		@test AlphaStructures.findRadius(P[1:1, 1:2]) == 0.5
+		@test AlphaStructures.findRadius(P[1:2, 1:2]) == 0.5
+		@test AlphaStructures.findRadius(P[1:3, 1:2]) == 0.5
+
+		@test AlphaStructures.findRadius(P[1:2, 4:5]) == 0.0
 	end
 
-	@testset "2D Found Radius" begin
-		T = [[1., 1.], [2., 2.]]
-		P = [[1., 0.], [2., 0.], [3., 0.]]
-		Q = [[0., 0.], [2., 0.], [0., 2.]]
-		@test AlphaStructures.foundRadius(T) == round(sqrt(2)/2, sigdigits=14)
-		@test isnan(AlphaStructures.foundRadius(P))
-		@test isapprox(AlphaStructures.foundRadius(Q), sqrt(2), atol=1e-4)
+	@testset "Triangles Find Center" begin
+		r = 0.707106781
+		@test isapprox(AlphaStructures.findRadius(P[1:2, 1:3]), r, atol=1e-9)
+		@test isapprox(AlphaStructures.findRadius(P[1:3, 1:3]), r, atol=1e-9)
+
+		@test AlphaStructures.findRadius(P[1:2, 3:5]) == Inf
+		@test AlphaStructures.findRadius(P[1:3, 3:5]) == Inf
 	end
 
-	@testset "3D Found Radius" begin
-		T = [[1., 1., 0.], [2., 2., 0.]]
-		P = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.]]
-		Q = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,1.]]
-		R = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,0.]]
-		@test AlphaStructures.foundRadius(T) == round(sqrt(2)/2,sigdigits=14)
-		@test isapprox(AlphaStructures.foundRadius(P), 1., atol=1e-4)
-		@test AlphaStructures.foundRadius(Q) == 1.
-		@test isnan(AlphaStructures.foundRadius(R))
+	@testset "Tetrahedrons Find Center" begin
+		r = 0.866025403
+		@test isapprox(AlphaStructures.findRadius(P[1:3, 1:4]), r, atol=1e-9)
+
+		@test AlphaStructures.findRadius(P[1:3, 2:5]) == Inf
 	end
 
 end
@@ -133,7 +142,7 @@ end
 @testset "Vertex in Circumball" begin
 
 	@testset "2D Vertex in Circumball" begin
-		V=[
+		V = [
 			0. 1. 0.;
 			0. 0. 1.
 		]
