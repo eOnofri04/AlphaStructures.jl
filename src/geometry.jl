@@ -1,7 +1,7 @@
 #
 #	This file contains:
 #	 - findCenter(P::Lar.Points)::Array{Float64,1}
-#    - findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
+#	 - findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
 #	 - findMedian(P::Lar.Points, ax::Int64)::Float64
 #	 - findRadius(P::Lar.Points, center=false)
 #	 - oppositeHalfSpacePoints(
@@ -104,7 +104,7 @@ end
 #-------------------------------------------------------------------------------
 
 """
-    findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
+	findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
 
 Returns the index of the closest point in `P` to the `Psimplex` points,
 according to the circumcenter distance metric.
@@ -196,7 +196,7 @@ end
 	oppositeHalfSpacePoints(
 			P::Lar.Points,
 			face::Array{Array{Int64,1},1},
-			point::Array{Float64,1}
+			point::Int64
 		)::Array{Int64,1}
 
 Returns the index list of the points `P` located in the halfspace defined by
@@ -205,7 +205,7 @@ Returns the index list of the points `P` located in the halfspace defined by
 function oppositeHalfSpacePoints(
 		P::Lar.Points,
 		face::Array{Array{Int64,1},1},
-		point::Array{Float64,1}
+		point::Int64
 	)::Array{Int64,1}
 
 	#ToDo
@@ -250,7 +250,7 @@ end
 #-------------------------------------------------------------------------------
 
 """
-    simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+	simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
 
 Returns the faces of the simplex `σ`.
 
