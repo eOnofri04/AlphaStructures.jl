@@ -46,7 +46,7 @@ end
 	@test AlphaStructures.findMedian(P, 1) == 0.5
 	@test AlphaStructures.findMedian(P, 2) == 1.0
 	@test AlphaStructures.findMedian(P, 3) == 1.5
-	
+
 end
 
 @testset "Find Radius" begin

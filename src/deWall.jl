@@ -1,8 +1,32 @@
 #
 #	This File Contains:
+#	 - delaunayWall(P::Lar.Points, ax = 1)
+#	 - firstDeWallSimplex(
+#			P::Lar.Points,
+#			ax::Int64,
+#			off::Float64
+#		)::Array{Int64,1}
 #
 #
-#
+
+"""
+	delaunayWall(P::Lar.Points, ax = 1)
+
+Return the Delaunay Triangulation of sites `P` via Delaunay Wall algorithm.
+The optional argument `ax` specify on wich axis it will build the Wall.
+"""
+
+function delaunayWall(P::Lar.Points, ax = 1)
+
+    dim = size(P, 1)
+    n = size(P, 2)
+
+    off = AlphaStructures.findMedian(P, ax)
+
+    indices = firstDeWallSimplex(P, ax, off)
+end
+
+#-------------------------------------------------------------------------------
 
 """
 function firstDeWallSimplex(
@@ -72,14 +96,4 @@ function firstDeWallSimplex(
 	end
 
 	return indices
-end
-
-function delaunayWall(P::Lar.Points, ax = 1)
-
-    dim = size(P, 1)
-    n = size(P, 2)
-
-    off = AlphaStructures.findMedian(P, ax)
-
-    indices = firstDeWallSimplex(P, ax, off)
 end
