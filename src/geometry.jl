@@ -4,6 +4,17 @@
 #    - findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
 #	 - findMedian(P::Lar.Points, ax::Int64)::Float64
 #	 - findRadius(P::Lar.Points, center=false)
+#	 - oppositeHalfSpacePoints(
+#			P::Lar.Points,
+#			face::Array{Array{Int64,1},1},
+#			point::Array{Float64,1}
+#		)::Array{Int64,1}
+#	 - planarIntersection(
+#			P::Lar.Points,
+#			face::Array{Int64,1},
+#			axis::Int64,
+#			off::Float64
+#		)::Int64
 #	 - simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
 #
 
@@ -178,6 +189,62 @@ function findRadius(P::Lar.Points, center=false)
 		return r, c
 	end
 	return r
+end
+
+#-------------------------------------------------------------------------------
+"""
+	oppositeHalfSpacePoints(
+			P::Lar.Points,
+			face::Array{Array{Int64,1},1},
+			point::Array{Float64,1}
+		)::Array{Int64,1}
+
+Returns the index list of the points `P` located in the halfspace defined by
+`face` points that do not contains the point `point`.
+"""
+function oppositeHalfSpacePoints(
+		P::Lar.Points,
+		face::Array{Array{Int64,1},1},
+		point::Array{Float64,1}
+	)::Array{Int64,1}
+
+	#ToDo
+
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+	planarIntersection(
+		P::Lar.Points,
+		face::Array{Int64,1},
+		axis::Int64,
+		off::Float64
+	)::Int64
+
+Computes the position of `face` with respect to the hyperplane `α` defined by
+the normal `axis` and the contant term `off`. It returns:
+ - `+0` if `f` intersect `α`
+ - `+1` if `f` is completely contained in the positive half space of `α`
+ - `-1` if `f` is completely contained in the negative half space of `α`
+"""
+function planarIntersection(
+		P::Lar.Points,
+		face::Array{Int64,1},
+		axis::Int64,
+		off::Float64
+	)::Int64
+
+	pos = [P[axis, i] > off for i in face]
+	if sum(pos) == 0
+		position = -1
+	elseif sum(pos) == length(pos)
+		position = +1
+	else
+		position = 0
+	end
+
+	return position
 end
 
 #-------------------------------------------------------------------------------

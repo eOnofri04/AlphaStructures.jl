@@ -62,7 +62,8 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 			end
 		end
 		# Find the points in the other halfspace with respect to σ.
-		Pselection = oppositeHalfSpacePoints(P, face, setdiff(σ, face))
+		Pselection =
+			AlphaStructures.oppositeHalfSpacePoints(P, face, setdiff(σ, face))
 		# If there are no such points than the face is part of the convex hull.
 		if isempty(Pselection)
 			push!(CH, face)
@@ -199,7 +200,7 @@ function updateAFL!(
 	)::Bool
 
 	for face in newσ
-		inters = AlphaStructures.planarIntersection(Ptot, P, f, axis, off) #### TODO
+		inters = AlphaStructures.planarIntersection(P, face, axis, off)
     	if inters == 0 # intersected by plane α
 			updatelist!(AFLα, face)
 		elseif inters == -1 # in NegHalfspace(α)
