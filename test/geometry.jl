@@ -146,9 +146,25 @@ end
 		0.0 0.0 0.0 1.0 2.0 0.0 1.0
 	]
 
-	@test AlphaStructures.oppositeHalfSpacePoints(V, [2; 3; 4], 1) == [5; 7]
-	@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 2; 3], 4) == []
-	@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 3; 4], 2) == [6]
+	@testset "1D Opposite Half Space"
+		V1D = V[[1], :]
+		@test AlphaStructures.oppositeHalfSpacePoints(V1D, [1], 2) == [6]
+		@test AlphaStructures.oppositeHalfSpacePoints(V1D, [6], 1) == []
+		@test AlphaStructures.oppositeHalfSpacePoints(V1D, [1], 6) == [2; 5; 7]
+	end
+
+	@testset "2D Opposite Half Space"
+		V2D = V[1:2, :]
+		@test AlphaStructures.oppositeHalfSpacePoints(V, [2; 3; 4], 1) == [5; 7]
+		@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 2; 3], 4) == []
+		@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 3; 4], 2) == [6]
+	end
+
+	@testset "3D Opposite Half Space"
+		@test AlphaStructures.oppositeHalfSpacePoints(V, [2; 3; 4], 1) == [5; 7]
+		@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 2; 3], 4) == []
+		@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 3; 4], 2) == [6]
+	end
 
 end
 
@@ -200,62 +216,55 @@ end
 end
 
 #-------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-@testset "Vertex in Circumball" begin
-
-	@testset "2D Vertex in Circumball" begin
-		V = [
-			0. 1. 0.;
-			0. 0. 1.
-		]
-		simplex = [2, 3]
-		up_simplex = [1, 2, 3]
-		point = V[:, setdiff(up_simplex, simplex)]
-		T=[ V[:, v] for v in simplex ]
-		@test AlphaStructures.vertexInCircumball(
-			T, AlphaStructures.foundRadius(T), point
-		)
-	end
-
-	@testset "3D Vertex in Circumball" begin
-
-		@testset "edge and triangle" begin
-			V=[
-				0. 1. 0.;
-				0. 0. 1.;
-				0. 0. 0.
-			]
-			simplex = [2, 3]
-			up_simplex = [1, 2, 3]
-			point = V[:, setdiff(up_simplex, simplex)]
-			T=[ V[:, v] for v in simplex ]
-			@test AlphaStructures.vertexInCircumball(
-				T, AlphaStructures.foundRadius(T), point
-			)
-		end
-
-		@testset "triangle and tetrahedron" begin
-			V=[
-				0. 1. 0. 0.;
-				0. 0. 1. 0.;
-				0. 0. 0. 1.
-			]
-			simplex = [2, 3, 4]
-			up_simplex = [1, 2, 3, 4]
-			point = V[:, setdiff(up_simplex, simplex)]
-			T=[ V[:, v] for v in simplex ]
-			@test AlphaStructures.vertexInCircumball(
-				T, AlphaStructures.foundRadius(T), point
-			)
-		end
-
-	end
-
-end
+#
+# @testset "Vertex in Circumball" begin
+#
+# 	@testset "2D Vertex in Circumball" begin
+# 		V = [
+# 			0. 1. 0.;
+# 			0. 0. 1.
+# 		]
+# 		simplex = [2, 3]
+# 		up_simplex = [1, 2, 3]
+# 		point = V[:, setdiff(up_simplex, simplex)]
+# 		T=[ V[:, v] for v in simplex ]
+# 		@test AlphaStructures.vertexInCircumball(
+# 			T, AlphaStructures.foundRadius(T), point
+# 		)
+# 	end
+#
+# 	@testset "3D Vertex in Circumball" begin
+#
+# 		@testset "edge and triangle" begin
+# 			V=[
+# 				0. 1. 0.;
+# 				0. 0. 1.;
+# 				0. 0. 0.
+# 			]
+# 			simplex = [2, 3]
+# 			up_simplex = [1, 2, 3]
+# 			point = V[:, setdiff(up_simplex, simplex)]
+# 			T=[ V[:, v] for v in simplex ]
+# 			@test AlphaStructures.vertexInCircumball(
+# 				T, AlphaStructures.foundRadius(T), point
+# 			)
+# 		end
+#
+# 		@testset "triangle and tetrahedron" begin
+# 			V=[
+# 				0. 1. 0. 0.;
+# 				0. 0. 1. 0.;
+# 				0. 0. 0. 1.
+# 			]
+# 			simplex = [2, 3, 4]
+# 			up_simplex = [1, 2, 3, 4]
+# 			point = V[:, setdiff(up_simplex, simplex)]
+# 			T=[ V[:, v] for v in simplex ]
+# 			@test AlphaStructures.vertexInCircumball(
+# 				T, AlphaStructures.foundRadius(T), point
+# 			)
+# 		end
+#
+# 	end
+#
+# end

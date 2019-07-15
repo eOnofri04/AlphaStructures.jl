@@ -201,15 +201,72 @@ end
 
 Returns the index list of the points `P` located in the halfspace defined by
 `face` points that do not contains the point `point`.
+
+_Obs._ Dimension Dipendent, only works if dimension is three or less and
+	the number of points in the face is the same than the dimension.
+
+# Examples
+```jldoctest
+julia> V = [
+		0.0 1.0 0.0 0.0 4.0 -1. 1.0
+		0.0 0.0 1.0 0.0 1.0 0.0 1.0
+		0.0 0.0 0.0 1.0 2.0 0.0 1.0
+	   ];
+
+julia> oppositeHalfSpacePoints(V, [2; 3; 4], 1)
+2-element Array{Int64,1}:
+ 5
+ 7
+
+julia> oppositeHalfSpacePoints(V, [1; 2; 3], 4)
+0-element Array{Int64,1}
+
+julia> oppositeHalfSpacePoints(V, [1; 3; 4], 2)
+1-element Array{Int64,1}:
+ 6
+
+```
 """
 function oppositeHalfSpacePoints(
 		P::Lar.Points,
-		face::Array{Array{Int64,1},1},
+		face::Array{Int64,1},
 		point::Int64
 	)::Array{Int64,1}
 
-	#ToDo
-
+	dim, n = size(P)
+	@assert dim <= 3 && length(face) == dim "ERROR: Not yet coded."
+	if dim == 1
+		threshold = P[1, face[1]]
+		if P[1, point] < threshold
+			opposite = [i for i = 1 : n if P[1, i] > threshold]
+		else
+			opposite = [i for i = 1 : n if P[1, i] < threshold]
+		end
+	elseif dim == 2
+		m = (P[2, face[1]] - P[2, face[2]]) / (P[1, face[1]] - P[1, face[2]])
+		q = P[2, face[1]] - m * P[1, face[1]]
+		# false = under the line, true = over the line
+		@assert P[2, point] ≠ m * P[1, point] + q "ERROR,
+			the point belongs to the face"
+		if P[2, point] - m * P[1, point] + q > 0
+			opposite = [i for i = 1 : n if P[2, i] - m * P[1, i] + q < 0]
+		else
+			opposite = [i for i = 1 : n if P[2, i] - m * P[1, i] + q > 0]
+		end
+	elseif dim == 3
+		axis = Lar.cross(
+			P[:, face[2]] - P[:, face[1]],
+			P[:, face[3]] - P[:, face[1]]
+		)
+		off = Lar.dot(axis, P[:, face[1]])
+		position = Lar.dot(P[:, point], axis)
+		if position < off
+			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) > off]
+		else
+			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) < off]
+		end
+	end
+	return opposite
 end
 
 #-------------------------------------------------------------------------------
