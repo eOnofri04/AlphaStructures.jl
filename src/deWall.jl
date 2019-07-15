@@ -1,6 +1,6 @@
 #
 #	This File Contains:
-#	 - delaunayWall(P::Lar.Points, ax = 1)::Lar.Cells
+#	 - delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 #	 - firstDeWallSimplex(
 #			P::Lar.Points,
 #			ax::Int64,
@@ -31,7 +31,7 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 	# 0 - Data Reading and Container definition
 	dim, n = size(P)			# space dimenson and number of points
 	DT = Array{Int64,1}[]		# Delaunay Triangulation
-	AFL_α = Array{Int64,1}[]    # (d-1)faces intersecting the Wall
+	AFLα = Array{Int64,1}[]		# (d-1)faces intersecting the Wall
 	AFLplus = Array{Int64,1}[]  # (d-1)faces in positive Wall half-space
 	AFLminus = Array{Int64,1}[] # (d-1)faces in positive Wall half-space
 	tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
@@ -39,7 +39,7 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 
 	# 1 - Determine first simplex (if necessary)
 	if isempty(AFL)
-		σ = firstDeWallSimplex(P, ax, off)
+		σ = sort(AlphaStructures.firstDeWallSimplex(P, ax, off))
 		# Update the DT and the Tetra Dictionary
 		push!(DT, σ)
 		AFL = AlphaStructures.simplexFaces(σ)
@@ -47,14 +47,15 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 	end
 
 	# 2 - Build `AFL*` according to the axis `ax` with contant term `off`
-	updateAFL!(
-		P, AFL, AFL_α, AFLminus, AFLplus, ax, off
+	AlphaStructures.updateAFL!(
+		P, AFL, AFLα, AFLplus, AFLminus, ax, off
 	)
 
 	# 4 - Build simplex Wall
 	while !isempty(AFLα)
 		face = AFLα[1]
 		# Get corresponding simplex to `face`
+		σ = nothing
 		for (k, v) in tetraDict
 			if face in k
 				σ = v
@@ -62,25 +63,32 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 			end
 		end
 		# Find the points in the other halfspace with respect to σ.
-		Pselection =
-			AlphaStructures.oppositeHalfSpacePoints(P, face, setdiff(σ, face))
+		# If σ == nothing then all the points are suitable
+		if σ == nothing
+			Pselection = setdiff([i for i = 1 : n], face)
+		else
+			oppoint = setdiff(σ, face)
+			@assert length(oppoint) == 1
+			Pselection =
+				AlphaStructures.oppositeHalfSpacePoints(P, face, oppoint[1])
+		end
 		# If there are no such points than the face is part of the convex hull.
 		if isempty(Pselection)
-			push!(CH, face)
-			updateList(AFLα, face)
+			# push!(CH, face)
+			AlphaStructures.updatelist!(AFLα, face)
 		else
 			# Find the Closest Point in the other halfspace with respect to σ.
 			newidx = Pselection[
 				AlphaStructures.findClosestPoint(P[:, face], P[:, Pselection])
 			]
 			# Build the new simplex and update the Dictionary
-			σ = sort([face newidx])
+			σ = sort([face; newidx])
 			push!(DT, σ)
 			AFL = AlphaStructures.simplexFaces(σ)
 			tetraDict[ AFL ] = σ
 			# Split σ's Faces according to semi-spaces
-			updateAFL!(
-				P, AFL, AFL_α, AFLminus, AFLplus, ax, off
+			AlphaStructures.updateAFL!(
+				P, AFL, AFLα, AFLplus, AFLminus, ax, off
 			)
 		end
 	end
@@ -90,12 +98,22 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 	newaxis = mod(ax, dim) + 1
 	if !isempty(AFLminus)
 		Pminus = findall(x -> x < off, P[ax, :])
-		DTminus = delaunayWall(P[:, Pminus], newaxis, AFLminus)
+		DTminus = AlphaStructures.delaunayWall(
+					P[:, Pminus],
+					newaxis,
+					[[findall(Pminus.==p)[1] for p in σ] for σ in AFLminus]
+				)
 		union!(DT, [[Pminus[i] for i in σ] for σ in DTminus])
 	end
 	if !isempty(AFLplus)
 		Pplus = findall(x -> x > off, P[ax, :])
-		DTplus = delaunayWall(P[:, Pplus], newaxis, AFLplus)
+		println(Pplus)
+		println(AFLplus)
+		DTplus = AlphaStructures.delaunayWall(
+					P[:, Pplus],
+					newaxis,
+					[[findall(Pplus.==p)[1] for p in σ] for σ in AFLplus]
+				)
 		union!(DT, [[Pplus[i] for i in σ] for σ in DTplus])
 	end
 
@@ -192,21 +210,21 @@ The function returns a Bool value that states if the operation was succesfully.
 """
 function updateAFL!(
 		P::Lar.Points,
-		newσ::Array{Int64,1},
-		AFLα::Array{Int64,1},
-		AFLplus::Array{Int64,1},
-		AFLminus::Array{Int64,1},
+		newσ::Array{Array{Int64,1},1},
+		AFLα::Array{Array{Int64,1},1},
+		AFLplus::Array{Array{Int64,1},1},
+		AFLminus::Array{Array{Int64,1},1},
 		ax::Int64, off::Float64
 	)::Bool
 
 	for face in newσ
-		inters = AlphaStructures.planarIntersection(P, face, axis, off)
+		inters = AlphaStructures.planarIntersection(P, face, ax, off)
     	if inters == 0 # intersected by plane α
-			updatelist!(AFLα, face)
+			AlphaStructures.updatelist!(AFLα, face)
 		elseif inters == -1 # in NegHalfspace(α)
-        	updatelist!(AFLminus, face)
+        	AlphaStructures.updatelist!(AFLminus, face)
     	elseif inters == 1 # in PosHalfspace(α)
-        	updatelist!(AFLplus, face)
+        	AlphaStructures.updatelist!(AFLplus, face)
     	else
 			return false
 		end
