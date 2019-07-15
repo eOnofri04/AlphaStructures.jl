@@ -1,19 +1,11 @@
 #
 #	This file contains:
+#	 - findCenter(P::Lar.Points)::Array{Float64,1}
 #    - findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
-#	 - update(element, list)
-#	 - sidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
-#	 - splitValue(P::Lar.Points, axis::Array{Float64,1})
-#	 - pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
-#	 - simplexFaces(t::Array{Int64,1})::Array{Array{Int64,1},1}
-#	 - distPointPlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Float64
-#	 - planarIntersection(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
-#	 - foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-#	 - foundRadius(T::Array{Array{Float64,1},1})::Float64
-#	 - vertexInCircumball(T::Array{Array{Float64,1},1},
-#			α_char::Float64,
-#			point::Array{Float64,2}
-#		):: Bool
+#	 - findMedian(P::Lar.Points, ax::Int64)::Float64
+#	 - findRadius(P::Lar.Points, center=false)
+#	 - simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+#
 
 #-------------------------------------------------------------------------------
 
@@ -186,4 +178,29 @@ function findRadius(P::Lar.Points, center=false)
 		return r, c
 	end
 	return r
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+    simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+
+Returns the faces of the simplex `σ`.
+
+# Examples
+```jldoctest
+
+julia> σ = [1; 2; 3; 4];
+
+julia> AlphaStructures.implexFaces(σ)
+4-element Array{Array{Int64,1},1}:
+ [1, 2, 3]
+ [1, 2, 4]
+ [1, 3, 4]
+ [2, 3, 4]
+
+```
+"""
+function simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+    collect(Combinatorics.combinations(σ, length(σ)-1))
 end
