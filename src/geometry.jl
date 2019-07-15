@@ -224,7 +224,7 @@ end
 
 Computes the position of `face` with respect to the hyperplane `α` defined by
 the normal `axis` and the contant term `off`. It returns:
- - `+0` if `f` intersect `α`
+ - `+0` if `f` intersect `α` internum (not only the boundary)
  - `+1` if `f` is completely contained in the positive half space of `α`
  - `-1` if `f` is completely contained in the negative half space of `α`
 """
@@ -236,7 +236,10 @@ function planarIntersection(
 	)::Int64
 
 	pos = [P[axis, i] > off for i in face]
-	if sum(pos) == 0
+
+	if sum([P[axis, i] == off for i in face]) == length(pos)
+		position = 0 # face coplanar with axis
+	elseif sum(pos) == 0
 		position = -1
 	elseif sum(pos) == length(pos)
 		position = +1
@@ -254,10 +257,12 @@ end
 
 Returns the faces of the simplex `σ`.
 
+_Obs._ The faces are ordered by the index value.
+
 # Examples
 ```jldoctest
 
-julia> σ = [1; 2; 3; 4];
+julia> σ = [1; 3; 2; 4];
 
 julia> AlphaStructures.implexFaces(σ)
 4-element Array{Array{Int64,1},1}:
@@ -269,5 +274,5 @@ julia> AlphaStructures.implexFaces(σ)
 ```
 """
 function simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
-    collect(Combinatorics.combinations(σ, length(σ)-1))
+    sort!(sort!.(collect(Combinatorics.combinations(σ, length(σ)-1))))
 end

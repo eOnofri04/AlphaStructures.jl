@@ -35,6 +35,52 @@ end
 
 end
 
+#–------------------------------------------------------------------------------
+
+@testset "Find Closest Point" begin
+	P = [
+		0.0 1.0 2.0 3.0 4.0
+		0.0 3.0 2.0 2.0 1.0
+		0.0 5.0 6.0 2.0 2.0
+	]
+
+	@testset "1D closest point" begin
+		idxs = [2; 3; 4; 5]
+		@test AlphaStructures.findClosestPoint(P[[1], [1]], P[[1], idxs]) == 1
+		@test AlphaStructures.findClosestPoint(P[[2], [1]], P[[2], idxs]) == 4
+		@test AlphaStructures.findClosestPoint(P[[3], [1]], P[[3], idxs]) == 3
+	end
+
+	@testset "2D closest point" begin
+		idxs = [2; 3; 4; 5]
+		σ = [1]
+		while length(σ) <= 2
+			newidx = idxs[
+					AlphaStructures.findClosestPoint(P[1:2, σ], P[1:2, idxs])
+			]
+			idxs = [i for i in idxs if i ≠ newidx]
+			σ = [σ; newidx]
+		end
+		@test σ == [1; 3; 2]
+	end
+
+	@testset "3D closest point" begin
+		idxs = [2; 3; 4; 5]
+		σ = [1]
+		while length(σ) <= 3
+			newidx = idxs[
+					AlphaStructures.findClosestPoint(P[1:3, σ], P[1:3, idxs])
+			]
+			idxs = [i for i in idxs if i ≠ newidx]
+			σ = [σ; newidx]
+		end
+		@test σ == [1; 4; 5; 3]
+	end
+
+end
+
+#-------------------------------------------------------------------------------
+
 @testset "FindMedian" begin
 
 	P = [
@@ -48,6 +94,8 @@ end
 	@test AlphaStructures.findMedian(P, 3) == 1.5
 
 end
+
+#-------------------------------------------------------------------------------
 
 @testset "Find Radius" begin
 
@@ -89,6 +137,69 @@ end
 
 end
 
+#-------------------------------------------------------------------------------
+
+@testset "Opposit Half Space"
+	V = [
+		0.0 1.0 0.0 0.0 4.0 -1. 1.0
+		0.0 0.0 1.0 0.0 1.0 0.0 1.0
+		0.0 0.0 0.0 1.0 2.0 0.0 1.0
+	]
+
+	@test AlphaStructures.oppositeHalfSpacePoints(V, [2; 3; 4], 1) == [5; 7]
+	@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 2; 3], 4) == []
+	@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 3; 4], 2) == [6]
+
+end
+
+#-------------------------------------------------------------------------------
+
+@testset "planarIntersection" begin
+
+	P = [
+		0.0 1.0 -1. 1.0 2.0
+		1.0 2.0 -1. 1.0 3.0
+		1.0 0.0 -1. -1. -5.
+	]
+
+	@testset "1D Planar Intersection" begin
+		@test AlphaStructures.planarIntersection(P, [1], 1, 0.0) == 0
+		@test AlphaStructures.planarIntersection(P, [2], 1, 0.0) == 1
+		@test AlphaStructures.planarIntersection(P, [3], 1, 0.0) == -1
+	end
+
+	@testset "2D Planar Intersection" begin
+		@test AlphaStructures.planarIntersection(P, [2; 3], 1, 0.0) == 0
+		@test AlphaStructures.planarIntersection(P, [1; 2], 2, 0.0) == 1
+		@test AlphaStructures.planarIntersection(P, [2; 3], 3, 0.0) == -1
+	end
+
+	@testset "3D Planar Intersection" begin
+		@test AlphaStructures.planarIntersection(P, [1; 2; 3], 1, 0.0) == 0
+		@test AlphaStructures.planarIntersection(P, [1; 2; 4], 2, 0.0) == 1
+		@test AlphaStructures.planarIntersection(P, [2; 3; 4], 3, 0.0) == -1
+	end
+
+	@testset "4D Planar Intersection" begin
+		@test AlphaStructures.planarIntersection(P, [2; 3; 4; 5], 1, 0.0) == 0
+		@test AlphaStructures.planarIntersection(P, [1; 2; 4; 5], 2, 0.0) == 1
+		@test AlphaStructures.planarIntersection(P, [2; 3; 4; 5], 3, 0.0) == -1
+	end
+end
+
+#-------------------------------------------------------------------------------
+
+@testset "Simplex Faces"(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+	@testset AlphaStructures.simplexFaces([1; 2]) == [ [1], [2] ]
+	@testset AlphaStructures.simplexFaces([1; 2; 3]) ==
+		[ [1, 2], [1, 3], [2, 3] ]
+	@testset AlphaStructures.simplexFaces([1; 2; 3; 4]) ==
+		[ [1, 2, 3], [1, 2, 4], [1, 3, 4], [2, 3, 4] ]
+	@testset AlphaStructures.simplexFaces([4; 3; 2; 1; 5]) ==
+		[ [1, 2, 3, 4], [1, 2, 3, 5], [1, 2, 4, 5], [1, 3, 4, 5], [2, 3, 4, 5] ]
+end
+
+#-------------------------------------------------------------------------------
 
 
 
@@ -108,7 +219,9 @@ end
 		up_simplex = [1, 2, 3]
 		point = V[:, setdiff(up_simplex, simplex)]
 		T=[ V[:, v] for v in simplex ]
-		@test AlphaStructures.vertexInCircumball(T, AlphaStructures.foundRadius(T), point)
+		@test AlphaStructures.vertexInCircumball(
+			T, AlphaStructures.foundRadius(T), point
+		)
 	end
 
 	@testset "3D Vertex in Circumball" begin
@@ -123,7 +236,9 @@ end
 			up_simplex = [1, 2, 3]
 			point = V[:, setdiff(up_simplex, simplex)]
 			T=[ V[:, v] for v in simplex ]
-			@test AlphaStructures.vertexInCircumball(T, AlphaStructures.foundRadius(T), point)
+			@test AlphaStructures.vertexInCircumball(
+				T, AlphaStructures.foundRadius(T), point
+			)
 		end
 
 		@testset "triangle and tetrahedron" begin
@@ -136,74 +251,11 @@ end
 			up_simplex = [1, 2, 3, 4]
 			point = V[:, setdiff(up_simplex, simplex)]
 			T=[ V[:, v] for v in simplex ]
-			@test AlphaStructures.vertexInCircumball(T, AlphaStructures.foundRadius(T), point)
+			@test AlphaStructures.vertexInCircumball(
+				T, AlphaStructures.foundRadius(T), point
+			)
 		end
 
 	end
 
-end
-
-
-@testset "update" begin
-	@test AlphaStructures.update(1,[2,3,4]) == [2,3,4,1]
-	@test AlphaStructures.update(4,[2,3,4]) == [2,3]
-	@test AlphaStructures.update([3,4],[[1,2],[2,3]]) == [[1,2],[2,3],[3,4]]
-	@test AlphaStructures.update([1,2],[[1,2],[2,3]]) == [[2,3]]
-end
-
-@testset "sidePlane" begin
-	@test AlphaStructures.sidePlane([-4.,5.,6.],[1.,0,0],3.) == -1
-	@test AlphaStructures.sidePlane([1.,1.,0.],[1.,1.,1.],2.) == 0
-	@test AlphaStructures.sidePlane([0.,0.,0.],[1.,3.,5.],-1.) == 1
-end
-
-@testset "splitValue" begin
-	P = [ -1. -2.  3.  4.  5.  ;
-		  -1.  2.  3. -2. -3.  ;
-		   0.  0.  1.  1.  1.  ]
-
-	@test AlphaStructures.splitValue(P,[1.,0,0]) == 1.0
-	@test AlphaStructures.splitValue(P,[0,1.,0]) == -1.5
-	@test AlphaStructures.splitValue(P,[0,0,1.]) == 0.5
-end
-
-@testset "pointsetPartition" begin
-	P = [ -1. -2.  3.  4.  5. -6.  ;
-		   0.  1.  3. -2. -4.  2.  ;
-		   1. -3. -5.  7.  2.  3.  ]
-	# axis X
-	Pminus,Pplus = AlphaStructures.pointsetPartition(P, [1.,0,0], 3.2)
-	@test size(Pminus,2) == 4
-	@test size(Pplus,2) == 2
-
-	# axis Y
-	Pminus,Pplus = AlphaStructures.pointsetPartition(P, [0,1.,0], 3.2)
-	@test size(Pminus,2) == 6
-	@test size(Pplus,2) == 0
-
-	# axis Z
-	Pminus,Pplus = AlphaStructures.pointsetPartition(P, [0,0,1.], 3.2)
-	@test size(Pminus,2) == 5
-	@test size(Pplus,2) == 1
-end
-
-@testset "simplexFaces" begin
-	@test AlphaStructures.simplexFaces([1,2]) == [[1],[2]]
-	@test AlphaStructures.simplexFaces([1,2,3]) == [[1,2],[1,3],[2,3]]
-	@test AlphaStructures.simplexFaces([1,2,3,4]) == [[1,2,3],[1,2,4],[1,3,4],[2,3,4]]
-end
-
-@testset "distPointPlane" begin
-	@test AlphaStructures.distPointPlane([-4.,2.,3.],[1.,0.,0.],3.) == 7.
-	@test AlphaStructures.distPointPlane([1.,2.,10.],[1.,1.,0.],3.) == 0.
-	@test isapprox(AlphaStructures.distPointPlane([1.,1.,1.],[1.,1.,1.],0.),sqrt(3))
-end
-
-@testset "planarIntersection" begin
-	P = [  -1. -2. 3.  4.  5. -6.  ;
-			0.  1. 3. -2. -4.  2.  ;
-			1.  8. -5.  7.  4.  3.  ]
-	@test AlphaStructures.planarIntersection(P, P, [2,4,6], [1.,0,0], 3.2) == 0
-	@test AlphaStructures.planarIntersection(P, P, [1,4,5], [0,1.,0], 3.2) == -1
-	@test AlphaStructures.planarIntersection(P, P, [2,4,5], [0,0,1.], 3.2) == 1
 end
