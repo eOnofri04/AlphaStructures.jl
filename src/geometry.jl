@@ -16,6 +16,11 @@
 #			off::Float64
 #		)::Int64
 #	 - simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+#	 - vertexInCircumball(
+#			P::Lar.Points,
+#			α_char::Float64,
+#			point::Array{Float64,2}
+#		)::Bool
 #
 
 #-------------------------------------------------------------------------------
@@ -339,4 +344,27 @@ julia> AlphaStructures.implexFaces(σ)
 """
 function simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
     sort!(sort!.(collect(Combinatorics.combinations(σ, length(σ)-1))))
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+	vertexInCircumball(
+		P::Lar.Points,
+		α_char::Float64,
+		point::Array{Float64,2}
+	)::Bool
+
+Determine if a point is inner of the circumball determined by `T` points
+	and radius `α_char`.
+
+"""
+function vertexInCircumball(
+		P::Lar.Points,
+		α_char::Float64,
+		point::Array{Float64,2}
+	)::Bool
+
+	center = AlphaStructures.findCenter(P)
+	return Lar.norm(point - center) <= α_char
 end
