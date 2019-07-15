@@ -142,8 +142,13 @@ Returns the median of the `P` points across the `ax` axis
 """
 function findMedian(P::Lar.Points, ax::Int64)::Float64
 	xp = sort(unique(P[ax, :]))
-	idx = Int64(floor(length(xp)/2))
-	return (xp[idx] + xp[idx+1])/2
+	if length(xp) == 1
+		median = xp[1]
+	else
+		idx = Int64(floor(length(xp)/2))
+		median = (xp[idx] + xp[idx+1])/2
+	end
+	return median
 end
 
 #-------------------------------------------------------------------------------
@@ -234,7 +239,9 @@ function oppositeHalfSpacePoints(
 	)::Array{Int64,1}
 
 	dim, n = size(P)
-	@assert dim <= 3 && length(face) == dim "ERROR: Not yet coded."
+	@assert dim <= 3 "ERROR: Not yet coded."
+	@assert length(face) == dim "ERROR:
+		Cannot determine opposite to non hyperplanes."
 	if dim == 1
 		threshold = P[1, face[1]]
 		if P[1, point] < threshold
@@ -248,10 +255,10 @@ function oppositeHalfSpacePoints(
 		# false = under the line, true = over the line
 		@assert P[2, point] ≠ m * P[1, point] + q "ERROR,
 			the point belongs to the face"
-		if P[2, point] - m * P[1, point] + q > 0
-			opposite = [i for i = 1 : n if P[2, i] - m * P[1, i] + q < 0]
+		if P[2, point] < m * P[1, point] + q
+			opposite = [i for i = 1 : n if P[2, i] > m * P[1, i] + q]
 		else
-			opposite = [i for i = 1 : n if P[2, i] - m * P[1, i] + q > 0]
+			opposite = [i for i = 1 : n if P[2, i] < m * P[1, i] + q]
 		end
 	elseif dim == 3
 		axis = Lar.cross(
