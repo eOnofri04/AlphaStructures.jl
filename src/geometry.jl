@@ -133,6 +133,19 @@ end
 #-------------------------------------------------------------------------------
 
 """
+	findMedian(P::Lar.Points, ax::Int64)::Float64
+
+Returns the median of the `P` points across the `ax` axis
+"""
+function findMedian(P::Lar.Points, ax::Int64)::Float64
+	xp = sort(unique(P[ax, :]))
+	idx = Int64(floor(length(xp)/2))
+	return (xp[idx] + xp[idx+1])/2
+end
+
+#-------------------------------------------------------------------------------
+
+"""
 	findRadius(P::Lar.Points, center=false)
 
 Returns the value of the circumball radius of the given points.

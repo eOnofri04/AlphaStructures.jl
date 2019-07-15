@@ -4,6 +4,146 @@ else
 	using Test
 end
 
+@testset "Find Center" begin
+
+	P = [
+		0.0 1.0 0.0 0.0
+		0.0 0.0 1.0 0.0
+		0.0 0.0 0.0 1.0
+	]
+
+	@testset "Points Find Center" begin
+		@test AlphaStructures.findCenter(P[1:1, 2:2]) == [1.0]
+		@test AlphaStructures.findCenter(P[1:2, 2:2]) == [1.0, 0.0]
+		@test AlphaStructures.findCenter(P[1:3, 2:2]) == [1., 0.0, 0.0]
+	end
+
+	@testset "Edges Find Center" begin
+		@test AlphaStructures.findCenter(P[1:1, 1:2]) == [0.5]
+		@test AlphaStructures.findCenter(P[1:2, 1:2]) == [0.5, 0.0]
+		@test AlphaStructures.findCenter(P[1:3, 1:2]) == [0.5, 0.0, 0.0]
+	end
+
+	@testset "Triangles Find Center" begin
+		@test AlphaStructures.findCenter(P[1:2, 1:3]) == [0.5, 0.5]
+		@test AlphaStructures.findCenter(P[1:3, 1:3]) == [0.5, 0.5, 0.0]
+	end
+
+	@testset "Tetrahedrons Find Center" begin
+		@test AlphaStructures.findCenter(P[1:3, 1:4]) == [0.5, 0.5, 0.5]
+	end
+
+end
+
+@testset "FindMedian" begin
+
+	P = [
+		0.0 1.0 0.0 0.0
+		0.0 0.0 2.0 0.0
+		0.0 0.0 0.0 3.0
+	]
+
+	@test AlphaStructures.findMedian(P, 1) == 0.5
+	@test AlphaStructures.findMedian(P, 2) == 1.0
+	@test AlphaStructures.findMedian(P, 3) == 1.5
+	
+end
+
+@testset "Find Radius" begin
+
+	P = [
+		0.0 1.0 0.0 0.0 0.0
+		0.0 0.0 1.0 0.0 0.0
+		0.0 0.0 0.0 1.0 1.0
+	]
+
+	@testset "Points Find Radius" begin
+		@test AlphaStructures.findRadius(P[1:1, 2:2]) == 0.0
+		@test AlphaStructures.findRadius(P[1:2, 2:2]) == 0.0
+		@test AlphaStructures.findRadius(P[1:3, 2:2]) == 0.0
+	end
+
+	@testset "Edges Find Center" begin
+		@test AlphaStructures.findRadius(P[1:1, 1:2]) == 0.5
+		@test AlphaStructures.findRadius(P[1:2, 1:2]) == 0.5
+		@test AlphaStructures.findRadius(P[1:3, 1:2]) == 0.5
+
+		@test AlphaStructures.findRadius(P[1:2, 4:5]) == 0.0
+	end
+
+	@testset "Triangles Find Center" begin
+		r = 0.707106781
+		@test isapprox(AlphaStructures.findRadius(P[1:2, 1:3]), r, atol=1e-9)
+		@test isapprox(AlphaStructures.findRadius(P[1:3, 1:3]), r, atol=1e-9)
+
+		@test AlphaStructures.findRadius(P[1:2, 3:5]) == Inf
+		@test AlphaStructures.findRadius(P[1:3, 3:5]) == Inf
+	end
+
+	@testset "Tetrahedrons Find Center" begin
+		r = 0.866025403
+		@test isapprox(AlphaStructures.findRadius(P[1:3, 1:4]), r, atol=1e-9)
+
+		@test AlphaStructures.findRadius(P[1:3, 2:5]) == Inf
+	end
+
+end
+
+
+
+
+
+
+
+
+
+@testset "Vertex in Circumball" begin
+
+	@testset "2D Vertex in Circumball" begin
+		V = [
+			0. 1. 0.;
+			0. 0. 1.
+		]
+		simplex = [2, 3]
+		up_simplex = [1, 2, 3]
+		point = V[:, setdiff(up_simplex, simplex)]
+		T=[ V[:, v] for v in simplex ]
+		@test AlphaStructures.vertexInCircumball(T, AlphaStructures.foundRadius(T), point)
+	end
+
+	@testset "3D Vertex in Circumball" begin
+
+		@testset "edge and triangle" begin
+			V=[
+				0. 1. 0.;
+				0. 0. 1.;
+				0. 0. 0.
+			]
+			simplex = [2, 3]
+			up_simplex = [1, 2, 3]
+			point = V[:, setdiff(up_simplex, simplex)]
+			T=[ V[:, v] for v in simplex ]
+			@test AlphaStructures.vertexInCircumball(T, AlphaStructures.foundRadius(T), point)
+		end
+
+		@testset "triangle and tetrahedron" begin
+			V=[
+				0. 1. 0. 0.;
+				0. 0. 1. 0.;
+				0. 0. 0. 1.
+			]
+			simplex = [2, 3, 4]
+			up_simplex = [1, 2, 3, 4]
+			point = V[:, setdiff(up_simplex, simplex)]
+			T=[ V[:, v] for v in simplex ]
+			@test AlphaStructures.vertexInCircumball(T, AlphaStructures.foundRadius(T), point)
+		end
+
+	end
+
+end
+
+
 @testset "update" begin
 	@test AlphaStructures.update(1,[2,3,4]) == [2,3,4,1]
 	@test AlphaStructures.update(4,[2,3,4]) == [2,3]
@@ -66,121 +206,4 @@ end
 	@test AlphaStructures.planarIntersection(P, P, [2,4,6], [1.,0,0], 3.2) == 0
 	@test AlphaStructures.planarIntersection(P, P, [1,4,5], [0,1.,0], 3.2) == -1
 	@test AlphaStructures.planarIntersection(P, P, [2,4,5], [0,0,1.], 3.2) == 1
-end
-
-@testset "Find Center" begin
-
-	P = [
-		0.0 1.0 0.0 0.0
-		0.0 0.0 1.0 0.0
-		0.0 0.0 0.0 1.0
-	]
-
-	@testset "Points Find Center" begin
-		@test AlphaStructures.findCenter(P[1:1, 2:2]) == [1.0]
-		@test AlphaStructures.findCenter(P[1:2, 2:2]) == [1.0, 0.0]
-		@test AlphaStructures.findCenter(P[1:3, 2:2]) == [1., 0.0, 0.0]
-	end
-
-	@testset "Edges Find Center" begin
-		@test AlphaStructures.findCenter(P[1:1, 1:2]) == [0.5]
-		@test AlphaStructures.findCenter(P[1:2, 1:2]) == [0.5, 0.0]
-		@test AlphaStructures.findCenter(P[1:3, 1:2]) == [0.5, 0.0, 0.0]
-	end
-
-	@testset "Triangles Find Center" begin
-		@test AlphaStructures.findCenter(P[1:2, 1:3]) == [0.5, 0.5]
-		@test AlphaStructures.findCenter(P[1:3, 1:3]) == [0.5, 0.5, 0.0]
-	end
-
-	@testset "Tetrahedrons Find Center" begin
-		@test AlphaStructures.findCenter(P[1:3, 1:4]) == [0.5, 0.5, 0.5]
-	end
-
-end
-
-@testset "Find Radius" begin
-
-	P = [
-		0.0 1.0 0.0 0.0 0.0
-		0.0 0.0 1.0 0.0 0.0
-		0.0 0.0 0.0 1.0 1.0
-	]
-
-	@testset "Points Find Radius" begin
-		@test AlphaStructures.findRadius(P[1:1, 2:2]) == 0.0
-		@test AlphaStructures.findRadius(P[1:2, 2:2]) == 0.0
-		@test AlphaStructures.findRadius(P[1:3, 2:2]) == 0.0
-	end
-
-	@testset "Edges Find Center" begin
-		@test AlphaStructures.findRadius(P[1:1, 1:2]) == 0.5
-		@test AlphaStructures.findRadius(P[1:2, 1:2]) == 0.5
-		@test AlphaStructures.findRadius(P[1:3, 1:2]) == 0.5
-
-		@test AlphaStructures.findRadius(P[1:2, 4:5]) == 0.0
-	end
-
-	@testset "Triangles Find Center" begin
-		r = 0.707106781
-		@test isapprox(AlphaStructures.findRadius(P[1:2, 1:3]), r, atol=1e-9)
-		@test isapprox(AlphaStructures.findRadius(P[1:3, 1:3]), r, atol=1e-9)
-
-		@test AlphaStructures.findRadius(P[1:2, 3:5]) == Inf
-		@test AlphaStructures.findRadius(P[1:3, 3:5]) == Inf
-	end
-
-	@testset "Tetrahedrons Find Center" begin
-		r = 0.866025403
-		@test isapprox(AlphaStructures.findRadius(P[1:3, 1:4]), r, atol=1e-9)
-
-		@test AlphaStructures.findRadius(P[1:3, 2:5]) == Inf
-	end
-
-end
-
-@testset "Vertex in Circumball" begin
-
-	@testset "2D Vertex in Circumball" begin
-		V = [
-			0. 1. 0.;
-			0. 0. 1.
-		]
-		simplex = [2, 3]
-		up_simplex = [1, 2, 3]
-		point = V[:, setdiff(up_simplex, simplex)]
-		T=[ V[:, v] for v in simplex ]
-		@test AlphaStructures.vertexInCircumball(T, AlphaStructures.foundRadius(T), point)
-	end
-
-	@testset "3D Vertex in Circumball" begin
-
-		@testset "edge and triangle" begin
-			V=[
-				0. 1. 0.;
-				0. 0. 1.;
-				0. 0. 0.
-			]
-			simplex = [2, 3]
-			up_simplex = [1, 2, 3]
-			point = V[:, setdiff(up_simplex, simplex)]
-			T=[ V[:, v] for v in simplex ]
-			@test AlphaStructures.vertexInCircumball(T, AlphaStructures.foundRadius(T), point)
-		end
-
-		@testset "triangle and tetrahedron" begin
-			V=[
-				0. 1. 0. 0.;
-				0. 0. 1. 0.;
-				0. 0. 0. 1.
-			]
-			simplex = [2, 3, 4]
-			up_simplex = [1, 2, 3, 4]
-			point = V[:, setdiff(up_simplex, simplex)]
-			T=[ V[:, v] for v in simplex ]
-			@test AlphaStructures.vertexInCircumball(T, AlphaStructures.foundRadius(T), point)
-		end
-
-	end
-
 end

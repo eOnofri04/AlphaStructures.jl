@@ -4,7 +4,40 @@
 #
 #
 
-function firstDeWallSimplex(P::Lar.Points, ax::Int64, off::Float64)
+"""
+function firstDeWallSimplex(
+		P::Lar.Points,
+		ax::Int64,
+		off::Float64
+	)::Array{Int64,1}
+
+Returns the indices array of the points in `P` that form the first thetrahedron
+built over the Wall if the `ax` axes with contant term `off`.
+
+# Examples
+```jldoctest
+
+julia> V = [
+	0.0 1.0 0.0 0.0 2.0
+	0.0 0.0 1.0 0.0 2.0
+	0.0 0.0 0.0 1.0 2.0
+];
+
+julia> firstDeWallSimplex(V, 1, AlphaStructures.findMedian(V,1))
+4-element Array{Int64,1}:
+ 1
+ 2
+ 3
+ 4
+
+```
+"""
+
+function firstDeWallSimplex(
+		P::Lar.Points,
+		ax::Int64,
+		off::Float64
+	)::Array{Int64,1}
 
 	dim = size(P, 1)
     n = size(P, 2)
@@ -23,14 +56,16 @@ function firstDeWallSimplex(P::Lar.Points, ax::Int64, off::Float64)
     Pselection = findall(x -> x > off, P[ax, :])
 
     for d = 1 : dim
-        newidx = Pselection[findClosestPoint(Psimplex, P[:, Pselection])]
+        newidx = Pselection[
+			AlphaStructures.findClosestPoint(Psimplex, P[:, Pselection])
+		]
         indices = [indices; newidx]
         Psimplex = [Psimplex P[:, newidx]]
         Pselection = [i for i = 1 : n if i ∉ indices]
     end
 
     # Correctness check
-	radius, center = findRadius(Psimplex, true)
+	radius, center = AlphaStructures.findRadius(Psimplex, true)
     for i = 1 : n
 		@assert Lar.norm(center - P[:, i]) >= radius "ERROR:
 			Unable to find first Simplex."
@@ -41,23 +76,10 @@ end
 
 function delaunayWall(P::Lar.Points, ax = 1)
 
-    """
-        findMedian(P::Lar.Points, ax::Int64)::Float64
-
-    Returns the median of the `P` points across the `ax` axis
-    """
-    function findMedian(P::Lar.Points, ax::Int64)::Float64
-        xp = sort(unique(P[ax, :]))
-        idx = Int64(floor(length(xp)/2))
-        return (xp[idx] + xp[idx+1])/2
-    end
-
-    #---------------------------------------------------------------------------
-
     dim = size(P, 1)
     n = size(P, 2)
 
-    off = findMedian(P, ax)
+    off = AlphaStructures.findMedian(P, ax)
 
     indices = firstDeWallSimplex(P, ax, off)
 end
