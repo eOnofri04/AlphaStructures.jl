@@ -21,14 +21,14 @@ function firstDeWallSimplex(P::Lar.Points, ax::Int64, off::Float64)
         #    return findmin(dist[:])[2]
         #end
 
-		###!!!!!!!!!! NaN error
-
         findmin(
             [
                 findRadius([Psimplex P[:,col]])
                 for col = 1 : size(P, 2)
             ]
     	)[2]
+		# radlist = [findRadius([Psimplex P[:,col]]) for col = 1 : size(P, 2)]
+		# findmin(radlist)[2]
     end
 
 	dim = size(P, 1)
@@ -55,8 +55,7 @@ function firstDeWallSimplex(P::Lar.Points, ax::Int64, off::Float64)
     end
 
     # Correctness check
-	center = findCenter(Psimplex)
-	radius = Lar.norm(center - Psimplex[:, 1])
+	radius, center = findRadius(Psimplex, true)
     for i = 1 : n
 		@assert Lar.norm(center - P[:, i]) >= radius "ERROR:
 			Unable to find first Simplex."
@@ -95,8 +94,16 @@ end
 Utility function to change Lar.Points->{Array{Array,1},1}
 Will be removed ?
 """
-function findRadius(P::Lar.Points)::Float64
-	AlphaStructures.foundRadius([P[:,i] for i = 1 : size(P, 2)])
+function findRadius(P::Lar.Points, center = false)
+ 	c = AlphaStructures.foundCenter([P[:,i] for i = 1 : size(P, 2)])[:,:]
+	r = findmin([Lar.norm(c - P[:, i]) for i = 1 : size(P, 2)])[1]
+	if r == NaN
+		r = Inf
+	end
+	if center
+		return r, c
+	end
+	return r
 end
 
 """
