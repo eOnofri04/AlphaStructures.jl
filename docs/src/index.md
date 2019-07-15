@@ -21,7 +21,7 @@ In this documentation we present the problem and the related solution we have im
 
 and as additional dependece:
  - [Plasm](https://github.com/cvdlab/Plasm.jl) by CVD Lab
-
+ - [ViewerGL](https://github.com/cvdlab/ViewerGL.jl) by CVD Lab
 
 ## Docstrings conventions
 
