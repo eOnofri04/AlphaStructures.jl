@@ -76,12 +76,16 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 		if isempty(Pselection)
 			# push!(CH, face)
 			@assert AlphaStructures.updatelist!(AFLα, face) == false "ERROR:
-				something unespected happends while trying to remove a face."
+				Something unespected happends while trying to remove a face."
 		else
 			# Find the Closest Point in the other halfspace with respect to σ.
 			idxbase =
 				AlphaStructures.findClosestPoint(P[:, face], P[:, Pselection])
-			if !isnothing(idxbase)
+			if isnothing(idxbase)
+				# push!(CH, face)
+				@assert AlphaStructures.updatelist!(AFLα, face) == false "ERROR:
+					Something unespected happends while removing a face."
+			else
 				newidx = Pselection[idxbase]
 				# Build the new simplex and update the Dictionary
 				σ = sort([face; newidx])
