@@ -134,15 +134,12 @@ function findClosestPoint(
     else
         # radlist = [findRadius([Psimplex P[:,col]]) for col = 1:size(P,2)]
         # findmin(radlist)[2]
-		radlist = [
+		radius, closestidx = findmin([
 			AlphaStructures.findRadius([Psimplex P[:,col]])
 			for col = 1 : size(P, 2)
-			if AlphaStructures.findRadius([Psimplex P[:,col]]) != Inf
-		]
-		if isempty(radlist)
+		])
+		if radius == Inf
 			closestidx = nothing
-		else
-        	closestidx = findmin(radlist)[2]
 		end
     end
 
@@ -298,7 +295,7 @@ function oppositeHalfSpacePoints(
 			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) < off]
 		end
 	end
-	return opposite
+	return setdiff(opposite, face)
 end
 
 #-------------------------------------------------------------------------------
