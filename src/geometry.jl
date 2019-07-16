@@ -17,6 +17,7 @@
 #			axis::Int64,
 #			off::Float64
 #		)::Int64
+#	 - pointsPerturbation(P::Array{Float64,2}; atol=1e-10)::Array{Float64,2}
 #	 - simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
 #	 - vertexInCircumball(
 #			P::Lar.Points,
@@ -334,6 +335,18 @@ function planarIntersection(
 	end
 
 	return position
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+	pointsPerturbation(P::Array{Float64,2}; atol=1e-10)::Array{Float64,2}
+
+Returns the matrix `P` with a ±`atol` perturbation.
+"""
+function pointsPerturbation(P::Array{Float64,2}; atol=1e-10)::Array{Float64,2}
+	perturbation = mod.(rand(Float64, size(P)), 2*atol).-atol
+	P + perturbation
 end
 
 #-------------------------------------------------------------------------------

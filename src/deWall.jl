@@ -55,7 +55,7 @@ function delaunayWall(
 		# Update the DT and the Tetra Dictionary
 		push!(DT, σ)
 		AFL = AlphaStructures.simplexFaces(σ)
-		updateTetraDict!(P, tetraDict, AFL, σ)
+		AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
 	end
 
 	# 2 - Build `AFL*` according to the axis `ax` with contant term `off`
@@ -101,7 +101,7 @@ function delaunayWall(
 				σ = sort([face; newidx])
 				push!(DT, σ)
 				AFL = AlphaStructures.simplexFaces(σ)
-				updateTetraDict!(P, tetraDict, AFL, σ)
+				AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
 				# Split σ's Faces according to semi-spaces
 				AlphaStructures.updateAFL!(
 					P, AFL, AFLα, AFLplus, AFLminus, ax, off
