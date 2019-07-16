@@ -17,7 +17,10 @@
 #			axis::Int64,
 #			off::Float64
 #		)::Int64
-#	 - pointsPerturbation(P::Array{Float64,2}; atol=1e-10)::Array{Float64,2}
+#	 - pointsPerturbation(
+#			P::Array{Float64,2};
+#			atol=1e-10, ax=0
+#		)::Array{Float64,2}
 #	 - simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
 #	 - vertexInCircumball(
 #			P::Lar.Points,
@@ -340,13 +343,24 @@ end
 #-------------------------------------------------------------------------------
 
 """
-	pointsPerturbation(P::Array{Float64,2}; atol=1e-10)::Array{Float64,2}
+	pointsPerturbation(P::Array{Float64,2}; atol=1e-10; row=0)::Array{Float64,2}
 
 Returns the matrix `P` with a ±`atol` perturbation.
 """
-function pointsPerturbation(P::Array{Float64,2}; atol=1e-10)::Array{Float64,2}
-	perturbation = mod.(rand(Float64, size(P)), 2*atol).-atol
-	P + perturbation
+function pointsPerturbation(
+		M::Array{Float64,2};
+		atol=1e-10, row = 0
+	)::Array{Float64,2}
+	if row == 0
+		perturbation = mod.(rand(Float64, size(M)), 2*atol).-atol
+		N = P + perturbation
+	else
+		perturbation = mod.(rand(Float64, size(M,1)), 2*atol).-atol
+		N = M
+		N[:, row] = M[:, row] + perturbation
+	end
+
+	return N
 end
 
 #-------------------------------------------------------------------------------
