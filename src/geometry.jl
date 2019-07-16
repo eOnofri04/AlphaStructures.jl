@@ -223,7 +223,7 @@ end
 	oppositeHalfSpacePoints(
 			P::Lar.Points,
 			face::Array{Array{Int64,1},1},
-			point::Int64
+			point::Array{Float64,1}
 		)::Array{Int64,1}
 
 Returns the index list of the points `P` located in the halfspace defined by
@@ -240,15 +240,15 @@ julia> V = [
 		0.0 0.0 0.0 1.0 2.0 0.0 1.0
 	   ];
 
-julia> oppositeHalfSpacePoints(V, [2; 3; 4], 1)
+julia> oppositeHalfSpacePoints(V, [2; 3; 4], V[:, 1])
 2-element Array{Int64,1}:
  5
  7
 
-julia> oppositeHalfSpacePoints(V, [1; 2; 3], 4)
+julia> oppositeHalfSpacePoints(V, [1; 2; 3], V[:, 4])
 0-element Array{Int64,1}
 
-julia> oppositeHalfSpacePoints(V, [1; 3; 4], 2)
+julia> oppositeHalfSpacePoints(V, [1; 3; 4], V[:, 2])
 1-element Array{Int64,1}:
  6
 
@@ -257,7 +257,7 @@ julia> oppositeHalfSpacePoints(V, [1; 3; 4], 2)
 function oppositeHalfSpacePoints(
 		P::Lar.Points,
 		face::Array{Int64,1},
-		point::Int64
+		point::Array{Float64,1}
 	)::Array{Int64,1}
 
 	dim, n = size(P)
@@ -266,7 +266,7 @@ function oppositeHalfSpacePoints(
 		Cannot determine opposite to non hyperplanes."
 	if dim == 1
 		threshold = P[1, face[1]]
-		if P[1, point] < threshold
+		if point[1] < threshold
 			opposite = [i for i = 1 : n if P[1, i] > threshold]
 		else
 			opposite = [i for i = 1 : n if P[1, i] < threshold]
@@ -275,9 +275,9 @@ function oppositeHalfSpacePoints(
 		m = (P[2, face[1]] - P[2, face[2]]) / (P[1, face[1]] - P[1, face[2]])
 		q = P[2, face[1]] - m * P[1, face[1]]
 		# false = under the line, true = over the line
-		@assert P[2, point] ≠ m * P[1, point] + q "ERROR,
+		@assert point[2] ≠ m * point[1] + q "ERROR,
 			the point belongs to the face"
-		if P[2, point] < m * P[1, point] + q
+		if point[2] < m * point[1] + q
 			opposite = [i for i = 1 : n if P[2, i] > m * P[1, i] + q]
 		else
 			opposite = [i for i = 1 : n if P[2, i] < m * P[1, i] + q]
@@ -288,7 +288,7 @@ function oppositeHalfSpacePoints(
 			P[:, face[3]] - P[:, face[1]]
 		)
 		off = Lar.dot(axis, P[:, face[1]])
-		position = Lar.dot(P[:, point], axis)
+		position = Lar.dot(point, axis)
 		if position < off
 			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) > off]
 		else

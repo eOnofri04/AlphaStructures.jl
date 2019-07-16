@@ -15,7 +15,12 @@
 #			ax::Int64, off::Float64
 #		)::Bool
 #	 - updatelist!(list, element)::Bool
-#
+#	 - updateTetraDict!(
+#			P::Lar.Points,
+#			tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
+#			AFL::Array{Array{Int64,1},1},
+#			σ::Array{Int64,1}
+#		)
 #
 
 """
@@ -26,7 +31,12 @@ The optional argument `ax` specify on wich axis it will build the Wall.
 The optional argument `AFL` is used in recursive call.
 """
 
-function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
+function delaunayWall(
+		P::Lar.Points,
+		ax = 1,
+		AFL = Array{Int64,1}[],
+		tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}()
+	)::Lar.Cells
 
 	DEBUG = true
 	if DEBUG println("DEBUG mode on") end
@@ -37,7 +47,6 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 	AFLα = Array{Int64,1}[]		# (d-1)faces intersecting the Wall
 	AFLplus = Array{Int64,1}[]  # (d-1)faces in positive Wall half-space
 	AFLminus = Array{Int64,1}[] # (d-1)faces in positive Wall half-space
-	tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
 	off = AlphaStructures.findMedian(P, ax)
 
 	# 1 - Determine first simplex (if necessary)
@@ -46,7 +55,7 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 		# Update the DT and the Tetra Dictionary
 		push!(DT, σ)
 		AFL = AlphaStructures.simplexFaces(σ)
-		tetraDict[ AFL ] = σ
+		updateTetraDict!(P, tetraDict, AFL, σ)
 	end
 
 	# 2 - Build `AFL*` according to the axis `ax` with contant term `off`
@@ -58,26 +67,20 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 	while !isempty(AFLα)
 		face = AFLα[1]
 		# Get corresponding simplex to `face`
-		σ = nothing
-		for (k, v) in tetraDict
-			if face in k
-				σ = v
+		oppoint = nothing
+		for (cell, vertex) in tetraDict
+			if face == cell
+				oppoint = vertex
 				break
 			end
 		end
 		# Find the points in the other halfspace with respect to σ.
 		# If σ == nothing then all the points are suitable
-		if σ == nothing
+		if oppoint == nothing
 			Pselection = setdiff([i for i = 1 : n], face)
 		else
-			oppoint = setdiff(σ, face)
-			if DEBUG && length(oppoint) != 1
-				println("ERROR in oppoint")
-				println(DT)
-			end
-			@assert length(oppoint) == 1
 			Pselection =
-				AlphaStructures.oppositeHalfSpacePoints(P, face, oppoint[1])
+				AlphaStructures.oppositeHalfSpacePoints(P, face, oppoint)
 		end
 		# If there are no such points than the face is part of the convex hull.
 		if isempty(Pselection)
@@ -98,7 +101,7 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 				σ = sort([face; newidx])
 				push!(DT, σ)
 				AFL = AlphaStructures.simplexFaces(σ)
-				tetraDict[ AFL ] = σ
+				updateTetraDict!(P, tetraDict, AFL, σ)
 				# Split σ's Faces according to semi-spaces
 				AlphaStructures.updateAFL!(
 					P, AFL, AFLα, AFLplus, AFLminus, ax, off
@@ -116,7 +119,12 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 		DTminus = AlphaStructures.delaunayWall(
 					P[:, Pminus],
 					newaxis,
-					[[findall(Pminus.==p)[1] for p in σ] for σ in AFLminus]
+					[[findall(Pminus.==p)[1] for p in σ] for σ in AFLminus],
+					Dict([
+						[findall(Pminus.==p)[1] for p in k] => v
+						for (k,v) in tetraDict
+							if k ⊆ Pminus
+					])
 				)
 		union!(DT, [[Pminus[i] for i in σ] for σ in DTminus])
 		if DEBUG println("- out") end
@@ -127,7 +135,12 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 		DTplus = AlphaStructures.delaunayWall(
 					P[:, Pplus],
 					newaxis,
-					[[findall(Pplus.==p)[1] for p in σ] for σ in AFLplus]
+					[[findall(Pplus.==p)[1] for p in σ] for σ in AFLplus],
+					Dict([
+						[findall(Pplus.==p)[1] for p in k] => v
+						for (k,v) in tetraDict
+							if k ⊆ Pplus
+					])
 				)
 		union!(DT, [[Pplus[i] for i in σ] for σ in DTplus])
 		if DEBUG println("+ out") end
@@ -293,5 +306,29 @@ function updatelist!(list, element)::Bool
 	else
 		push!(list, element)
 		return true
+	end
+end
+
+"""
+	updateTetraDict!(
+		P::Lar.Points,
+		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
+		AFL::Array{Array{Int64,1},1},
+		σ::Array{Int64,1}
+	)
+
+Update the content of `tetraDict` by adding the outer points of the faces of `σ`
+in the dictionary.
+"""
+function updateTetraDict!(
+		P::Lar.Points,
+		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
+		AFL::Array{Array{Int64,1},1},
+		σ::Array{Int64,1}
+	)
+	for cell in AFL
+		point = setdiff(σ, cell)
+		@assert length(point) == 1 "Error during update of TetraDict"
+		tetraDict[ cell ] = P[:, point[1]]
 	end
 end
