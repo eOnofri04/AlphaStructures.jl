@@ -75,21 +75,24 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 		# If there are no such points than the face is part of the convex hull.
 		if isempty(Pselection)
 			# push!(CH, face)
-			AlphaStructures.updatelist!(AFLα, face)
+			@assert AlphaStructures.updatelist!(AFLα, face) == false "ERROR:
+				something unespected happends while trying to remove a face."
 		else
 			# Find the Closest Point in the other halfspace with respect to σ.
-			newidx = Pselection[
+			idxbase =
 				AlphaStructures.findClosestPoint(P[:, face], P[:, Pselection])
-			]
-			# Build the new simplex and update the Dictionary
-			σ = sort([face; newidx])
-			push!(DT, σ)
-			AFL = AlphaStructures.simplexFaces(σ)
-			tetraDict[ AFL ] = σ
-			# Split σ's Faces according to semi-spaces
-			AlphaStructures.updateAFL!(
-				P, AFL, AFLα, AFLplus, AFLminus, ax, off
-			)
+			if !isnothing(idxbase)
+				newidx = Pselection[idxbase]
+				# Build the new simplex and update the Dictionary
+				σ = sort([face; newidx])
+				push!(DT, σ)
+				AFL = AlphaStructures.simplexFaces(σ)
+				tetraDict[ AFL ] = σ
+				# Split σ's Faces according to semi-spaces
+				AlphaStructures.updateAFL!(
+					P, AFL, AFLα, AFLplus, AFLminus, ax, off
+				)
+			end
 		end
 	end
 
@@ -174,9 +177,10 @@ function firstDeWallSimplex(
     Pselection = findall(x -> x > off, P[ax, :])
 
     for d = 1 : dim
-        newidx = Pselection[
-			AlphaStructures.findClosestPoint(Psimplex, P[:, Pselection])
-		]
+		idxbase = AlphaStructures.findClosestPoint(Psimplex, P[:, Pselection])
+		@assert !isnothing(idxbase) "ERROR:
+			not able to determine first Delaunay Thetrahedron"
+        newidx = Pselection[idxbase]
         indices = [indices; newidx]
         Psimplex = [Psimplex P[:, newidx]]
         Pselection = [i for i = 1 : n if i ∉ indices]

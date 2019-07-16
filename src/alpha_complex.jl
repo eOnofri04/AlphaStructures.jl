@@ -73,7 +73,7 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 	# 1 - Delaunay triangulation of ``V``
 
 	Cells = [Array{Array{Int64,1},1}() for i=1:dim]  #Generalize definition
-	Cells[dim] = delaunayTriangulation(V)
+	Cells[dim] = AlphaStructures.delaunayTriangulation(V)
 
 	# 2 - 1..d-1 Cells Construction
 	# Cells[d] = Array{Int64}[]

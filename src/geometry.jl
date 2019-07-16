@@ -109,18 +109,21 @@ end
 #-------------------------------------------------------------------------------
 
 """
-	findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
+	findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Union{Int64, Nothing}
 
 Returns the index of the closest point in `P` to the `Psimplex` points,
 according to the circumcenter distance metric.
 """
-function findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
-    simplexDim = size(Psimplex, 2)
+function findClosestPoint(
+		Psimplex::Lar.Points, P::Lar.Points
+	)::Union{Int64, Nothing}
+
+	simplexDim = size(Psimplex, 2)
     @assert simplexDim <= size(Psimplex, 1) "Cannot add
         another point to the simplex"
 
     if simplexDim == 1
-        findmin(
+        closestidx = findmin(
             [
                 Lar.norm(Psimplex[:,1] - P[:,col])
                 for col=1:size(P,2)
@@ -129,13 +132,20 @@ function findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
     else
         # radlist = [findRadius([Psimplex P[:,col]]) for col = 1:size(P,2)]
         # findmin(radlist)[2]
-        findmin(
-            [
-                AlphaStructures.findRadius([Psimplex P[:,col]])
-                for col = 1 : size(P, 2)
-            ]
-        )[2]
+		radlist = [
+			AlphaStructures.findRadius([Psimplex P[:,col]])
+			for col = 1 : size(P, 2)
+			if AlphaStructures.findRadius([Psimplex P[:,col]]) != Inf
+		]
+		if isempty(radlist)
+			closestidx = nothing
+		else
+        	closestidx = findmin(radlist)[2]
+		end
     end
+
+	return closestidx
+	
 end
 
 #-------------------------------------------------------------------------------
@@ -355,7 +365,7 @@ end
 		point::Array{Float64,2}
 	)::Bool
 
-Determine if a point is inner of the circumball determined by `T` points
+Determine if a point is inner of the circumball determined by `P` points
 	and radius `α_char`.
 
 """
