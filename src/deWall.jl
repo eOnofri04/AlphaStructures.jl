@@ -28,6 +28,9 @@ The optional argument `AFL` is used in recursive call.
 
 function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 
+	DEBUG = true
+	if DEBUG println("DEBUG mode on") end
+
 	# 0 - Data Reading and Container definition
 	dim, n = size(P)			# space dimenson and number of points
 	DT = Array{Int64,1}[]		# Delaunay Triangulation
@@ -68,6 +71,10 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 			Pselection = setdiff([i for i = 1 : n], face)
 		else
 			oppoint = setdiff(σ, face)
+			if DEBUG && length(oppoint) != 1
+				println("ERROR in oppoint")
+				println(DT)
+			end
 			@assert length(oppoint) == 1
 			Pselection =
 				AlphaStructures.oppositeHalfSpacePoints(P, face, oppoint[1])
@@ -104,6 +111,7 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 
 	newaxis = mod(ax, dim) + 1
 	if !isempty(AFLminus)
+		if DEBUG println("- in") end
 		Pminus = findall(x -> x < off, P[ax, :])
 		DTminus = AlphaStructures.delaunayWall(
 					P[:, Pminus],
@@ -111,17 +119,18 @@ function delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
 					[[findall(Pminus.==p)[1] for p in σ] for σ in AFLminus]
 				)
 		union!(DT, [[Pminus[i] for i in σ] for σ in DTminus])
+		if DEBUG println("- out") end
 	end
 	if !isempty(AFLplus)
 		Pplus = findall(x -> x > off, P[ax, :])
-		println(Pplus)
-		println(AFLplus)
+		if DEBUG println("+ in") end
 		DTplus = AlphaStructures.delaunayWall(
 					P[:, Pplus],
 					newaxis,
 					[[findall(Pplus.==p)[1] for p in σ] for σ in AFLplus]
 				)
 		union!(DT, [[Pplus[i] for i in σ] for σ in DTplus])
+		if DEBUG println("+ out") end
 	end
 
 	return DT
