@@ -1,7 +1,7 @@
 #
 #	In this file there is:
 #	 - delaunayTriangulation(V::Lar.Points)
-#	 - alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
+#	 - alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
 #	 - alphaSimplex(V::Lar.Points,
 #			filtration::DataStructures.SortedMultiDict{},
 #			α_threshold::Float64
@@ -39,7 +39,7 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 end
 
 """
-	alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
+	alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
@@ -66,7 +66,7 @@ SortedMultiDict(Base.Order.ForwardOrdering(),
 
 ```
 """
-function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
+function alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
 
 	dim = size(V, 1)
 
@@ -92,7 +92,7 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 	for d = 1 : dim
 		for i = 1 : length(Cells[d]) # simplex in Cells[d]
 			simplex = Cells[d][i]
-			α_char[d][i] = findRadius(V[:, simplex]);
+			α_char[d][i] = findRadius(V[:, simplex], digits=digits);
 		end
 	end
 

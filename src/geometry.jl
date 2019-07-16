@@ -3,7 +3,9 @@
 #	 - findCenter(P::Lar.Points)::Array{Float64,1}
 #	 - findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
 #	 - findMedian(P::Lar.Points, ax::Int64)::Float64
-#	 - findRadius(P::Lar.Points, center=false)
+#	 - findRadius(
+#			P::Lar.Points, center=false; digits=64
+#		)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
 #	 - oppositeHalfSpacePoints(
 #			P::Lar.Points,
 #			face::Array{Array{Int64,1},1},
@@ -145,7 +147,7 @@ function findClosestPoint(
     end
 
 	return closestidx
-	
+
 end
 
 #-------------------------------------------------------------------------------
@@ -169,7 +171,9 @@ end
 #-------------------------------------------------------------------------------
 
 """
-	findRadius(P::Lar.Points, center=false)
+	findRadius(
+		P::Lar.Points, center=false; digits=64
+	)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
 
 Returns the value of the circumball radius of the given points.
 If the function findCenter is not able to determine the circumcenter
@@ -198,12 +202,18 @@ julia> AlphaStructures.findRadius(V, true)
 
 ```
 """
-function findRadius(P::Lar.Points, center=false)
+function findRadius(
+		P::Lar.Points, center=false; digits=64
+	)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
+
  	c = AlphaStructures.findCenter(P)
 	if any(isnan, c)
 		r = Inf
 	else
-		r = findmin([Lar.norm(c - P[:, i]) for i = 1 : size(P, 2)])[1]
+		r = round(
+			findmin([Lar.norm(c - P[:, i]) for i = 1 : size(P, 2)])[1],
+			digits = digits
+		)
 	end
 	if center
 		return r, c
