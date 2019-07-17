@@ -240,7 +240,7 @@ function deWall(
 
     	T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
 
-		if T != nothing && T ∉ DT #serve
+		if T != nothing && T ∉ DT #trova dei T che stanno già in DT perchè??
 			push!(DT,T)
 
 			faces = setdiff(AlphaStructures.simplexFaces(T), [f]) # d-1 - faces of t
