@@ -47,7 +47,7 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 	@assert !isempty(Pminus) "makeFirstWallSimplex: Not enough points."
 	#The first point of the face is the nearest to middle plane in negative halfspace.
 	#for point in Pminus
-	distPoint = [AlphaStructures.distPointPlane(P[:,i],axis, off) for i = 1:size(Pminus,2)]
+	distPoint = [AlphaStructures.distPointPlane(Pminus[:,i],axis, off) for i = 1:size(Pminus,2)]
 	indMin = findmin(distPoint)[2]
 	p1 = Pminus[:, indMin]
 	index = findall(x -> x == [p1...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
@@ -71,7 +71,7 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 		try
 			radius = [AlphaStructures.foundRadius([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
 
-			minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
+			minRad = min(filter(p-> p!=Inf && p!=0,radius)...)
 			ind = findall(x->x == minRad, radius)[1]
 			p = P[:, ind]
 
@@ -84,8 +84,10 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 	end
 
 	#no points inside the circumball
+
 	for i = 1:size(Ptot,2)
 		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
+			println(i)
 			found = false
 		end
 	end
@@ -186,9 +188,9 @@ of the Delaunay triangulation.
 function deWall(
 		Ptot::Lar.Points,
 		P::Lar.Points,
-		AFL::Array{Array{Int64,1},1},
-		axis::Array{Float64,1},
-		tetraDict::DataStructures.Dict{Lar.Cells,Array{Int64,1}}
+		AFL=Array{Int64,1}[]::Array{Array{Int64,1},1},
+		axis=[1., 0, 0]::Array{Float64,1},
+		tetraDict=DataStructures.Dict{Lar.Cells,Array{Int64,1}}()::DataStructures.Dict{Lar.Cells,Array{Int64,1}}
 	)::Lar.Cells
 
 	#se punti planari o pochi punti deve tornare DT=[] e non fermare il corso dell'algoritmo
@@ -265,9 +267,11 @@ function deWall(
 
 	newaxis = circshift(axis,1)
 	if !isempty(AFLminus)
-    		DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
+		println("entro in meno")
+    	DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
 	end
 	if !isempty(AFLplus)
+		println("entro in più")
 		DT = union(DT,AlphaStructures.deWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
 	end
 
