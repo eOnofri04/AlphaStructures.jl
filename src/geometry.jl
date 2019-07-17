@@ -41,9 +41,9 @@ Given a `point` and a hyperplane `α` (defined by a normal `axis` and a contant 
 """
 function sidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
 	side = round(Lar.dot(point,axis), sigdigits = 14)
-	if  side == off return 0
-	elseif side > off return 1
-	elseif side < off return -1
+	if side > off+1.e-14 return 1
+	elseif side < off-1.e-14 return -1
+	else return 0
 	end
 end
 
@@ -212,15 +212,11 @@ function foundRadius(T::Array{Array{Float64,1},1})::Float64
 	if any(isnan, center)
 		r = Inf
 	else
-		r = round(
-			findmin([Lar.norm(center - T[i]) for i = 1 : length(T)])[1],
-			digits = 64
-		)
+		r =	findmin([Lar.norm(center - T[i]) for i = 1 : length(T)])[1]
 	end
 
 	return r
 end
-
 
 
 """
@@ -240,5 +236,5 @@ function vertexInCircumball(
 	)::Bool
 
 	center = AlphaStructures.foundCenter(T)
-	return Lar.norm(point - center) <= α_char
+	return Lar.norm(point - center) < α_char
 end

@@ -30,10 +30,7 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
 
 	elseif dim == 3
-		axis = [1.,0.,0.]
-		AFL = Array{Int64,1}[]
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-		upper_simplex = AlphaStructures.deWall(V,V,AFL,axis,tetraDict)
+		upper_simplex = AlphaStructures.deWall(V,V)
 	end
 
 	sort!.(upper_simplex)

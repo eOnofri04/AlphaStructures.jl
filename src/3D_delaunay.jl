@@ -84,10 +84,8 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 	end
 
 	#no points inside the circumball
-
 	for i = 1:size(Ptot,2)
-		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
-			println(i)
+		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-14,Ptot[:,[i]])
 			found = false
 		end
 	end
@@ -126,7 +124,7 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			for dim = df+1:d
 				try #da verificare queste
 					radius = [AlphaStructures.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
-					minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
+					minRad = min(filter(p-> p!=0 && p!=Inf,radius)...)
 					ind = findall(x->x == minRad, radius)[1]
 					p = Pminus[:, ind]
 					push!(simplexPoint,p)
@@ -144,7 +142,7 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			for dim = df+1:d
 				try
 					radius = [AlphaStructures.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
-					minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
+					minRad = min(filter(p-> p!=0 && p!=Inf,radius)...)
 					ind = findall(x->x == minRad, radius)[1]
 					p = Pplus[:, ind]
 					push!(simplexPoint,p)
@@ -161,7 +159,7 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 
 	#no points inside the circumball
 	for i = 1:size(Ptot,2)
-		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
+		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-14,Ptot[:,[i]])
 			found = false
 		end
 	end
@@ -172,6 +170,7 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 		return t
 	end
 end
+
 
 """
 	deWall(
@@ -245,7 +244,7 @@ function deWall(
 
     	T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
 
-		if T != nothing && T ∉ DT
+		if T != nothing #&& T ∉ DT
 			push!(DT,T)
 
 			faces = setdiff(AlphaStructures.simplexFaces(T), [f]) # d-1 - faces of t
@@ -266,12 +265,12 @@ function deWall(
 	end
 
 	newaxis = circshift(axis,1)
+
 	if !isempty(AFLminus)
-		println("entro in meno")
     	DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
 	end
+
 	if !isempty(AFLplus)
-		println("entro in più")
 		DT = union(DT,AlphaStructures.deWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
 	end
 
