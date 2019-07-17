@@ -11,15 +11,28 @@ function Point3D(n)
     return V
 end
 
-V = Point3D(20)
-VV = [[i] for i =1:size(V,2)]
-Plasm.view(V,VV)
+P = Point3D(70)
+VV = [[i] for i =1:size(P,2)]
+Plasm.view(P,VV)
 
-DT = AlphaStructures.delaunayWall(V)
+DT = AlphaStructures.deWall(P,P)
 
 
-Plasm.view(V,DT)
+Plasm.view(P,DT)
 
+"""
+open("dati.txt", "w") do f
+    for j=1:3
+           for i in 1:size(P,2)
+               p=P[j,i]
+              write(f, "$p ")
+           end
+            write(f, "; \n")
+       end
+   end
+
+model=(P,[VV,[],[],DT])
+Plasm.view(Plasm.numbering(2.)(model))
 
 
 AFL = Array{Int64,1}[]
@@ -41,7 +54,6 @@ P = [
 			0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
 		]
 
-ax = 1
-AFL = Array{Int64,1}[]
-tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}()
-DT = AlphaStructures.delaunayWall(P)
+
+DT = AlphaStructures.deWall(P,P)
+"""

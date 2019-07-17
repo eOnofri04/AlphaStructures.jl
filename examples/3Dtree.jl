@@ -6,10 +6,7 @@ V,EVs,FVs = Lar.obj2lar(filename)
 
 Plasm.view(V,[[i] for i = 1:size(V,2)])
 
-AFL = Array{Int64,1}[]
-axis = [1.,0.,0.]
-tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-DT = AlphaStructures.deWall(V,V,AFL,axis,tetraDict)
+DT = AlphaStructures.deWall(V,V)
 
 #to view Delaunay Triangulation
 Plasm.view(V,DT)
