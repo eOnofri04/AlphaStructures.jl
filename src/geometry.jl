@@ -343,9 +343,9 @@ end
 #-------------------------------------------------------------------------------
 
 """
-	pointsPerturbation(P::Array{Float64,2}; atol=1e-10; row=0)::Array{Float64,2}
+	pointsPerturbation(M::Array{Float64,2}; atol=1e-10; row=0)::Array{Float64,2}
 
-Returns the matrix `P` with a ±`atol` perturbation.
+Returns the matrix `M` with a ±`atol` perturbation.
 """
 function pointsPerturbation(
 		M::Array{Float64,2};
@@ -353,7 +353,7 @@ function pointsPerturbation(
 	)::Array{Float64,2}
 	if row == 0
 		perturbation = mod.(rand(Float64, size(M)), 2*atol).-atol
-		N = P + perturbation
+		N = M + perturbation
 	else
 		perturbation = mod.(rand(Float64, size(M,1)), 2*atol).-atol
 		N = M
