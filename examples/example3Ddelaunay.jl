@@ -11,7 +11,7 @@ function Point3D(n)
     return V
 end
 
-P = Point3D(70)
+P = Point3D(10)
 VV = [[i] for i =1:size(P,2)]
 Plasm.view(P,VV)
 
@@ -21,7 +21,7 @@ DT = AlphaStructures.deWall(P,P)
 Plasm.view(P,DT)
 
 """
-open("dati.txt", "w") do f
+open("dati2.txt", "w") do f
     for j=1:3
            for i in 1:size(P,2)
                p=P[j,i]

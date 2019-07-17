@@ -160,10 +160,6 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 	#no points inside the circumball
 	for i = 1:size(Ptot,2)
 		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-14,Ptot[:,[i]])
-<<<<<<< HEAD
-=======
-			println("non trovato")
->>>>>>> d1f2072cac774379c4012daba96996d8f94267ba
 			return nothing
 		end
 	end
@@ -222,33 +218,38 @@ function deWall(
 
 	for f in AFL
 		inters = AlphaStructures.planarIntersection(Ptot, P, f, axis, off)
-    		if inters == 0 #intersected by plane α
-        		push!(AFL_α, f)
+    	if inters == 0 #intersected by plane α
+        	push!(AFL_α, f)
 		elseif inters == -1 #in NegHalfspace(α)
-        		push!(AFLminus, f)
-    		elseif inters == 1 #in PosHalfspace(α)
-        		push!(AFLplus, f)
-    		end
+        	push!(AFLminus, f)
+    	elseif inters == 1 #in PosHalfspace(α)
+        	push!(AFLplus, f)
+    	end
 	end
 
 	# 4 - construct Sα, simplexWall
 	while !isempty(AFL_α) #The Sα construction terminates when the AFL_α is empty
 
 		f = popfirst!(AFL_α)
-
+		print("f ")
+		println(f)
 		for (k,v) in tetraDict
 			if f in k
 				tetra = v
 			end
 		end
 
+		println(tetraDict)
+
     	T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
 
-<<<<<<< HEAD
+		if T in DT
+			print("simplesso:")
+			println(T)
+		end
+
 		if T != nothing && T ∉ DT #trova dei T che stanno già in DT perchè??
-=======
-		if T != nothing && T ∉ DT #serve
->>>>>>> d1f2072cac774379c4012daba96996d8f94267ba
+
 			push!(DT,T)
 
 			faces = setdiff(AlphaStructures.simplexFaces(T), [f]) # d-1 - faces of t
@@ -271,11 +272,11 @@ function deWall(
 	newaxis = circshift(axis,1)
 
 	if !isempty(AFLminus)
-    	DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
+    	#DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
 	end
 
 	if !isempty(AFLplus)
-		DT = union(DT,AlphaStructures.deWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
+	#	DT = union(DT,AlphaStructures.deWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
 	end
 
 	return DT
