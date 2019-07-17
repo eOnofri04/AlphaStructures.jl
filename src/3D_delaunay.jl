@@ -160,6 +160,10 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 	#no points inside the circumball
 	for i = 1:size(Ptot,2)
 		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-14,Ptot[:,[i]])
+<<<<<<< HEAD
+=======
+			println("non trovato")
+>>>>>>> d1f2072cac774379c4012daba96996d8f94267ba
 			return nothing
 		end
 	end
@@ -240,7 +244,11 @@ function deWall(
 
     	T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
 
+<<<<<<< HEAD
 		if T != nothing && T ∉ DT #trova dei T che stanno già in DT perchè??
+=======
+		if T != nothing && T ∉ DT #serve
+>>>>>>> d1f2072cac774379c4012daba96996d8f94267ba
 			push!(DT,T)
 
 			faces = setdiff(AlphaStructures.simplexFaces(T), [f]) # d-1 - faces of t
