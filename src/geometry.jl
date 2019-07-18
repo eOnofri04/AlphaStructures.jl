@@ -1,236 +1,414 @@
 #
 #	This file contains:
-#	 - update(element, list)
-#	 - sidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
-#	 - splitValue(P::Lar.Points, axis::Array{Float64,1})
-#	 - pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
-#	 - simplexFaces(t::Array{Int64,1})::Array{Array{Int64,1},1}
-#	 - distPointPlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Float64
-#	 - planarIntersection(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
-#	 - foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-#	 - foundRadius(T::Array{Array{Float64,1},1})::Float64
-#	 - vertexInCircumball(T::Array{Array{Float64,1},1},
+#	 - findCenter(P::Lar.Points)::Array{Float64,1}
+#	 - findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
+#	 - findMedian(P::Lar.Points, ax::Int64)::Float64
+#	 - findRadius(
+#			P::Lar.Points, center=false; digits=64
+#		)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
+#	 - oppositeHalfSpacePoints(
+#			P::Lar.Points,
+#			face::Array{Array{Int64,1},1},
+#			point::Array{Float64,1}
+#		)::Array{Int64,1}
+#	 - planarIntersection(
+#			P::Lar.Points,
+#			face::Array{Int64,1},
+#			axis::Int64,
+#			off::Float64
+#		)::Int64
+#	 - pointsPerturbation(
+#			P::Array{Float64,2};
+#			atol=1e-10, ax=0
+#		)::Array{Float64,2}
+#	 - simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+#	 - vertexInCircumball(
+#			P::Lar.Points,
 #			α_char::Float64,
 #			point::Array{Float64,2}
-#		):: Bool
+#		)::Bool
+#
 
-
-"""
-	update(element,list)
-
-Return update `list`: if `element` ∈ `list`, delete `element`, else push the `element`.
-"""
-function update(element, list)
-	if element ∈ list
-        	setdiff!(list, [element])
-	else
-		push!(list, element)
-	end
-	return list
-end
-
-
+#-------------------------------------------------------------------------------
 
 """
-	sidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
+	findCenter(P::Lar.Points)::Array{Float64,1}
 
-Given a `point` and a hyperplane `α` (defined by a normal `axis` and a contant term `off`) it returns:
- - `+0`  if `point` is on plane.
- - `+1`  if `point` is in the positive half-space.
- - `-1`  if `point` is in the negative half-space.
+Evaluates the circumcenter of the `P` points.
+
+If the points lies on a `d-1` circumball then the function is not able
+to perform the evaluation and therefore returns a `NaN` array.
+
+# Examples
+
+```jldoctest
+julia> V = [
+	0.0 1.0 0.0 0.0
+	0.0 0.0 1.0 0.0
+	0.0 0.0 0.0 1.0
+];
+
+julia> AlphaStructures.findCenter(V)
+3-element Array{Float64,1}:
+ 0.5
+ 0.5
+ 0.5
+
+```
 """
-function sidePlane(point::Array{Float64,1}, axis::Array{Float64,1}, off::Float64)::Int64
-	side = round(Lar.dot(point,axis), sigdigits = 14)
-	if  side == off return 0
-	elseif side > off return 1
-	elseif side < off return -1
-	end
-end
+function findCenter(P::Lar.Points)::Array{Float64,1}
+	dim, n = size(P)
+	@assert n > 0		"ERROR: at least one points is needed."
+	@assert dim >= n-1	"ERROR: Too much points"
 
+	@assert dim < 4		"ERROR: Function not yet Programmed."
 
+	if n == 1
+		center = P[:, 1]
 
-"""
-    splitValue(P::Lar.Points, axis::Array{Float64,1})
-
-Return threshold value for splitting plane α of pointset `P`. The splitting
-plane α is selected as a plane orthogonal to the axes (X, Y or Z in ``E^3`` ), so:
-	- axis = [1.,0,0] or
-	- axis = [0,1.,0] or
-	- axis = [0,0,1.].
-"""
-function splitValue(P::Lar.Points, axis::Array{Float64,1})
-	@assert axis == [1.,0,0] || axis == [0,1.,0] || axis == [0,0,1.] "Error: not a plane orthogonal to the axes "
-	coord = findall(x->x==1.,axis)[1]
-	valueP = sort(unique(P[coord,:]))
-	numberPoint = length(valueP)
-	if numberPoint == 1
-		return nothing
-	else
-    		off = (valueP[floor(Int,numberPoint/2)] + valueP[floor(Int,numberPoint/2)+1])/2
-		return off
-	end
-end
-
-
-
-"""
-    pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
-
-Return two subsets of pointset `P` split by α plane defined by `axis` and `off`.
-"""
-function pointsetPartition(P::Lar.Points, axis::Array{Float64,1}, off::Float64)::Tuple{Array{Float64,2},Array{Float64,2}}
-	side = [AlphaStructures.sidePlane(P[:,i],axis,off) for i = 1:size(P,2)]
-	Pminus = P[:,side.== -1 ] #points in NegHalfspace(α)
-	Pplus = P[:,side.== 1] #points in PosHalfspace(α)
-	return Pminus,Pplus
-end
-
-
-
-"""
-    simplexFaces(t::Array{Int64,1})::Array{Array{Int64,1},1}
-
-Return `d-1`-faces of a `d`-simplex.
-"""
-function simplexFaces(t::Array{Int64,1})::Array{Array{Int64,1},1}
-    d = length(t)
-    return collect(Combinatorics.combinations(t, d-1))
-end
-
-
-
-"""
-	distPointPlane(point::Array{Float64,1},axis::Array{Float64,1},off::Float64)::Float64
-
-Return the distance between `point` and hyperplane α defined by `axis` and `off`.
-"""
-function distPointPlane(point::Array{Float64,1},axis::Array{Float64,1},off::Float64)::Float64
-	num = abs(Lar.dot(point,axis)-off)
-	den = Lar.norm(axis)
-	return num/den
-end
-
-
-
-"""
-	planarIntersection(P::Lar.Points, f::Array{Int64,1} ,axis::Array{Int8,1}, off::Float64)::Int64
-
-Given a face `f` and a plane `α` (defined by the normal `axis` and the contant term `off`) it returns:
- - `+0` if `f` intersect `α`
- - `+1` if `f` is completely contained in the positive half space of `α`
- - `-1` if `f` is completely contained in the negative half space of `α`
-"""
-function planarIntersection(Ptot::Lar.Points, P::Lar.Points, f::Array{Int64,1} ,axis::Array{Float64,1}, off::Float64)::Int64
-
-	p1,p2,p3 = [Ptot[:,i] for i in f]
-
-	v1 = sidePlane(p1, axis, off)
-	v2 = sidePlane(p2, axis, off)
-
-	if v1 != v2
-		return 0;
-	end
-
- 	v3 = sidePlane(p3, axis, off)
-
-	if v1 != v3
-		return 0
-    else
-		return v1
-	end
-end
-
-"""
-	foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-
-Determine center of a simplex defined by `T` points.
-
-"""
-function foundCenter(T::Array{Array{Float64,1},1})::Array{Float64,1}
-	@assert length(T) > 0 "ERROR: at least one points is needed."
-	dim = length(T[1])
-	@assert dim < 4 "Error: Function not yet Programmed."
-	k = length(T)-1
-
-	if k == 0
-		center = T[1]
-
-	elseif k == 1
+	elseif n == 2
 		#for each dimension
-		center = (T[1] + T[2])/2
+		center = (P[:, 1] + P[:, 2]) / 2
 
-	elseif k == 2
+	elseif n == 3
 		#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
 		if dim == 2
-			den = 2*Lar.det([T[2]-T[1] T[3]-T[1]])
-			det = (T[2]-T[1])*Lar.norm(T[3]-T[1])^2 -
-						(T[3]-T[1])*Lar.norm(T[2]-T[1])^2
-			num = [-det[2],det[1]]
-			center = T[1] + num / den
+			denom = 2 * Lar.det([ P[:, 2] - P[:, 1]  P[:, 3] - P[:, 1] ])
+			deter = (P[:, 2] - P[:, 1]) * Lar.norm(P[:, 3] - P[:, 1])^2 -
+					(P[:, 3] - P[:, 1]) * Lar.norm(P[:, 2] - P[:, 1])^2
+			numer = [- deter[2], deter[1]]
+			center = P[:, 1] + numer / denom
 
 		elseif dim == 3
 			#circumcenter of a triangle in R^3
-			num = Lar.norm(T[3]-T[1])^2 *
-					Lar.cross( Lar.cross(T[2]-T[1], T[3]-T[1]), T[2]-T[1] ) +
-				Lar.norm(T[2]-T[1])^2 *
-					Lar.cross( T[3]-T[1], Lar.cross(T[2]-T[1], T[3]-T[1] )
+			numer = Lar.norm(P[:, 3] - P[:, 1])^2 * Lar.cross(
+						Lar.cross(P[:, 2] - P[:, 1], P[:, 3] - P[:, 1]),
+						P[:, 2] - P[:, 1]
+					) +
+					Lar.norm(P[:, 2] - P[:, 1])^2 * Lar.cross(
+				  		P[:, 3] - P[:, 1],
+						Lar.cross(P[:, 2] - P[:, 1], P[:, 3] - P[:, 1]
+					)
 			)
-			den = 2*Lar.norm( Lar.cross(T[2]-T[1], T[3]-T[1]) )^2
-			center = T[1] + num / den
+			denom = 2 * Lar.norm(
+				Lar.cross(P[:, 2] - P[:, 1], P[:, 3] - P[:, 1])
+			)^2
+			center = P[:, 1] + numer / denom
 		end
 
-	elseif k == 3
-		#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
-		if dim == 3
-			num = Lar.norm(T[4]-T[1])^2*Lar.cross(T[2]-T[1],T[3]-T[1]) +
-				Lar.norm(T[3]-T[1])^2*Lar.cross(T[4]-T[1],T[2]-T[1]) +
-				Lar.norm(T[2]-T[1])^2*Lar.cross(T[3]-T[1],T[4]-T[1])
-			M = [T[2]-T[1] T[3]-T[1] T[4]-T[1]]
-			den = 2*Lar.det(M)
-			center = T[1] + num / den
-		end
+	elseif n == 4 #&& dim = 3
+		# https://people.sc.fsu.edu/~jburkardt/presentations
+		#	/cg_lab_tetrahedrons.pdf
+		# page 6 (matrix are transposed)
+		α = LA.det([P; ones(1, 4)])
+		sq = sum(abs2, P, dims = 1)
+		Dx = LA.det([sq; P[2:2,:]; P[3:3,:]; ones(1, 4)])
+		Dy = LA.det([P[1:1,:]; sq; P[3:3,:]; ones(1, 4)])
+		Dz = LA.det([P[1:1,:]; P[2:2,:]; sq; ones(1, 4)])
+		center = [Dx; Dy; Dz]/2α
 	end
 
 	return center
+#	AlphaStructures.foundCenter([P[:,i] for i = 1 : size(P, 2)])[:,:]
 end
 
-""" 
-	foundRadius(T::Array{Array{Float64,1},1})::Float64
+#-------------------------------------------------------------------------------
 
-Return the value of the circumball radius of the given points.
-If three or more points are collinear it returns `NaN`.
 """
-function foundRadius(T::Array{Array{Float64,1},1})::Float64
+	findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Union{Int64, Nothing}
 
-	@assert length(T) > 0 "ERROR: at least one points is needed."
-	dim = length(T[1])
-	@assert dim < 4 "Error: Function not yet Programmed."
-	k = length(T) - 1
-	@assert k <= dim +1 "ERROR: too much points."
+Returns the index of the closest point in `P` to the `Psimplex` points,
+according to the circumcenter distance metric.
+"""
+function findClosestPoint(
+		Psimplex::Lar.Points, P::Lar.Points
+	)::Union{Int64, Nothing}
 
-	center = AlphaStructures.foundCenter(T)
-	alpha = round(Lar.norm(T[1] - center), sigdigits = 14) # number approximation
+	simplexDim = size(Psimplex, 2)
+    @assert simplexDim <= size(Psimplex, 1) "Cannot add
+        another point to the simplex"
 
-	return alpha
+    if simplexDim == 1
+        closestidx = findmin(
+            [
+                Lar.norm(Psimplex[:,1] - P[:,col])
+                for col=1:size(P,2)
+            ]
+        )[2]
+    else
+        # radlist = [findRadius([Psimplex P[:,col]]) for col = 1:size(P,2)]
+        # findmin(radlist)[2]
+		radius, closestidx = findmin([
+			AlphaStructures.findRadius([Psimplex P[:,col]])
+			for col = 1 : size(P, 2)
+		])
+		if radius == Inf
+			closestidx = nothing
+		end
+    end
+
+	return closestidx
+
 end
+
+#-------------------------------------------------------------------------------
+
+"""
+	findMedian(P::Lar.Points, ax::Int64)::Float64
+
+Returns the median of the `P` points across the `ax` axis
+"""
+function findMedian(P::Lar.Points, ax::Int64)::Float64
+	xp = sort(unique(P[ax, :]))
+	if length(xp) == 1
+		median = xp[1]
+	else
+		idx = Int64(floor(length(xp)/2))
+		median = (xp[idx] + xp[idx+1])/2
+	end
+	return median
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+	findRadius(
+		P::Lar.Points, center=false; digits=64
+	)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
+
+Returns the value of the circumball radius of the given points.
+If the function findCenter is not able to determine the circumcenter
+than the function returns `Inf`.
+
+If the optional argument `center` is set to `true` than the function
+returns also the circumcenter cartesian coordinates.
+
+_Obs._ Due to numerical approximation errors, the radius is choosen
+as the smallest distance between a point in `P` and the center.
+
+# Examples
+```jldoctest
+
+julia> V = [
+	0.0 1.0 0.0 0.0
+	0.0 0.0 1.0 0.0
+	0.0 0.0 0.0 1.0
+];
+
+julia> AlphaStructures.findRadius(V)
+0.8660254037844386
+
+julia> AlphaStructures.findRadius(V, true)
+(0.8660254037844386, [0.5, 0.5, 0.5])
+
+```
+"""
+function findRadius(
+		P::Lar.Points, center=false; digits=64
+	)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
+
+ 	c = AlphaStructures.findCenter(P)
+	if any(isnan, c)
+		r = Inf
+	else
+		r = round(
+			findmin([Lar.norm(c - P[:, i]) for i = 1 : size(P, 2)])[1],
+			digits = digits
+		)
+	end
+	if center
+		return r, c
+	end
+	return r
+end
+
+#-------------------------------------------------------------------------------
+"""
+	oppositeHalfSpacePoints(
+			P::Lar.Points,
+			face::Array{Array{Int64,1},1},
+			point::Array{Float64,1}
+		)::Array{Int64,1}
+
+Returns the index list of the points `P` located in the halfspace defined by
+`face` points that do not contains the point `point`.
+
+_Obs._ Dimension Dipendent, only works if dimension is three or less and
+	the number of points in the face is the same than the dimension.
+
+# Examples
+```jldoctest
+julia> V = [
+		0.0 1.0 0.0 0.0 4.0 -1. 1.0
+		0.0 0.0 1.0 0.0 1.0 0.0 1.0
+		0.0 0.0 0.0 1.0 2.0 0.0 1.0
+	   ];
+
+julia> oppositeHalfSpacePoints(V, [2; 3; 4], V[:, 1])
+2-element Array{Int64,1}:
+ 5
+ 7
+
+julia> oppositeHalfSpacePoints(V, [1; 2; 3], V[:, 4])
+0-element Array{Int64,1}
+
+julia> oppositeHalfSpacePoints(V, [1; 3; 4], V[:, 2])
+1-element Array{Int64,1}:
+ 6
+
+```
+"""
+function oppositeHalfSpacePoints(
+		P::Lar.Points,
+		face::Array{Int64,1},
+		point::Array{Float64,1}
+	)::Array{Int64,1}
+
+	dim, n = size(P)
+	@assert dim <= 3 "ERROR: Not yet coded."
+	@assert length(face) == dim "ERROR:
+		Cannot determine opposite to non hyperplanes."
+	if dim == 1
+		threshold = P[1, face[1]]
+		if point[1] < threshold
+			opposite = [i for i = 1 : n if P[1, i] > threshold]
+		else
+			opposite = [i for i = 1 : n if P[1, i] < threshold]
+		end
+	elseif dim == 2
+		m = (P[2, face[1]] - P[2, face[2]]) / (P[1, face[1]] - P[1, face[2]])
+		q = P[2, face[1]] - m * P[1, face[1]]
+		# false = under the line, true = over the line
+		@assert point[2] ≠ m * point[1] + q "ERROR,
+			the point belongs to the face"
+		if point[2] < m * point[1] + q
+			opposite = [i for i = 1 : n if P[2, i] > m * P[1, i] + q]
+		else
+			opposite = [i for i = 1 : n if P[2, i] < m * P[1, i] + q]
+		end
+	elseif dim == 3
+		axis = Lar.cross(
+			P[:, face[2]] - P[:, face[1]],
+			P[:, face[3]] - P[:, face[1]]
+		)
+		off = Lar.dot(axis, P[:, face[1]])
+		position = Lar.dot(point, axis)
+		if position < off
+			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) > off]
+		else
+			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) < off]
+		end
+	end
+	return setdiff(opposite, face)
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+	planarIntersection(
+		P::Lar.Points,
+		face::Array{Int64,1},
+		axis::Int64,
+		off::Float64
+	)::Int64
+
+Computes the position of `face` with respect to the hyperplane `α` defined by
+the normal `axis` and the contant term `off`. It returns:
+ - `+0` if `f` intersect `α` internum (not only the boundary)
+ - `+1` if `f` is completely contained in the positive half space of `α`
+ - `-1` if `f` is completely contained in the negative half space of `α`
+"""
+function planarIntersection(
+		P::Lar.Points,
+		face::Array{Int64,1},
+		axis::Int64,
+		off::Float64
+	)::Int64
+
+	pos = [P[axis, i] > off for i in face]
+
+	if sum([P[axis, i] == off for i in face]) == length(pos)
+		position = 0 # face coplanar with axis
+	elseif sum(pos) == 0
+		position = -1
+	elseif sum(pos) == length(pos)
+		position = +1
+	else
+		position = 0
+	end
+
+	return position
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+	pointsPerturbation(M::Array{Float64,2}; atol=1e-10; row=0)::Array{Float64,2}
+
+Returns the matrix `M` with a ±`atol` perturbation.
+"""
+function pointsPerturbation(
+		M::Array{Float64,2};
+		atol=1e-10, row = 0
+	)::Array{Float64,2}
+	if row == 0
+		perturbation = mod.(rand(Float64, size(M)), 2*atol).-atol
+		N = M + perturbation
+	else
+		perturbation = mod.(rand(Float64, size(M,1)), 2*atol).-atol
+		N = M
+		N[:, row] = M[:, row] + perturbation
+	end
+
+	return N
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+	simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+
+Returns the faces of the simplex `σ`.
+
+_Obs._ The faces are ordered by the index value.
+
+# Examples
+```jldoctest
+
+julia> σ = [1; 3; 2; 4];
+
+julia> AlphaStructures.implexFaces(σ)
+4-element Array{Array{Int64,1},1}:
+ [1, 2, 3]
+ [1, 2, 4]
+ [1, 3, 4]
+ [2, 3, 4]
+
+```
+"""
+function simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+    sort!(sort!.(collect(Combinatorics.combinations(σ, length(σ)-1))))
+end
+
+#-------------------------------------------------------------------------------
 
 """
 	vertexInCircumball(
-		T::Array{Array{Float64,1},1},
+		P::Lar.Points,
 		α_char::Float64,
 		point::Array{Float64,2}
 	)::Bool
 
-Determine if a point is inner of the circumball determined by `T` points
+Determine if a point is inner of the circumball determined by `P` points
 	and radius `α_char`.
 
 """
 function vertexInCircumball(
-		T::Array{Array{Float64,1},1},
+		P::Lar.Points,
 		α_char::Float64,
 		point::Array{Float64,2}
 	)::Bool
 
-	center = AlphaStructures.foundCenter(T)
+	center = AlphaStructures.findCenter(P)
 	return Lar.norm(point - center) <= α_char
 end

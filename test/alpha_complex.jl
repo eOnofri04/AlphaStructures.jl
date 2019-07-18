@@ -25,12 +25,27 @@ end
 
 	@testset "3D delaunayTriangulation" begin
 		V = [
+        	0.0 0.0 3.0 1.0 0.5 2.0
+        	0.0 1.0 3.0 0.0 0.5 2.0
+        	0.0 0.0 0.0 0.0 1.0 1.0
+        ]
+		DT = AlphaStructures.delaunayTriangulation(V)
+		@test DT == [ [1, 2, 4, 5], [2, 3, 4, 6], [2, 4, 5, 6] ]
+		V = [
 			0.0 1.0 0.0 2.0 0.0 1.0 0.0 2.0;
 			0.0 0.0 1.0 2.0 0.0 0.0 1.0 2.0;
-			0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
+			0.0 0.0 0.0 0.0 1.0 1.0 1.0 2.0
 		]
 		D = AlphaStructures.delaunayTriangulation(V)
-		@test D == [[1,2,3,5],[2,3,4,6],[2,3,5,6],[3,4,6,7],[3,5,6,7],[4,6,7,8]]
+		@test D == [
+			[1, 2, 3, 6],
+			[1, 3, 5, 6],
+			[2, 3, 4, 6],
+			[3, 4, 6, 7],
+			[3, 5, 6, 7],
+			[4, 6, 7, 8],
+			[5, 6, 7, 8],
+		]
 	end
 
 end
@@ -88,15 +103,13 @@ end
 
 		# Expected Output
 		VV = [[1],[2],[3],[4],[5],[6]]
-		CV = [[1,2,3,4],[2,3,4,5],[3,4,5,6]]
+		CV = [[1,2,3,5],[1,3,4,5],[3,4,5,6]] #ATTENTION it is not unique
 
 		# Evaluation
-		filter = AlphaStructures.alphaFilter(V)
+		filter = AlphaStructures.alphaFilter(V, digits=4)
 
 		@test length(unique(keys(filter))) == 4
-		@test isapprox(unique(keys(filter)),
-			[0.0, 0.5, 0.7071, 0.8660 ], atol=1e-4
-		)
+		@test unique(keys(filter)) == [0.0, 0.5, 0.7071, 0.8660]
 		@test length(unique(values(filter))) == 31
 		@test sort([v for v in unique(values(filter)) if length(v) == 1]) == VV
 		@test sort([v for v in unique(values(filter)) if length(v) == 4]) == CV

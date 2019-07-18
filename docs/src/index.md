@@ -16,6 +16,7 @@ In this documentation we present the problem and the related solution we have im
 `AlphaStructures.jl` has the following dependeces:
  - [```Combinatorics.jl```](https://github.com/JuliaMath/Combinatorics.jl) by Julia Math
  - [```DataStructures.jl```](https://github.com/JuliaCollections/DataStructures.jl) by Julia Collections
+ - [```LinearAlgebra```](https://github.com/JuliaLang/julia/tree/master/stdlib/LinearAlgebra)
  - [```LinearAlgebraicRepresentation```](https://github.com/cvdlab/LinearAlgebraicRepresentation.jl) by CVD Lab
  - [```Triangle.jl```](https://github.com/cvdlab/Triangle.jl) by CVD Lab
 
