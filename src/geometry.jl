@@ -24,6 +24,13 @@
 #			digits=64
 #		)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
 #
+#	 - matrixPerturbation(
+#			M::Array{Float64,2};
+#			atol = 1e-10,
+#			row = [0],
+#			col = [0]
+#		)::Array{Float64,2}
+#
 #	 - oppositeHalfSpacePoints(
 #			P::Lar.Points,
 #			face::Array{Array{Int64,1},1},
@@ -36,11 +43,6 @@
 #			axis::Int64,
 #			off::Float64
 #		)::Int64
-#
-#	 - pointsPerturbation(
-#			P::Array{Float64,2};
-#			atol=1e-10, ax=0
-#		)::Array{Float64,2}
 #
 #	 - simplexFaces(
 #			σ::Array{Int64,1}
@@ -246,6 +248,55 @@ function findRadius(
 end
 
 #-------------------------------------------------------------------------------
+
+"""
+	matrixPerturbation(
+		M::Array{Float64,2};
+		atol = 1e-10,
+		row = [0],
+		col = [0]
+	)::Array{Float64,2}
+
+Returns the matrix `M` with a ±`atol` perturbation on each value determined
+by the `row`-th rows and `col`-th columns.
+If `row` / `col` are set to `[0]` (or not specified) then all the
+rows / columns are perturbated.
+
+# Examples
+```jldoctest
+
+julia> V = [
+	0.0 1.0 0.0 0.0
+	0.0 0.0 1.0 0.0
+	0.0 0.0 0.0 1.0
+];
+"""
+function matrixPerturbation(
+		M::Array{Float64,2};
+		atol=1e-10, row = [0], col = [0]
+	)::Array{Float64,2}
+
+	if atol == 0.0
+		@show "Warning: no perturbation has been performed."
+		return M
+	end
+
+	if row == [0]
+		row = [i for i = 1 : size(M, 1)]
+	end
+	if col == [0]
+		col = [i for i = 1 : size(M, 2)]
+	end
+
+	N = M
+	perturbation = mod.(rand(Float64, length(row), length(col)), 2*atol).-atol
+	N[row, col] = M[row, col] + perturbation
+	# do not modify N. Why? On terminal it does.
+	return N
+end
+
+#-------------------------------------------------------------------------------
+
 """
 	oppositeHalfSpacePoints(
 			P::Lar.Points,
@@ -361,29 +412,6 @@ function planarIntersection(
 	end
 
 	return position
-end
-
-#-------------------------------------------------------------------------------
-
-"""
-	pointsPerturbation(M::Array{Float64,2}; atol=1e-10; row=0)::Array{Float64,2}
-
-Returns the matrix `M` with a ±`atol` perturbation.
-"""
-function pointsPerturbation(
-		M::Array{Float64,2};
-		atol=1e-10, row = 0
-	)::Array{Float64,2}
-	if row == 0
-		perturbation = mod.(rand(Float64, size(M)), 2*atol).-atol
-		N = M + perturbation
-	else
-		perturbation = mod.(rand(Float64, size(M,1)), 2*atol).-atol
-		N = M
-		N[:, row] = M[:, row] + perturbation
-	end
-
-	return N
 end
 
 #-------------------------------------------------------------------------------

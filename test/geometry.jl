@@ -139,6 +139,32 @@ end
 
 #-------------------------------------------------------------------------------
 
+@testset "Matrix Perturbation" begin
+	P = rand(Float64, 3, 100000)
+
+	Pperturbated = AlphaStructures.matrixPerturbation(P, atol = 1e-2)
+	P1 = AlphaStructures.matrixPerturbation(P, row = [1], atol = 1e-3)
+	P2 = AlphaStructures.matrixPerturbation(P, col = [2], atol = 10)
+	P13 = AlphaStructures.matrixPerturbation(P, row = [1; 3], atol = 1e-1)
+	P11 = AlphaStructures.matrixPerturbation(P, row = [1], col = [1], atol=100)
+	noPt = AlphaStructures.matrixPerturbation(P, atol = 0.0)
+
+	@test sum(abs.(P - Pperturbated) .> 1e-2) == 0
+	@test sum(abs.(P[1, :] - P1[1, :]) .> 1e-3) == 0
+	@test P[[2;3], :] == P1[[2;3], :]
+	@test sum(abs.(P[:, 2] - P2[:, 2]) .> 10) == 0
+	@test P[:, [1;3]] == P2[:, [1;3]]
+	@test sum(abs.(P[[1;3], :] - P13[[1;3], :]) .> 1e-1) == 0
+	@test P[2, :] == P13[2, :]
+	@test abs.(P[1, 1] - P11[1, 1]) .< 100
+	@test P[2:end] == P11[2:end]
+	#@test P != P1 != P2 != P13 != P11 != Pperturbated
+	@test P == noPt
+	
+end
+
+#-------------------------------------------------------------------------------
+
 @testset "Opposit Half Space" begin
 	V = [
 		0.0 1.0 0.0 0.0 4.0 -1. 1.0
