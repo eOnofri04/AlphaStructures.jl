@@ -67,7 +67,6 @@ function delaunayWall(
 	if DEBUG println("DEBUG mode on") end
 
 	# 0 - Data Reading and Container definition
-	dim, n = size(P)			# space dimenson and number of points
 	DT = Array{Int64,1}[]		# Delaunay Triangulation
 	AFLα = Array{Int64,1}[]		# (d-1)faces intersecting the Wall
 	AFLplus = Array{Int64,1}[]  # (d-1)faces in positive Wall half-space
@@ -77,7 +76,6 @@ function delaunayWall(
 	# 1 - Determine first simplex (if necessary)
 	if isempty(AFL)
 		σ = sort(AlphaStructures.firstDeWallSimplex(P, ax, off))
-		# Update the DT and the Tetra Dictionary
 		push!(DT, σ)
 		AFL = AlphaStructures.simplexFaces(σ)
 		AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
@@ -91,22 +89,13 @@ function delaunayWall(
 	# 4 - Build simplex Wall
 	while !isempty(AFLα)
 		face = AFLα[1]
-		# Get corresponding simplex to `face`
-		oppoint = nothing
-		for (cell, vertex) in tetraDict
-			if face == cell
-				oppoint = vertex
-				break
-			end
-		end
-		# Find the points in the other halfspace with respect to σ.
-		# If σ == nothing then all the points are suitable
-		if oppoint == nothing
-			Pselection = setdiff([i for i = 1 : n], face)
-		else
-			Pselection =
-				AlphaStructures.oppositeHalfSpacePoints(P, face, oppoint)
-		end
+		# Find the points in the halfspace defined by `face` that do not
+		#  containsother the other point of the simplex.
+		Pselection =
+			AlphaStructures.oppositeHalfSpacePoints(P, face, tetraDict[face])
+		# if face ∈ keys(tetraDict) then ...
+		#  else Pselection = setdiff([i for i = 1 : n], face) end
+
 		# If there are no such points than the face is part of the convex hull.
 		if isempty(Pselection)
 			# push!(CH, face)
@@ -144,15 +133,14 @@ function delaunayWall(
 
 	# 5 - Change the axis `ax` and repeat until there are no faces but exposed.
 	#      A.K.A. Divide & Conquer phase.
-	newaxis = mod(ax, dim) + 1
 	if !isempty(AFLminus)
 		union!(DT, recursiveDelaunayWall(
-			P, tetraDict, AFLminus, newaxis, off, false; DEBUG = DEBUG
+			P, tetraDict, AFLminus, ax, off, false; DEBUG = DEBUG
 		))
 	end
 	if !isempty(AFLplus)
 		union!(DT, recursiveDelaunayWall(
-			P, tetraDict, AFLplus, newaxis, off, true; DEBUG = DEBUG
+			P, tetraDict, AFLplus, ax, off, true; DEBUG = DEBUG
 		))
 	end
 
@@ -265,11 +253,16 @@ function recursiveDelaunayWall(
 		DEBUG = false
 	)::Lar.Cells
 
-	Psubset = findall(x -> x > off == positve, P[ax, :])
+	dim, n = size(P)
+	newaxis = mod(ax, dim) + 1
+
+	Psubset = findall(x -> (x > off) == positive, P[ax, :])
+
 	if DEBUG println("$positive in") end
+
 	DT = AlphaStructures.delaunayWall(
 			P[:, Psubset],
-			ax,
+			newaxis,
 			[[findall(Psubset.==p)[1] for p in σ] for σ in AFL],
 			Dict([
 				[findall(Psubset.==p)[1] for p in k] => v
@@ -277,7 +270,8 @@ function recursiveDelaunayWall(
 					if k ⊆ Psubset
 			])
 		)
-	if DEBUG println("+ out") end
+
+	if DEBUG println("$positive out") end
 
 	return [[Psubset[i] for i in σ] for σ in DT]
 end
