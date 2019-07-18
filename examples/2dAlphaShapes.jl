@@ -94,8 +94,8 @@ for α in reduced_filter
 	)
 end
 
-for i = 1 : 500 : length(filter_key)
-	VV,EV,FV = AlphaStructures.alphaSimplex(V, filtration, filter_key[(]i])
+for i = 1000 : 150 : length(filter_key)
+	VV,EV,FV = AlphaStructures.alphaSimplex(V, filtration, filter_key[i])
 	GL.VIEW(
 		GL.GLExplode(
 			Vi,
