@@ -60,10 +60,9 @@ end
 			2.0 0.0 1.0 0.0 2.0
 			0.0 0.0 0.0 1.0 2.0
 		];
-		# TOFIX
-		# @test_throws AssertionError DT = AlphaStructures.delaunayWall(P, 1)
-		@test_throws AssertionError DT = AlphaStructures.delaunayWall(P, 2)
-		@test_throws AssertionError DT = AlphaStructures.delaunayWall(P, 3)
+	 	@test_throws AssertionError AlphaStructures.delaunayWall(P, 1)
+		@test_throws AssertionError AlphaStructures.delaunayWall(P, 2)
+		@test_throws AssertionError AlphaStructures.delaunayWall(P, 3)
 	end
 
 	@testset "cube" begin
