@@ -1,11 +1,30 @@
+#===============================================================================
+#
+#	src/deWall.jl
 #
 #	This File Contains:
-#	 - delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
+#	 - delaunayWall(
+#			P::Lar.Points,
+#			ax = 1,
+#			AFL = Array{Int64,1}[]
+#		)::Lar.Cells
+#
 #	 - firstDeWallSimplex(
 #			P::Lar.Points,
 #			ax::Int64,
 #			off::Float64
 #		)::Array{Int64,1}
+#
+#	 - recursiveDelaunayWall(
+# 			P::Lar.Points,
+# 			tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
+# 			AFL::Array{Array{Int64,1},1},
+# 			ax::Int64,
+# 			off::Float64,
+# 			positive::Bool;
+# 			DEBUG = false
+# 		)::Lar.Cells
+#
 #	 - updateAFL!(
 #			P::Lar.Points
 #			new::Array{Int64,1}[],
@@ -14,7 +33,12 @@
 #			AFLminus = Array{Int64,1}[],
 #			ax::Int64, off::Float64
 #		)::Bool
-#	 - updatelist!(list, element)::Bool
+#
+#	 - updatelist!(
+#			list,
+#			element
+#		)::Bool
+#
 #	 - updateTetraDict!(
 #			P::Lar.Points,
 #			tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
@@ -22,6 +46,7 @@
 #			σ::Array{Int64,1}
 #		)
 #
+===============================================================================#
 
 """
 	delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
@@ -118,39 +143,17 @@ function delaunayWall(
 	end
 
 	# 5 - Change the axis `ax` and repeat until there are no faces but exposed.
-
+	#      A.K.A. Divide & Conquer phase.
 	newaxis = mod(ax, dim) + 1
 	if !isempty(AFLminus)
-		if DEBUG println("- in") end
-		Pminus = findall(x -> x < off, P[ax, :])
-		DTminus = AlphaStructures.delaunayWall(
-					P[:, Pminus],
-					newaxis,
-					[[findall(Pminus.==p)[1] for p in σ] for σ in AFLminus],
-					Dict([
-						[findall(Pminus.==p)[1] for p in k] => v
-						for (k,v) in tetraDict
-							if k ⊆ Pminus
-					])
-				)
-		union!(DT, [[Pminus[i] for i in σ] for σ in DTminus])
-		if DEBUG println("- out") end
+		union!(DT, recursiveDelaunayWall(
+			P, tetraDict, AFLminus, newaxis, off, false; DEBUG = DEBUG
+		))
 	end
 	if !isempty(AFLplus)
-		Pplus = findall(x -> x > off, P[ax, :])
-		if DEBUG println("+ in") end
-		DTplus = AlphaStructures.delaunayWall(
-					P[:, Pplus],
-					newaxis,
-					[[findall(Pplus.==p)[1] for p in σ] for σ in AFLplus],
-					Dict([
-						[findall(Pplus.==p)[1] for p in k] => v
-						for (k,v) in tetraDict
-							if k ⊆ Pplus
-					])
-				)
-		union!(DT, [[Pplus[i] for i in σ] for σ in DTplus])
-		if DEBUG println("+ out") end
+		union!(DT, recursiveDelaunayWall(
+			P, tetraDict, AFLplus, newaxis, off, true; DEBUG = DEBUG
+		))
 	end
 
 	return DT
@@ -217,7 +220,7 @@ function firstDeWallSimplex(
     for d = 1 : dim
 		idxbase = AlphaStructures.findClosestPoint(Psimplex, P[:, Pselection])
 		@assert !isnothing(idxbase) "ERROR:
-			not able to determine first Delaunay Thetrahedron"
+			not able to determine first Delaunay Simplex"
         newidx = Pselection[idxbase]
         indices = [indices; newidx]
         Psimplex = [Psimplex P[:, newidx]]
@@ -235,6 +238,52 @@ function firstDeWallSimplex(
 end
 
 #-------------------------------------------------------------------------------
+
+"""
+	recursiveDelaunayWall(
+		P::Lar.Points,
+		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
+		AFL::Array{Array{Int64,1},1},
+		ax::Int64,
+		off::Float64,
+		positive::Bool;
+		DEBUG = false
+	)::Lar.Cells
+
+Utility function that prepeares the Divide phase for Delaunay Wall.
+Returns the Delaunay Triangulation for the positve or negative subspace of `P`
+(according to `positive`) determined by the hyperplane with normal `ax` and
+constant term `off`.
+"""
+function recursiveDelaunayWall(
+		P::Lar.Points,
+		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
+		AFL::Array{Array{Int64,1},1},
+		ax::Int64,
+		off::Float64,
+		positive::Bool;
+		DEBUG = false
+	)::Lar.Cells
+
+	Psubset = findall(x -> x > off == positve, P[ax, :])
+	if DEBUG println("$positive in") end
+	DT = AlphaStructures.delaunayWall(
+			P[:, Psubset],
+			ax,
+			[[findall(Psubset.==p)[1] for p in σ] for σ in AFL],
+			Dict([
+				[findall(Psubset.==p)[1] for p in k] => v
+				for (k,v) in tetraDict
+					if k ⊆ Psubset
+			])
+		)
+	if DEBUG println("+ out") end
+
+	return [[Psubset[i] for i in σ] for σ in DT]
+end
+
+#-------------------------------------------------------------------------------
+
 """
 	updateAFL!(
 		P::Lar.Points
