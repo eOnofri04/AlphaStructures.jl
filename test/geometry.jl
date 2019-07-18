@@ -112,8 +112,8 @@ end
 		T = [[1., 1.], [2., 2.]]
 		P = [[1., 0.], [2., 0.], [3., 0.]]
 		Q = [[0., 0.], [2., 0.], [0., 2.]]
-		@test AlphaStructures.foundRadius(T) == round(sqrt(2)/2, sigdigits=14)
-		@test isnan(AlphaStructures.foundRadius(P))
+		@test AlphaStructures.foundRadius(T) == sqrt(2)/2
+		@test AlphaStructures.foundRadius(P) == Inf
 		@test isapprox(AlphaStructures.foundRadius(Q), sqrt(2), atol=1e-4)
 	end
 
@@ -122,10 +122,10 @@ end
 		P = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.]]
 		Q = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,1.]]
 		R = [[-1., 0., 0.], [1., 0., 0.], [0, 1., 0.], [0. ,0. ,0.]]
-		@test AlphaStructures.foundRadius(T) == round(sqrt(2)/2,sigdigits=14)
+		@test AlphaStructures.foundRadius(T) == sqrt(2)/2
 		@test isapprox(AlphaStructures.foundRadius(P), 1., atol=1e-4)
-		@test AlphaStructures.foundRadius(Q) == 1.
-		@test isnan(AlphaStructures.foundRadius(R))
+		@test isapprox(AlphaStructures.foundRadius(Q),1.)
+		@test AlphaStructures.foundRadius(R) == Inf
 	end
 
 end

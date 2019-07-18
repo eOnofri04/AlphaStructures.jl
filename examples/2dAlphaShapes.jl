@@ -1,4 +1,5 @@
-using AlphaStructures, LinearAlgebraicRepresentation, Plasm
+using AlphaStructures
+using LinearAlgebraicRepresentation, Plasm
 Lar = LinearAlgebraicRepresentation
 
 """

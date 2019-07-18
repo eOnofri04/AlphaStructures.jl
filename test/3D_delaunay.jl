@@ -36,31 +36,30 @@ end
 end
 
 @testset "deWall" begin
-	AFL = Array{Int64,1}[]
-	axis = [1.,0.,0.]
+
 
 	@testset "one tetrahedron" begin
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
+
 		P = [  -1.  1    1.5  2   ;
 				0.  0.2  1.3  1.  ;
 				0.  0.   0.   1.   ]
-		@test AlphaStructures.deWall(P,P,AFL,axis,tetraDict) == [[1,2,3,4]]
+		@test AlphaStructures.deWall(P,P) == [[1,2,3,4]]
 	end
 
 	@testset "generic examples" begin
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
+
 		P = [  -1. -2. 3.  4.  5. -6.  ;
 				0.  1. 3. -2. -4.  2.  ;
 				1.  8. -5.  7.  4.  3.  ]
-		@test length(AlphaStructures.deWall(P,P,AFL,axis,tetraDict)) == 5
+		@test length(AlphaStructures.deWall(P,P)) == 5
 	end
 
 	@testset "two tetrahedron" begin
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
+
 		P = [ 0. 1. 0  0  2.;
 		 	  0  0  1. 0  2.;
 			  0  0  0  1. 2.]
-		@test AlphaStructures.deWall(P,P,AFL,axis,tetraDict) == [[1,2,3,4],[2,3,4,5]]
+		@test AlphaStructures.deWall(P,P) == [[1,2,3,4],[2,3,4,5]]
 	end
 
 	@testset "points on a plane" begin
@@ -68,7 +67,7 @@ end
 		P = [ 0. 0. 0  0  0.;
 	 	  	  2. 0  1. 0  2.;
 		  	  0  0  0  1. 2.]
-		@test AlphaStructures.deWall(P,P,AFL,axis,tetraDict) == []
+		@test AlphaStructures.deWall(P,P) == []
 	end
 
 	@testset "cube" begin
@@ -76,7 +75,7 @@ end
 		P = [	0. 1 0 1 0. 1 0 1;
 				0. 0 1 1 0. 0 1 1;
 				0. 0 0 0 1. 1 1 1]
-		@test length(AlphaStructures.deWall(P,P,AFL,axis,tetraDict)) == 6
+		@test length(AlphaStructures.deWall(P,P)) == 6
 	end
 
 end

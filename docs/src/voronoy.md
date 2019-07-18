@@ -2,7 +2,7 @@
 
 The second concept we introduce is strictly related to Delaunay Triangulation: Voronoi Diagrams.
 
-Voronoi Diagrams (Tassellation, Partition, Decomposition et al.) take its name from its designer, the Russian Mathematician Georgy Feodosevich Voronoi. Particularry in France, Voronoi Diagrams are also known as Dirichlet tessellation (after Johann Peter Gustav Lejeune Dirichlet) or Thiessen polygons.
+Voronoi Diagrams (Tassellation, Partition, Decomposition et al.) take its name from its designer, the Russian Mathematician Georgy Feodosevich Voronoi. Particularly in France, Voronoi Diagrams are also known as Dirichlet tessellation (after Johann Peter Gustav Lejeune Dirichlet) or Thiessen polygons.
 
 A Voronoi diagram is a partitioning of a space ``\mathbb R^D`` into regions based on the distance from the sites ``S \in \mathbb R^D``. For each site there is a corresponding region consisting of all points closer to that site than to any other. These regions are called Voronoi cells.
 
@@ -15,9 +15,9 @@ where the Voronoi cells are defined ``\forall t \in S`` as:
 	V_t(S) = \{p \in \mathbb R^D \mid d(t, p) < d(u, p), \forall u \in S \backslash t\}
 ```
 
-Like for the Delaunay Triangulation, also in this case the Tasselation could be defined on wichever metrics. However if different metrics are used, like the 0-norm, something weird could happend.
+Like for the Delaunay Triangulation, also in this case the Tassellation could be defined on whichever metrics. However if different metrics are used, like the 0-norm, something weird could happend.
 
-##Properties
+## Properties
 
  - The closest pair of sites corresponds to two adjacent cells in the Voronoi diagram.
  - Assume the setting is the Euclidean plane and a group of different sites are given. Then two sites are adjacent on the convex hull if and only if their Voronoi cells share an infinitely long side.
@@ -26,7 +26,6 @@ Like for the Delaunay Triangulation, also in this case the Tasselation could be 
 
 ## Voronoi Diagrams and Delaunay Triangulation
 
-The Voronoi diagram ``\mathcal V`` have a particularry strict relation with Delaunay Triangulations ``\mathcal D``. In fact, in a sense, ``\mathcal D`` and ``\mathcal V`` are one the dual of the other.
+The Voronoi diagram ``\mathcal V`` have a particularly strict relation with Delaunay Triangulation ``\mathcal D``. In fact, in a sense, ``\mathcal D`` and ``\mathcal V`` are one the dual of the other.
 
-In fact, if we consider the graph given from se separation hypersurfaces edges of ``V``, the Delaunay Triangulation is nothing than the dual graph of it. 
-
+In fact, if we consider the graph given from separation hypersurfaces edges of ``V``, the Delaunay Triangulation is nothing than the dual graph of it.

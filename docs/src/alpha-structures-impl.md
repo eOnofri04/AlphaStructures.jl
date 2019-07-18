@@ -1,29 +1,29 @@
 # 4.2 - Alpha Structures Implementation
 
-As previously said in [section 3.3](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures/) we have addressed the problem of evaluate ``\alpha``-strutcures via ``\alpha``-filtering evaluation (namely the evaluation of the charateritcial ``\alpha`` for each simplex).
+As previously said in [section 3.3](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures/) we have addressed the problem of evaluate ``\alpha``-structures via ``\alpha``-filtering evaluation (namely the evaluation of the characteristical ``\alpha`` for each simplex).
 
 ## The tasks
 
 We could decompose the problem into three tasks:
  - evaluate the triangulation decomposition of the Sites ``S``
- - evaluate the charateristical ``\alpha``
+ - evaluate the characteristical ``\alpha``
  - sort the simplices according to their ``\alpha``.
 
 The first task to solve is to evaluate the Triangulation. However we have discussed this problem in the [previous section](https://eonofri04.github.io/AlphaStructures.jl/delaunay-impl/).
 
-The last task also is pretty simple and teherefore we will not talk about it in this context.
+The last task also is pretty simple and therefore we will not talk about it in this context.
 
 The second task is the hardest to achieve.
-It is pretty clear that each site ``s \in S`` has a charateristical ``\alpha`` equal to zero.
-The real problem occurs then when we want to evaluate the charateristical ``\alpha`` of all the other simplices.
+It is pretty clear that each site ``s \in S`` has a characteristical ``\alpha`` equal to zero.
+The real problem occurs then when we want to evaluate the characteristical ``\alpha`` of all the other simplices.
 
-### Evaluate Charateristical ``\alpha``
+### Evaluate Characteristical ``\alpha``
 
-In order to obtain a simple method to evaluate charateristical ``\alpha`` so that it is dimensional indipendent we could use the dual of the Delaunay Triangulation we have described in [section 3.2](https://eonofri04.github.io/AlphaStructures.jl/voronoy/): the Voronoy Diagram.
+In order to obtain a simple method to evaluate characteristical ``\alpha`` so that it is dimensional indipendent we could use the dual of the Delaunay Triangulation we have described in [section 3.2](https://eonofri04.github.io/AlphaStructures.jl/voronoy/): the Voronoy Diagram.
 
 In fact the following relation occurs:
 !!! fact
-    A ``d``-dimensional simplex ``\sigma`` is inside the ``\alpha``-complex if and only if and only if the Voronoy regions of the sites of ``sigma`` have a common ``D-d`` intersection hyperplane included in the ``alpha``-hypersphere of the sites themselves. In other words:
+    A ``d``-dimensional simplex ``\sigma`` is inside the ``\alpha``-complex if and only if the Voronoy regions of the sites of ``sigma`` have a common ``D-d`` intersection hyperplane included in the ``alpha``-hypersphere of the sites themselves. In other words:
     ```math
     	\sigma \in \mathcal A_\alpha(S)
     	\quad \iff \quad
@@ -42,9 +42,9 @@ The stated condition then assume the following form:
 !!! fact
     A ``d``-dimensional simplex made of sites ``S'\subseteq S`` belongs to the ``\alpha``-complex if and only if the ball of radius ``alpha`` located in the circumcentre of ``S'`` intersects the Voronoy boundary hypersurface of the ``S`` cells.
 
-In particular the last statement implies that the charateristical ``\alpha`` of a simplex ``\sigma`` is alpways bigger or equal than the circumradius of the sites it is made of. Moreover for usual conditions (namely no higher dimensional obtuse-solid-angled simplices) the charateristical ``\alpha`` is preciselly that value.
+In particular the last statement implies that the characteristical ``\alpha`` of a simplex ``\sigma`` is always bigger or equal than the circumradius of the sites it is made of. Moreover for usual conditions (namely no higher dimensional obtuse-solid-angled simplices) the characteristical ``\alpha`` is precisely that value.
 
-This key feature is the one we have used in our implementation. In fact, the problem of determine if a simplex is (or is not) obtuse-angled is pretty simple. It suffices to determine if its circumcentre is (or is not, respectivelly) located outside the simplex itself.
+This key feature is the one we have used in our implementation. In fact, the problem of determine if a simplex is (or is not) obtuse-angled is pretty simple. It suffices to determine if its circumcentre is (or is not, respectively) located outside the simplex itself.
 
 ## The Implementation
 
@@ -59,5 +59,5 @@ The approach we have followed could be summed up into the following pipeline:
  1. Delaunay triangulation of the Sites ``S`` (highest degree simplices)
  2. Construction of lower degree simplices via `Combinatorics.combinations()`
  3. Evaluation of Circumballs Radius for each simplex
- 4. Evaluation of the Charatteristical ``\alpha`` for each simplex
+ 4. Evaluation of the Characteristical ``\alpha`` for each simplex
  5. Sorting the simplices by their ``\alpha`` in a `DataStructures.SortedMultiDict`

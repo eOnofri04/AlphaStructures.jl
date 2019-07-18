@@ -38,22 +38,21 @@ The process continues in the same way until the required first d-simplex is buil
 """
 function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float64,1}, off::Float64)
 	d = size(P,1)+1 # dimension of upper_simplex
-	@assert d < 5 "Error: Function not yet Programmed."
+	@assert d < 5 "makeFirstWallSimplex: Function not yet Programmed."
 	indices = Int64[]
-	found = true
 
 	Pminus,Pplus = AlphaStructures.pointsetPartition(P, axis, off)
 
-	@assert !isempty(Pminus) "Error: Not enough points."
+	@assert !isempty(Pminus) "makeFirstWallSimplex: Not enough points."
 	#The first point of the face is the nearest to middle plane in negative halfspace.
 	#for point in Pminus
-	distPoint = [AlphaStructures.distPointPlane(P[:,i],axis, off) for i = 1:size(Pminus,2)]
+	distPoint = [AlphaStructures.distPointPlane(Pminus[:,i],axis, off) for i = 1:size(Pminus,2)]
 	indMin = findmin(distPoint)[2]
 	p1 = Pminus[:, indMin]
 	index = findall(x -> x == [p1...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
 	push!(indices,index)
 
-	@assert !isempty(Pplus) "Error: Not enough points."
+	@assert !isempty(Pplus) "makeFirstWallSimplex: Not enough points."
 	#The 2nd point of the face is the euclidean nearest to first point that is in the positive halfspace
 	#for point in Pplus
 	distance = [Lar.norm(p1-Pplus[:,i]) for i = 1:size(Pplus,2)]
@@ -71,7 +70,7 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 		try
 			radius = [AlphaStructures.foundRadius([simplexPoint...,P[:,i]]) for i = 1:size(P,2)]
 
-			minRad = min(filter(p-> !isnan(p) && p!=0,radius)...)
+			minRad = min(filter(p-> p!=Inf && p!=0,radius)...)
 			ind = findall(x->x == minRad, radius)[1]
 			p = P[:, ind]
 
@@ -85,13 +84,9 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 
 	#no points inside the circumball
 	for i = 1:size(Ptot,2)
-		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
-			found = false
+		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-14,Ptot[:,[i]])
+			return nothing
 		end
-	end
-
-	if !found
-		return nothing
 	end
 
 	return sort(indices)
@@ -101,9 +96,9 @@ end
 	makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
 
 Given a face `f`, return the adjacent simplices in the outer halfspace,
-that is in the opposite halfspace of where tetra lies.
+that is in the opposite halfspace of where `tetra` lies.
 One of halfspace associated with `f` contains no point iff face `f` is part of
-the Convex Hull of the pointset P;
+the Convex Hull of the pointset `P`;
 in this case the algorithm correctly returns no adjacent simplex and returns `nothing`.
 """
 function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P::Lar.Points)
@@ -126,7 +121,7 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			for dim = df+1:d
 				try #da verificare queste
 					radius = [AlphaStructures.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
-					minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
+					minRad = min(filter(p-> p!=0 && p!=Inf,radius)...)
 					ind = findall(x->x == minRad, radius)[1]
 					p = Pminus[:, ind]
 					push!(simplexPoint,p)
@@ -144,7 +139,7 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 			for dim = df+1:d
 				try
 					radius = [AlphaStructures.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
-					minRad = min(filter(p-> !isnan(p) && p!=0 && p!=Inf,radius)...)
+					minRad = min(filter(p-> p!=0 && p!=Inf,radius)...)
 					ind = findall(x->x == minRad, radius)[1]
 					p = Pplus[:, ind]
 					push!(simplexPoint,p)
@@ -161,17 +156,14 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 
 	#no points inside the circumball
 	for i = 1:size(Ptot,2)
-		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-10,Ptot[:,[i]])
-			found = false
+		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-14,Ptot[:,[i]])
+			return nothing
 		end
 	end
 
-	if !found
-		return nothing
-	else
-		return t
-	end
+	return t
 end
+
 
 """
 	deWall(
@@ -188,9 +180,9 @@ of the Delaunay triangulation.
 function deWall(
 		Ptot::Lar.Points,
 		P::Lar.Points,
-		AFL::Array{Array{Int64,1},1},
-		axis::Array{Float64,1},
-		tetraDict::DataStructures.Dict{Lar.Cells,Array{Int64,1}}
+		AFL=Array{Int64,1}[]::Array{Array{Int64,1},1},
+		axis=[1., 0, 0]::Array{Float64,1},
+		tetraDict=DataStructures.Dict{Lar.Cells,Array{Int64,1}}()::DataStructures.Dict{Lar.Cells,Array{Int64,1}}
 	)::Lar.Cells
 
 	#se punti planari o pochi punti deve tornare DT=[] e non fermare il corso dell'algoritmo
@@ -216,24 +208,20 @@ function deWall(
 	# 3 - construct first tetrahedra if necessary
 	if isempty(AFL)
 		t = AlphaStructures.makeFirstWallSimplex(Ptot,P,axis,off)
-		if t != nothing
-			AFL = AlphaStructures.simplexFaces(t)# d-1 - faces of t
-			tetraDict[ AFL ] = t
-			push!(DT,t)
-		else
-			return DT
-		end
+		AFL = AlphaStructures.simplexFaces(t)# d-1 - faces of t
+		tetraDict[ AFL ] = t
+		push!(DT,t)
 	end
 
 	for f in AFL
 		inters = AlphaStructures.planarIntersection(Ptot, P, f, axis, off)
-    		if inters == 0 #intersected by plane α
-        		push!(AFL_α, f)
+    	if inters == 0 #intersected by plane α
+        	push!(AFL_α, f)
 		elseif inters == -1 #in NegHalfspace(α)
-        		push!(AFLminus, f)
-    		elseif inters == 1 #in PosHalfspace(α)
-        		push!(AFLplus, f)
-    		end
+        	push!(AFLminus, f)
+    	elseif inters == 1 #in PosHalfspace(α)
+        	push!(AFLplus, f)
+    	end
 	end
 
 	# 4 - construct Sα, simplexWall
@@ -247,8 +235,11 @@ function deWall(
 			end
 		end
 
-    		T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
-		if T != nothing && T ∉ DT
+
+
+    	T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
+
+		if T != nothing && T ∉ DT #trova dei T che stanno già in DT 
 			push!(DT,T)
 
 			faces = setdiff(AlphaStructures.simplexFaces(T), [f]) # d-1 - faces of t
@@ -269,9 +260,11 @@ function deWall(
 	end
 
 	newaxis = circshift(axis,1)
+
 	if !isempty(AFLminus)
-    		DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
+    	DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
 	end
+
 	if !isempty(AFLplus)
 		DT = union(DT,AlphaStructures.deWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
 	end

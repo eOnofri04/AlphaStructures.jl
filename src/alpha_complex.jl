@@ -15,8 +15,8 @@ Return highest level simplices of Delaunay triangulation.
 """
 function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 	dim = size(V, 1)
-	@assert dim > 0 "Error: V do not contains points."
-	@assert dim < 4 "Error: Function not yet Programmed."
+	@assert dim > 0 "delaunayTriangulation: V do not contains points."
+	@assert dim < 4 "delaunayTriangulation: Function not yet Programmed."
 
 	if dim == 1
 		vertices = vcat(V...)
@@ -30,10 +30,7 @@ function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
 
 	elseif dim == 3
-		axis = [1.,0.,0.]
-		AFL = Array{Int64,1}[]
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-		upper_simplex = AlphaStructures.deWall(V,V,AFL,axis,tetraDict)
+		upper_simplex = AlphaStructures.deWall(V,V)
 	end
 
 	sort!.(upper_simplex)
@@ -46,7 +43,7 @@ end
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
-This method evaluates the ``\alpha``-filter over the sites `S`.
+This method evaluates the ``α``-filter over the sites `S`.
 
 # Examples
 ```jldoctest
@@ -76,7 +73,7 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 	# 1 - Delaunay triangulation of ``V``
 
 	Cells = [Array{Array{Int64,1},1}() for i=1:dim]  #Generalize definition
-	Cells[dim] = delaunayTriangulation(V)
+	Cells[dim] = AlphaStructures.delaunayTriangulation(V)
 
 	# 2 - 1..d-1 Cells Construction
 	# Cells[d] = Array{Int64}[]
@@ -96,7 +93,7 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 		for i = 1 : length(Cells[d]) # simplex in Cells[d]
 			simplex = Cells[d][i]
 			T = [ V[:, v] for v in simplex ] # simplices points coordinates
-			α_char[d][i] = foundRadius(T);
+			α_char[d][i] = AlphaStructures.foundRadius(T);
 		end
 	end
 
@@ -110,7 +107,7 @@ function alphaFilter(V::Lar.Points)::DataStructures.SortedMultiDict{}
 				if issubset(simplex, up_simplex) #contains(up_simplex, simplex)
 					point = V[:, setdiff(up_simplex, simplex)]
 					T = [ V[:, v] for v in simplex ]
-					if vertexInCircumball(T, α_char[d][i], point)
+					if AlphaStructures.vertexInCircumball(T, α_char[d][i], point)
 						α_char[d][i] = α_char[d+1][j]
 					end
 				end

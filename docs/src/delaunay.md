@@ -1,6 +1,6 @@
 # 3.1 -  Delaunay Triangulation
 
-The first key concept we introduce is the Delaunay triangulation, a particular simplicial triangulation for a set of Sites ``S`` developed by the Russian Mathematician Boris Delaunay in 1934 [Del34]. A Delaunay Triangulation of the sites ``S`` ``\mathcal D_S`` is built such that no point in ``S`` is inside the circumball of any simplex in ``\mathcal D``. Delaunay Triangulations maximize the minimum angle of all the angles of the triangles in the triangulation in order to try avoiding sliver triangles. 
+The first key concept we introduce is the Delaunay triangulation, a particular simplicial triangulation for a set of Sites ``S`` developed by the Russian Mathematician Boris Delaunay in 1934 [Del34]. A Delaunay Triangulation of the sites ``S`` ``\mathcal D_S`` is built such that no point in ``S`` is inside the circumball of any simplex in ``\mathcal D``. Delaunay Triangulation maximize the minimum angle of all the angles of the triangles in the triangulation in order to try avoiding sliver triangles.
 
 A special situation is not defined for Delaunay triangulation: if ``d+2`` or more points lies on the same ``d``-circumball (assuming no other point is inside of it) then the Delaunay triangulation is not unique since more than one complex could be built between them. A simple example is when a 2-dimensional square. Here all the four vertices are on the circumcircle of the square and therefore for each choice of a diagonal we will have a legal Delaunay triangulation.
 

@@ -1,32 +1,30 @@
 using AlphaStructures
+
 using DataStructures, LinearAlgebraicRepresentation, Plasm
+
 Lar = LinearAlgebraicRepresentation
 
-filename = "examples/OBJ/teapot.obj";
-V,EVs,FVs = Lar.obj2lar(filename)
-Plasm.view(V,[[i] for i = 1:size(V,2)])
-Plasm.view(V,EVs[1])
-Plasm.view(V,FVs[1])
-
 filename = "examples/OBJ/cat.obj";
-V,EVs,FVs = Lar.obj2lar(filename)
-
+P,EVs,FVs = Lar.obj2lar(filename)
 Plasm.view(V,[[i] for i = 1:size(V,2)])
 Plasm.view(V,EVs[1])
 Plasm.view(V,FVs[1])
 
-filename = "examples/OBJ/lowpolytree.obj";
-V,EVs,FVs = Lar.obj2lar(filename)
+VV = [[i] for i = 1:size(V,2)]
 
-Plasm.view(V,[[i] for i = 1:size(V,2)])
+DT = AlphaStructures.deWall(V,V)
 
-#prima dobbiamo riempire con i punti interni
+Plasm.view(V,DT)
+#model=(V,(VV,EVs[1],FVs[1],DT))
+#Plasm.view(Plasm.numbering(2.)(model))
 
-AFL = Array{Int64,1}[]
-axis = [1.,0.,0.]
-tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-DT = AlphaStructures.deWall(V,V,AFL,axis,tetraDict)
+"""
+filtration = AlphaStructures.alphaFilter(V);
 
+VV,EV,FV,CV = AlphaStructures.alphaSimplex(V,filtration,50.)
 
-W = convert(Lar.Points,hcat(V[1,:],V[2,:])')
-Plasm.view(W,[[i] for i = 1:size(W,2)])
+Plasm.view(V, VV)
+Plasm.view(V, EV)
+Plasm.view(V, FV)
+Plasm.view(V, CV)
+"""

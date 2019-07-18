@@ -16,9 +16,9 @@ But what is ``\alpha`` after all? In the ice-cream analogy above, ``\alpha`` is 
 
 
 
-## Gemoetrical Concept
+## Geometrical Concept
 
-We will shortly discuss all the geometrical concepts that are needed to understand what an ``\alpha``-structure is.
+We will shortly discuss all the geometrical concepts that are needed to understand what an ``\alpha``-structures is.
 
 
 
@@ -29,7 +29,7 @@ First of all we need to identify what the spoon of the introduction is.
 !!! definition
     For each ``0 < \alpha < \infty`` let an ``\alpha``-ball be an open ball with radius ``\alpha``.
     We will identify with ``B_x(\alpha)`` the ``\alpha``-ball centered in ``x``.
-    For completenes we could therefore impose that ``B_x(0)`` represents the point ``x``.
+    For completeness we could therefore impose that ``B_x(0)`` represents the point ``x``.
     Now, a certain ``\alpha``-ball ``B`` (at a given location) is called empty if ``B \cap S = \emptyset``.
 
 We can then define what an ``\alpha``-hull is, using the previous definition.
@@ -66,9 +66,9 @@ It is pretty clear that there is a strict relation between ``\mathcal H_\alpha``
 
 We have so far talked about sets. What we are interested in are however complex of simplices. We therefore drop the curved edges of ``\alpha``-hulls in favor of straight lines.
 
-What we have described take the name of ``\alpha``-shape of ``S``: we will denote it ``\Sigma_\alpha(S)`` or, shortly, ``\Sigma``. In fact it gives us a boundary of what is internal to the point cloud made of the Sites ``S`` and what is and outsider. It is trivial to understand that ``\Sigma`` is mainly made of ``D-1``-simplices and it could not have ``D``-simplices at all.
+What we have described take the name of ``\alpha``-shape of ``S``: we will denote it ``\Sigma_\alpha(S)`` or, shortly, ``\Sigma``. In fact it gives us a boundary of what is internal to the point cloud made of the Sites ``S`` and what is outsider. It is trivial to understand that ``\Sigma`` is mainly made of ``D-1``-simplices and it could not have ``D``-simplices at all.
 
-However ``\Sigma`` comes with a notion of Delaunay Triangulation and, since the general position condition is satisfied by hypotesis, it follows that the polytope decomposition of the ``\alpha``-hull is unique. We define:
+However ``\Sigma`` comes with a notion of Delaunay Triangulation and, since the general position condition is satisfied by hypothesis, it follows that the polytope decomposition of the ``\alpha``-hull is unique. We define:
 
 !!! definition
     The Delaunay Triangulation of ``\Sigma_\alpha(S)`` takes the name of ``\alpha``-complex of ``S``: we will denote it ``\mathcal A_\alpha(S)`` or, shortly, ``\mathcal A``.
@@ -84,7 +84,7 @@ The first observation we could make is that the bigger is the value ``\alpha`` t
 It is although pretty clear that if a simplex is in ``\mathcal A`` for a certain ``\alpha`` than it will be in ``\mathcal A`` for every ``\alpha' \geq \alpha``. It then makes sense to search for the first value ``\alpha`` such that each single simplex ``\sigma`` gets inside ``\mathcal A``. We will define it as:
 
 !!! definition
-    Let ``\mathcal A_\infty(S) \equiv \mathcal D(S)`` the Delaunay complex of ``S``. For each simplex ``\sigma \in \mathcal D(S)`` we define the _charateristical ``\alpha`` of ``\sigma``_ like the infimum ``\alpha`` such that ``\sigma \in \mathcal A_\alpha(S)``:
+    Let ``\mathcal A_\infty(S) \equiv \mathcal D(S)`` the Delaunay complex of ``S``. For each simplex ``\sigma \in \mathcal D(S)`` we define the _characteristical ``\alpha`` of ``\sigma``_ like the infimum ``\alpha`` such that ``\sigma \in \mathcal A_\alpha(S)``:
     ```math
         \alpha_\sigma = \inf_{\alpha \geq 0}\{\sigma \in \mathcal A_\alpha(S)\}
     ```
@@ -94,12 +94,12 @@ This last definition gives us a better way to build up the ``\alpha``-Complex:
     \mathcal A_\alpha = \{\sigma \in \mathcal D(S) \mid \alpha_\sigma \leq \alpha\}
 ```
 
-It is of particular interest note that the charateristical `\alpha` of each simplex is bigger or equal than those of the simplices (of lower degree) it is made of:
+It is of particular interest note that the characteristical `\alpha` of each simplex is bigger or equal than those of the simplices (of lower degree) it is made of:
 ```math
     \alpha_\sigma \geq \alpha_{\sigma'} \quad \forall \sigma' \subseteq \sigma
 ```
 
-With this knowledge it is pretty clear that we can sort the simplices via their charateristical ``\alpha`` like the comes in the ``\alpha``-complex. We therefore could define what we call _``\alpha``-Filtration_:
+With this knowledge it is pretty clear that we can sort the simplices via their characteristical ``\alpha`` like the comes in the ``\alpha``-complex. We therefore could define what we call _``\alpha``-Filtration_:
 
 !!! definition
     Let ``\mathcal D`` the Delaunay triangulation of a set of Sites ``S``.
@@ -108,8 +108,8 @@ With this knowledge it is pretty clear that we can sort the simplices via their 
         \emptyset \ =\ K_0 \subseteq K_{\alpha_1} \subseteq K_{\alpha_2} \subseteq \dots \subseteq K_{\alpha_k} \ =\ \mathcal D
     ```
 
-In particular this will be the key we use in our algorith to evaluate the ``\alpha``-structures.
-We will describe more precisely how to evaluate the charateristical ``\alpha`` in the _"Alpha Structures Implementation"_ [section 4.2](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures-impl/).
+In particular this will be the key we use in our algorithm to evaluate the ``\alpha``-structures.
+We will describe more precisely how to evaluate the characteristical ``\alpha`` in the _"Alpha Structures Implementation"_ [section 4.2](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures-impl/).
 
 ## Other ``\alpha``-structures
 
