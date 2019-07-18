@@ -1,42 +1,26 @@
+export alphaFilter, alphaSimplex, delaunayTriangulation
+#===============================================================================
 #
-#	In this file there is:
-#	 - delaunayTriangulation(V::Lar.Points)
-#	 - alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
-#	 - alphaSimplex(V::Lar.Points,
+#	src/alpha_complex.jl
+#
+#	This File Contains:
+#
+#	 - alphaFilter(
+#			V::Lar.Points;
+#			digits=64
+#		)::DataStructures.SortedMultiDict{}
+#
+#	 - alphaSimplex(
+#			V::Lar.Points,
 #			filtration::DataStructures.SortedMultiDict{},
 #			α_threshold::Float64
 #		)::Array{Lar.Cells,1}
 #
-
-"""
-	delaunayTriangulation(V::Lar.Points)::Lar.Cells
-
-Return highest level simplices of Delaunay triangulation.
-"""
-function delaunayTriangulation(V::Lar.Points)::Lar.Cells
-	dim = size(V, 1)
-	@assert dim > 0 "Error: V do not contains points."
-	@assert dim < 4 "Error: Function not yet Programmed."
-
-	if dim == 1
-		vertices = vcat(V...)
-		p = sortperm(vertices)
-		upper_simplex = [[p[i],p[i+1]] for i=1:length(p)-1]
-
-	elseif dim == 2
-		vertices = convert(Array{Float64,2},V')
-		points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
-		@assert size(vertices, 1) > 3
-		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
-
-	elseif dim == 3
-		upper_simplex = AlphaStructures.delaunayWall(V)
-	end
-
-	sort!.(upper_simplex)
-
-	return sort(upper_simplex)
-end
+#	 - delaunayTriangulation(
+#			V::Lar.Points
+#		)::Lar.Cells
+#
+===============================================================================#
 
 """
 	alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
@@ -130,6 +114,7 @@ function alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
 	return filtration
 end
 
+#-------------------------------------------------------------------------------
 
 """
 	alphaSimplex(
@@ -162,4 +147,36 @@ function alphaSimplex(
 	sort!.(simplexCollection)
 
 	return simplexCollection
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+	delaunayTriangulation(V::Lar.Points)::Lar.Cells
+
+Return highest level simplices of Delaunay triangulation.
+"""
+function delaunayTriangulation(V::Lar.Points)::Lar.Cells
+	dim = size(V, 1)
+	@assert dim > 0 "Error: V do not contains points."
+	@assert dim < 4 "Error: Function not yet Programmed."
+
+	if dim == 1
+		vertices = vcat(V...)
+		p = sortperm(vertices)
+		upper_simplex = [[p[i],p[i+1]] for i=1:length(p)-1]
+
+	elseif dim == 2
+		vertices = convert(Array{Float64,2},V')
+		points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
+		@assert size(vertices, 1) > 3
+		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
+
+	elseif dim == 3
+		upper_simplex = AlphaStructures.delaunayWall(V)
+	end
+
+	sort!.(upper_simplex)
+
+	return sort(upper_simplex)
 end

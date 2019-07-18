@@ -3,6 +3,7 @@
 #	src/deWall.jl
 #
 #	This File Contains:
+#
 #	 - delaunayWall(
 #			P::Lar.Points,
 #			ax = 1,
@@ -14,6 +15,10 @@
 #			ax::Int64,
 #			off::Float64
 #		)::Array{Int64,1}
+#
+#	 - findWallSimplex(
+#
+#		)::Union{Nothing, Array{Int64,1}}
 #
 #	 - recursiveDelaunayWall(
 # 			P::Lar.Points,
@@ -44,7 +49,7 @@
 #			tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 #			AFL::Array{Array{Int64,1},1},
 #			σ::Array{Int64,1}
-#		)
+#		)::Nothing
 #
 ===============================================================================#
 
@@ -364,13 +369,15 @@ function updatelist!(list, element)::Bool
 	end
 end
 
+#-------------------------------------------------------------------------------
+
 """
 	updateTetraDict!(
 		P::Lar.Points,
 		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 		AFL::Array{Array{Int64,1},1},
 		σ::Array{Int64,1}
-	)
+	)::Nothing
 
 Update the content of `tetraDict` by adding the outer points of the faces of `σ`
 in the dictionary.
@@ -380,7 +387,7 @@ function updateTetraDict!(
 		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 		AFL::Array{Array{Int64,1},1},
 		σ::Array{Int64,1}
-	)
+	)::Nothing
 	for cell in AFL
 		point = setdiff(σ, cell)
 		@assert length(point) == 1 "Error during update of TetraDict"

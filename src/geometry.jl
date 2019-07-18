@@ -1,35 +1,58 @@
+#===============================================================================
+#
+#	src/geometry.jl
 #
 #	This file contains:
-#	 - findCenter(P::Lar.Points)::Array{Float64,1}
-#	 - findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
-#	 - findMedian(P::Lar.Points, ax::Int64)::Float64
+#
+#	 - findCenter(
+#			P::Lar.Points
+#		)::Array{Float64,1}
+#
+#	 - findClosestPoint(
+#			Psimplex::Lar.Points,
+#			P::Lar.Points
+#		)::Union{Int64, Nothing}
+#
+#	 - findMedian(
+#			P::Lar.Points,
+#			ax::Int64
+#		)::Float64
+#
 #	 - findRadius(
-#			P::Lar.Points, center=false; digits=64
+#			P::Lar.Points,
+#			center=false;
+#			digits=64
 #		)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
+#
 #	 - oppositeHalfSpacePoints(
 #			P::Lar.Points,
 #			face::Array{Array{Int64,1},1},
 #			point::Array{Float64,1}
 #		)::Array{Int64,1}
+#
 #	 - planarIntersection(
 #			P::Lar.Points,
 #			face::Array{Int64,1},
 #			axis::Int64,
 #			off::Float64
 #		)::Int64
+#
 #	 - pointsPerturbation(
 #			P::Array{Float64,2};
 #			atol=1e-10, ax=0
 #		)::Array{Float64,2}
-#	 - simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+#
+#	 - simplexFaces(
+#			σ::Array{Int64,1}
+#		)::Array{Array{Int64,1},1}
+#
 #	 - vertexInCircumball(
 #			P::Lar.Points,
 #			α_char::Float64,
 #			point::Array{Float64,2}
 #		)::Bool
 #
-
-#-------------------------------------------------------------------------------
+===============================================================================#
 
 """
 	findCenter(P::Lar.Points)::Array{Float64,1}
