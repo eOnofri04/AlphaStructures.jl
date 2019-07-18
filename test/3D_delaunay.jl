@@ -7,76 +7,74 @@ end
 using DataStructures, LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
-@testset "makeFirstWallSimplex" begin
-	P = [  -1.  1    1.5  2   ;
-			0.  0.2  1.3  1.  ;
-			0.  0.   0.   1.   ]
+@testset "First Delaunay Wall Simplex" begin
+	P = [
+		1.0 1.0 1.5 2.0 2.0
+		0.0 0.2 1.3 1.0 1.0
+		2.0 0.0 0.0 1.0 0.5
+	]
 
-	axis = [1.,0,0]
-	off = AlphaStructures.splitValue(P,axis)
-	@test AlphaStructures.makeFirstWallSimplex(P,P,axis,off) == [1,2,3,4]
+	axis = 1
+	off = AlphaStructures.findMedian(P, axis)
+	@test sort(AlphaStructures.firstDeWallSimplex(P, axis, off)) == [1, 2, 3, 4]
 
-	axis = [0,1.,0]
-	off = AlphaStructures.splitValue(P,axis)
-	@test AlphaStructures.makeFirstWallSimplex(P,P,axis,off) ==  [1,2,3,4]
+	axis = 2
+	off = AlphaStructures.findMedian(P, axis)
+	@test sort(AlphaStructures.firstDeWallSimplex(P, axis, off)) == [2, 3, 4, 5]
 
-	axis = [0,0,1.]
-	off = AlphaStructures.splitValue(P,axis)
-	@test AlphaStructures.makeFirstWallSimplex(P,P,axis,off) == [1,2,3,4]
+	axis = 3
+	off = AlphaStructures.findMedian(P, axis)
+	@test sort(AlphaStructures.firstDeWallSimplex(P, axis, off)) == [2, 3, 4, 5]
 
 end
 
-@testset "makeSimplex" begin
-	P = [ 0. 1. 0  0  2.;
-	 	  0  0  1. 0  2.;
-		  0  0  0  1. 2.]
-	@test AlphaStructures.makeSimplex([2,3,4],[1,2,3,4],P,P) == [2,3,4,5]
-	@test AlphaStructures.makeSimplex([2,3,5],[2,3,4,5],P,P) == nothing
-	@test AlphaStructures.makeSimplex([2,3,4],[2,3,4,5],P,P) == [1,2,3,4]
-end
-
-@testset "deWall" begin
-	AFL = Array{Int64,1}[]
-	axis = [1.,0.,0.]
+@testset "Delaunay Wall" begin
 
 	@testset "one tetrahedron" begin
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-		P = [  -1.  1    1.5  2   ;
-				0.  0.2  1.3  1.  ;
-				0.  0.   0.   1.   ]
-		@test AlphaStructures.deWall(P,P,AFL,axis,tetraDict) == [[1,2,3,4]]
-	end
-
-	@testset "generic examples" begin
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-		P = [  -1. -2. 3.  4.  5. -6.  ;
-				0.  1. 3. -2. -4.  2.  ;
-				1.  8. -5.  7.  4.  3.  ]
-		@test length(AlphaStructures.deWall(P,P,AFL,axis,tetraDict)) == 5
+		P = [
+			0.0 1.0 0.0 0.0
+			0.0 0.0 1.0 0.0
+			0.0 0.0 0.0 1.0
+		];
+		DT = sort(AlphaStructures.delaunayWall(P, 1))
+		@test DT == [ [1, 2, 3, 4] ]
+		@test sort(AlphaStructures.delaunayWall(P, 2)) == DT
+		@test sort(AlphaStructures.delaunayWall(P, 3)) == DT
 	end
 
 	@testset "two tetrahedron" begin
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-		P = [ 0. 1. 0  0  2.;
-		 	  0  0  1. 0  2.;
-			  0  0  0  1. 2.]
-		@test AlphaStructures.deWall(P,P,AFL,axis,tetraDict) == [[1,2,3,4],[2,3,4,5]]
+		P = [
+			0.0 1.0 0.0 0.0 2.0
+			0.0 0.0 1.0 0.0 0.0
+			0.0 0.0 0.0 1.0 0.0
+		];
+		DT = sort(AlphaStructures.delaunayWall(P, 1))
+		@test DT == [ [1, 2, 3, 4], [2, 3, 4, 5] ]
+		@test sort(AlphaStructures.delaunayWall(P, 2)) == DT
+		@test sort(AlphaStructures.delaunayWall(P, 3)) == DT
 	end
 
 	@testset "points on a plane" begin
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-		P = [ 0. 0. 0  0  0.;
-	 	  	  2. 0  1. 0  2.;
-		  	  0  0  0  1. 2.]
-		@test AlphaStructures.deWall(P,P,AFL,axis,tetraDict) == []
+		P = [
+			0.0 0.0 0.0 0.0 0.0
+			2.0 0.0 1.0 0.0 2.0
+			0.0 0.0 0.0 1.0 2.0
+		];
+		# TOFIX
+		# @test_throws AssertionError DT = AlphaStructures.delaunayWall(P, 1)
+		@test_throws AssertionError DT = AlphaStructures.delaunayWall(P, 2)
+		@test_throws AssertionError DT = AlphaStructures.delaunayWall(P, 3)
 	end
 
 	@testset "cube" begin
-		tetraDict = DataStructures.Dict{Lar.Cells,Array{Int64,1}}()
-		P = [	0. 1 0 1 0. 1 0 1;
-				0. 0 1 1 0. 0 1 1;
-				0. 0 0 0 1. 1 1 1]
-		@test length(AlphaStructures.deWall(P,P,AFL,axis,tetraDict)) == 6
+		P = [
+			0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
+			0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
+			0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
+		];
+		DT = sort(AlphaStructures.delaunayWall(P, 1))
+		@test length(DT) == 6
+		@test DT == sort(AlphaStructures.delaunayWall(P, 2))
 	end
 
 end

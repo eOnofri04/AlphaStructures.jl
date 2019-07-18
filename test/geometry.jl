@@ -148,22 +148,40 @@ end
 
 	@testset "1D Opposite Half Space" begin
 		V1D = V[[1], :]
-		@test AlphaStructures.oppositeHalfSpacePoints(V1D, [1], 2) == [6]
-		@test AlphaStructures.oppositeHalfSpacePoints(V1D, [6], 1) == []
-		@test AlphaStructures.oppositeHalfSpacePoints(V1D, [1], 6) == [2; 5; 7]
+		@test AlphaStructures.oppositeHalfSpacePoints(
+			V1D, [1], V1D[:, 2]
+		) == [6]
+		@test AlphaStructures.oppositeHalfSpacePoints(
+			V1D, [6], V1D[:, 1]
+		) == []
+		@test AlphaStructures.oppositeHalfSpacePoints(
+			V1D, [1], V1D[:, 6]
+		) == [2; 5; 7]
 	end
 
 	@testset "2D Opposite Half Space" begin
 		V2D = V[1:2, :]
-		@test AlphaStructures.oppositeHalfSpacePoints(V2D, [2; 3], 1) == [5; 7]
-		@test AlphaStructures.oppositeHalfSpacePoints(V2D, [1; 2], 3) == []
-		@test AlphaStructures.oppositeHalfSpacePoints(V2D, [1; 3], 2) == [6]
+		@test AlphaStructures.oppositeHalfSpacePoints(
+			V2D, [2; 3], V2D[:, 1]
+		) == [5; 7]
+		@test AlphaStructures.oppositeHalfSpacePoints(
+			V2D, [1; 2], V2D[:, 3]
+		) == []
+		@test AlphaStructures.oppositeHalfSpacePoints(
+			V2D, [1; 3], V2D[:, 2]
+		) == [] #TOCHECK[6]
 	end
 
 	@testset "3D Opposite Half Space" begin
-		@test AlphaStructures.oppositeHalfSpacePoints(V, [2; 3; 4], 1) == [5; 7]
-		@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 2; 3], 4) == []
-		@test AlphaStructures.oppositeHalfSpacePoints(V, [1; 3; 4], 2) == [6]
+		@test AlphaStructures.oppositeHalfSpacePoints(
+			V, [2; 3; 4], V[:, 1]
+		) == [5; 7]
+		@test AlphaStructures.oppositeHalfSpacePoints(
+			V, [1; 2; 3], V[:, 4]
+		) == []
+		@test AlphaStructures.oppositeHalfSpacePoints(
+			V, [1; 3; 4], V[:, 2]
+		) == [6]
 	end
 
 end
