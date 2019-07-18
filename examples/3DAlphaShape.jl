@@ -1,5 +1,7 @@
 using AlphaStructures
-using  DataStructures, LinearAlgebraicRepresentation, Plasm
+
+using DataStructures, LinearAlgebraicRepresentation, Plasm
+
 Lar = LinearAlgebraicRepresentation
 
 filename = "examples/OBJ/cat.obj";
