@@ -236,5 +236,5 @@ function vertexInCircumball(
 	)::Bool
 
 	center = AlphaStructures.foundCenter(T)
-	return Lar.norm(point - center) < α_char
+	return Lar.norm(point - center) <= α_char
 end

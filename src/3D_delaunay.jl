@@ -40,7 +40,6 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 	d = size(P,1)+1 # dimension of upper_simplex
 	@assert d < 5 "makeFirstWallSimplex: Function not yet Programmed."
 	indices = Int64[]
-	found = true
 
 	Pminus,Pplus = AlphaStructures.pointsetPartition(P, axis, off)
 
@@ -86,11 +85,9 @@ function makeFirstWallSimplex(Ptot::Lar.Points,P::Lar.Points, axis::Array{Float6
 	#no points inside the circumball
 	for i = 1:size(Ptot,2)
 		if AlphaStructures.vertexInCircumball(simplexPoint,AlphaStructures.foundRadius(simplexPoint)-1.e-14,Ptot[:,[i]])
-			found = false
+			return nothing
 		end
 	end
-
-    @assert found "makeFirstWallSimplex: first tetrahedron is not found"
 
 	return sort(indices)
 end
@@ -231,25 +228,18 @@ function deWall(
 	while !isempty(AFL_α) #The Sα construction terminates when the AFL_α is empty
 
 		f = popfirst!(AFL_α)
-		print("f ")
-		println(f)
+
 		for (k,v) in tetraDict
 			if f in k
 				tetra = v
 			end
 		end
 
-		println(tetraDict)
+
 
     	T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
 
-		if T in DT
-			print("simplesso:")
-			println(T)
-		end
-
-		if T != nothing && T ∉ DT #trova dei T che stanno già in DT perchè??
-
+		if T != nothing && T ∉ DT #trova dei T che stanno già in DT 
 			push!(DT,T)
 
 			faces = setdiff(AlphaStructures.simplexFaces(T), [f]) # d-1 - faces of t
@@ -272,11 +262,11 @@ function deWall(
 	newaxis = circshift(axis,1)
 
 	if !isempty(AFLminus)
-    	#DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
+    	DT = union(DT,AlphaStructures.deWall(Ptot,Pminus,AFLminus,newaxis,tetraDict))
 	end
 
 	if !isempty(AFLplus)
-	#	DT = union(DT,AlphaStructures.deWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
+		DT = union(DT,AlphaStructures.deWall(Ptot,Pplus,AFLplus,newaxis,tetraDict))
 	end
 
 	return DT

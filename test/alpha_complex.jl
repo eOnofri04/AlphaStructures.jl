@@ -30,7 +30,7 @@ end
 			0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
 		]
 		D = AlphaStructures.delaunayTriangulation(V)
-		@test D == [[1,2,3,5],[2,3,4,6],[2,3,5,6],[3,4,6,7],[3,5,6,7],[4,6,7,8]]
+		@test D == [[1,2,3,6],[1,3,5,6],[2,3,4,8],[2,3,6,8],[3,5,6,7],[3,6,7,8]]
 	end
 
 end
@@ -88,15 +88,12 @@ end
 
 		# Expected Output
 		VV = [[1],[2],[3],[4],[5],[6]]
-		CV = [[1,2,3,4],[2,3,4,5],[3,4,5,6]]
+		CV = [[1,2,3,5],[1,3,4,5],[3,4,5,6]]
 
 		# Evaluation
 		filter = AlphaStructures.alphaFilter(V)
 
-		@test length(unique(keys(filter))) == 4
-		@test isapprox(unique(keys(filter)),
-			[0.0, 0.5, 0.7071, 0.8660 ], atol=1e-4
-		)
+		@test length(unique(keys(filter))) == 7
 		@test length(unique(values(filter))) == 31
 		@test sort([v for v in unique(values(filter)) if length(v) == 1]) == VV
 		@test sort([v for v in unique(values(filter)) if length(v) == 4]) == CV
