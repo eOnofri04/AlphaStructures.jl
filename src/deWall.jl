@@ -38,7 +38,7 @@ function delaunayWall(
 		tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}()
 	)::Lar.Cells
 
-	DEBUG = true
+	DEBUG = false
 	if DEBUG println("DEBUG mode on") end
 
 	# 0 - Data Reading and Container definition
@@ -99,13 +99,20 @@ function delaunayWall(
 				newidx = Pselection[idxbase]
 				# Build the new simplex and update the Dictionary
 				σ = sort([face; newidx])
-				push!(DT, σ)
-				AFL = AlphaStructures.simplexFaces(σ)
-				AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
-				# Split σ's Faces according to semi-spaces
-				AlphaStructures.updateAFL!(
-					P, AFL, AFLα, AFLplus, AFLminus, ax, off
-				)
+				ok = true
+				if ok
+					push!(DT, σ)
+					AFL = AlphaStructures.simplexFaces(σ)
+					AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
+					# Split σ's Faces according to semi-spaces
+					AlphaStructures.updateAFL!(
+						P, AFL, AFLα, AFLplus, AFLminus, ax, off
+					)
+				else
+					@assert AlphaStructures.updatelist!(AFLα, face) == false "ERROR:
+						Something unespected happends while removing a face."
+					println("Discarded ", σ)
+				end
 			end
 		end
 	end
