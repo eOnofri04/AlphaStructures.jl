@@ -1,6 +1,8 @@
 # B - Bibliography
 
-[CMS98] http://www.personal.psu.edu/faculty/c/x/cxc11/AERSP560/DELAUNEY/8_Divide_and_Conquer_DeWall.pdf
+[CMS97] P. Cignoni, C. Montani and R. Scopigno. DeWall: A Fast Divide & Conquer Delaunay Triangulation Algorithm in E^d. C.N.R. Pisa, 1997 http://vcg.isti.cnr.it/publications/papers/dewall.pdf
+
+[CMS98] P. Cignoni, C. Montani and R. Scopigno. DeWall: A Fast Divide & Conquer Delaunay Triangulation Algorithm in E^d. Computer-Aided Design, Vol. 30, No. 5, pp. 333441, 1998 http://www.personal.psu.edu/faculty/c/x/cxc11/AERSP560/DELAUNEY/8_Divide_and_Conquer_DeWall.pdf
 
 [CT98] M. Teichmann and M. Capps. Surface reconstruction with anisotropic density-scaled alpha-shapes. In IEEE Visualization ’98 Proceedings, pages 67–72, San Francisco, CA, October 1998. ACM/SIGGRAPH Press.
 
