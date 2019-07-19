@@ -6,7 +6,8 @@ export alphaFilter, alphaSimplex, delaunayTriangulation
 #	This File Contains:
 #
 #	 - alphaFilter(
-#			V::Lar.Points;
+#			V::Lar.Points,
+#			DT = Array{Int64,1}[];
 #			digits=64
 #		)::DataStructures.SortedMultiDict{}
 #
@@ -23,11 +24,16 @@ export alphaFilter, alphaSimplex, delaunayTriangulation
 ===============================================================================#
 
 """
-	alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
+	alphaFilter(
+		V::Lar.Points, DT = Array{Int64,1}[];
+		digits=64
+	)::DataStructures.SortedMultiDict{}
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
 This method evaluates the ``\alpha``-filter over the sites `S`.
+If a Delaunay Triangulation `DT` is not specified than it is evaluated
+via `AlphaStructures.delaunayTriangulation()`.
 
 # Examples
 ```jldoctest
@@ -50,14 +56,21 @@ SortedMultiDict(Base.Order.ForwardOrdering(),
 
 ```
 """
-function alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
+function alphaFilter(
+		V::Lar.Points,
+		DT = Array{Int64,1}[];
+		digits=64
+	)::DataStructures.SortedMultiDict{}
 
 	dim = size(V, 1)
+	Cells = [Array{Array{Int64,1},1}() for i=1:dim]  #Generalize definition
 
 	# 1 - Delaunay triangulation of ``V``
-
-	Cells = [Array{Array{Int64,1},1}() for i=1:dim]  #Generalize definition
-	Cells[dim] = AlphaStructures.delaunayTriangulation(V)
+	if isempty(DT)
+		Cells[dim] = AlphaStructures.delaunayTriangulation(V)
+	else
+		Cells[dim] = DT
+	end
 
 	# 2 - 1..d-1 Cells Construction
 	# Cells[d] = Array{Int64}[]
