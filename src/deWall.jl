@@ -1,3 +1,4 @@
+export deWall;
 #===============================================================================
 #
 #	src/deWall.jl
@@ -7,18 +8,23 @@
 #	 - delaunayWall(
 #			P::Lar.Points,
 #			ax = 1,
-#			AFL = Array{Int64,1}[]
+#			AFL = Array{Int64,1}[];
+#			DEBUG = false
 #		)::Lar.Cells
 #
 #	 - firstDeWallSimplex(
 #			P::Lar.Points,
 #			ax::Int64,
-#			off::Float64
+#			off::Float64;
+#			DEBUG = false
 #		)::Array{Int64,1}
 #
 #	 - findWallSimplex(
-#
-#		)::Union{Nothing, Array{Int64,1}}
+#			P::Lar.Points,
+#			face::Array{Int64,1},
+#			oppoint::Array{Float64,1};
+#			DEBUG = false
+#		)::Union{Array{Int64,1}, Nothing}
 #
 #	 - recursiveDelaunayWall(
 # 			P::Lar.Points,
@@ -36,7 +42,9 @@
 #			AFLα = Array{Int64,1}[],
 #			AFLplus = Array{Int64,1}[],
 #			AFLminus = Array{Int64,1}[],
-#			ax::Int64, off::Float64
+#			ax::Int64,
+#			off::Float64;
+# 			DEBUG = false
 #		)::Bool
 #
 #	 - updatelist!(
@@ -54,22 +62,26 @@
 ===============================================================================#
 
 """
-	delaunayWall(P::Lar.Points, ax = 1, AFL = Array{Int64,1}[])::Lar.Cells
+	delaunayWall(
+		P::Lar.Points, ax = 1, AFL = Array{Int64,1}[];
+		DEBUG = false
+	)::Lar.Cells
 
 Return the Delaunay Triangulation of sites `P` via Delaunay Wall algorithm.
 The optional argument `ax` specify on wich axis it will build the Wall.
 The optional argument `AFL` is used in recursive call.
+If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 """
 
 function delaunayWall(
 		P::Lar.Points,
 		ax = 1,
 		AFL = Array{Int64,1}[],
-		tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}()
+		tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}();
+		DEBUG = false
 	)::Lar.Cells
 
-	DEBUG = false
-	if DEBUG println("DEBUG mode on") end
+	if DEBUG @show "Delaunay Wall with parameters" P ax AFL tetraDict end
 
 	# 0 - Data Reading and Container definition
 	DT = Array{Int64,1}[]		# Delaunay Triangulation
@@ -80,7 +92,7 @@ function delaunayWall(
 
 	# 1 - Determine first simplex (if necessary)
 	if isempty(AFL)
-		σ = sort(AlphaStructures.firstDeWallSimplex(P, ax, off))
+		σ = sort(AlphaStructures.firstDeWallSimplex(P, ax, off, DEBUG = DEBUG))
 		push!(DT, σ)
 		AFL = AlphaStructures.simplexFaces(σ)
 		AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
@@ -88,51 +100,26 @@ function delaunayWall(
 
 	# 2 - Build `AFL*` according to the axis `ax` with contant term `off`
 	AlphaStructures.updateAFL!(
-		P, AFL, AFLα, AFLplus, AFLminus, ax, off
+		P, AFL, AFLα, AFLplus, AFLminus, ax, off, DEBUG = DEBUG
 	)
 
 	# 4 - Build simplex Wall
 	while !isempty(AFLα)
-		face = AFLα[1]
-		# Find the points in the halfspace defined by `face` that do not
-		#  containsother the other point of the simplex.
-		Pselection =
-			AlphaStructures.oppositeHalfSpacePoints(P, face, tetraDict[face])
-		# if face ∈ keys(tetraDict) then ...
-		#  else Pselection = setdiff([i for i = 1 : n], face) end
-
-		# If there are no such points than the face is part of the convex hull.
-		if isempty(Pselection)
-			# push!(CH, face)
-			@assert AlphaStructures.updatelist!(AFLα, face) == false "ERROR:
-				Something unespected happends while trying to remove a face."
+		# if face ∈ keys(tetraDict) oppoint = tetraDict[face]
+		# else Pselection = setdiff([i for i = 1 : n], face) end
+		if ( σ = AlphaStructures.findWallSimplex(
+				P, AFLα[1], tetraDict[AFLα[1]], DEBUG=DEBUG
+			) ) != nothing
+			push!(DT, σ)
+			AFL = AlphaStructures.simplexFaces(σ)
+			AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
+			# Split σ's Faces according in semi-spaces
+			AlphaStructures.updateAFL!(
+				P, AFL, AFLα, AFLplus, AFLminus, ax, off, DEBUG=DEBUG
+			)
 		else
-			# Find the Closest Point in the other halfspace with respect to σ.
-			idxbase =
-				AlphaStructures.findClosestPoint(P[:, face], P[:, Pselection])
-			if isnothing(idxbase)
-				# push!(CH, face)
-				@assert AlphaStructures.updatelist!(AFLα, face) == false "ERROR:
-					Something unespected happends while removing a face."
-			else
-				newidx = Pselection[idxbase]
-				# Build the new simplex and update the Dictionary
-				σ = sort([face; newidx])
-				ok = true
-				if ok
-					push!(DT, σ)
-					AFL = AlphaStructures.simplexFaces(σ)
-					AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
-					# Split σ's Faces according to semi-spaces
-					AlphaStructures.updateAFL!(
-						P, AFL, AFLα, AFLplus, AFLminus, ax, off
-					)
-				else
-					@assert AlphaStructures.updatelist!(AFLα, face) == false "ERROR:
-						Something unespected happends while removing a face."
-					println("Discarded ", σ)
-				end
-			end
+			@assert AlphaStructures.updatelist!(AFLα, AFLα[1]) == false "ERROR:
+				Something unespected happends while removing a face."
 		end
 	end
 
@@ -153,16 +140,75 @@ function delaunayWall(
 end
 
 #-------------------------------------------------------------------------------
+"""
+	findWallSimplex(
+		P::Lar.Points, face::Array{Int64,1}, oppoint::Array{Float64,1};
+		DEBUG = false
+	)::Union{Array{Int64,1}, Nothing}
+
+Returns the simplex 'σ' build with `face` and a point from `P`
+such that it is in the opposite half plane of `oppoint`.
+If such a simplex do not exists it returns `nothing`.
+If the keyword argument `DEBUG` is set to true than all the procedure is shown.
+"""
+function findWallSimplex(
+		P::Lar.Points,
+		face::Array{Int64,1},
+		oppoint::Array{Float64,1};
+		DEBUG = false
+	)::Union{Array{Int64,1}, Nothing}
+
+	if DEBUG @show "find Wall Simplex of" face oppoint end
+	# Find the points in the halfspace defined by `face` that do not
+	#  containsother the other point of the simplex.
+	Pselection =
+		AlphaStructures.oppositeHalfSpacePoints(P, face, oppoint)
+
+	if DEBUG @show Pselection end
+
+	# If there are no such points than the face is part of the convex hull.
+	if isempty(Pselection)
+		return nothing
+	end
+
+	# Find the Closest Point in the other halfspace with respect to σ
+	#  according to dd-distance.
+	idxbase = AlphaStructures.findClosestPoint(P[:, face], P[:, Pselection])
+
+	@assert !isnothing(idxbase)
+	# if isnothing(idxbase)
+	# 	return nothing
+	# end
+
+	σ = sort([face; Pselection[idxbase]])
+	if DEBUG @show "Found face" σ end
+
+	# Check the simplex correctness
+	radius, center = AlphaStructures.findRadius(P[:, σ], true)
+	for i = 1 : size(P, 2)
+		if Lar.norm(center - P[:, i]) < radius
+			@assert i ∉ Pselection "ERROR: Numerical error
+				evaluating minimum radius for $σ"
+			@show σ "discarded due to a closer point."
+			return nothing
+		end
+	end
+
+	return σ
+end
+
+
+#-------------------------------------------------------------------------------
 
 """
-function firstDeWallSimplex(
-		P::Lar.Points,
-		ax::Int64,
-		off::Float64
+ 	firstDeWallSimplex(
+		P::Lar.Points, ax::Int64, off::Float64;
+		DEBUG = false
 	)::Array{Int64,1}
 
 Returns the indices array of the points in `P` that form the first thetrahedron
 built over the Wall if the `ax` axes with contant term `off`.
+If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 
 # Examples
 ```jldoctest
@@ -182,16 +228,17 @@ julia> firstDeWallSimplex(V, 1, AlphaStructures.findMedian(V,1))
 
 ```
 """
-
 function firstDeWallSimplex(
 		P::Lar.Points,
 		ax::Int64,
-		off::Float64
+		off::Float64;
+		DEBUG = false
 	)::Array{Int64,1}
 
 	dim = size(P, 1)
     n = size(P, 2)
 
+	if DEBUG println("Determine first Simplex with ax = $ax") end
     # the first point of the simplex is the one with coordinate `ax` maximal
     #  such that it is less than `off` (closer to α from minus)
 	Pselection = findall(x -> x < off, P[ax, :])
@@ -227,6 +274,8 @@ function firstDeWallSimplex(
 			Unable to find first Simplex."
 	end
 
+	if DEBUG println("First Simplex = $indices") end
+
 	return indices
 end
 
@@ -247,6 +296,7 @@ Utility function that prepeares the Divide phase for Delaunay Wall.
 Returns the Delaunay Triangulation for the positve or negative subspace of `P`
 (according to `positive`) determined by the hyperplane with normal `ax` and
 constant term `off`.
+If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 """
 function recursiveDelaunayWall(
 		P::Lar.Points,
@@ -261,9 +311,11 @@ function recursiveDelaunayWall(
 	dim, n = size(P)
 	newaxis = mod(ax, dim) + 1
 
+	if DEBUG println("Divide Plus/Minus $positive") end
+
 	Psubset = findall(x -> (x > off) == positive, P[ax, :])
 
-	if DEBUG println("$positive in") end
+	if DEBUG println("Step In") end
 
 	DT = AlphaStructures.delaunayWall(
 			P[:, Psubset],
@@ -276,7 +328,7 @@ function recursiveDelaunayWall(
 			])
 		)
 
-	if DEBUG println("$positive out") end
+	if DEBUG @show "Step Out with " DT end
 
 	return [[Psubset[i] for i in σ] for σ in DT]
 end
@@ -290,13 +342,15 @@ end
 		AFLα = Array{Int64,1}[],
 		AFLplus = Array{Int64,1}[],
 		AFLminus = Array{Int64,1}[],
-		ax::Int64, off::Float64
+		ax::Int64, off::Float64;
+		DEBUG = false
 	)::Bool
 
 Modify the `AFL*` lists of faces by adding to them the faces inside `new`
 (that refers to the points `P`) according to their position with respect
 to the axis defined by the normal direction `ax` and the contant term `off`.
 The function returns a Bool value that states if the operation was succesfully.
+If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 """
 function updateAFL!(
 		P::Lar.Points,
@@ -304,7 +358,8 @@ function updateAFL!(
 		AFLα::Array{Array{Int64,1},1},
 		AFLplus::Array{Array{Int64,1},1},
 		AFLminus::Array{Array{Int64,1},1},
-		ax::Int64, off::Float64
+		ax::Int64, off::Float64;
+		DEBUG = false
 	)::Bool
 
 	for face in newσ
@@ -319,6 +374,8 @@ function updateAFL!(
 			return false
 		end
 	end
+
+	if DEBUG @show AFLα AFLminus AFLplus end
 
 	return true
 
