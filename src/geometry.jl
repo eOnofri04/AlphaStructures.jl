@@ -355,8 +355,9 @@ function oppositeHalfSpacePoints(
 	)::Array{Int64,1}
 
 	dim, n = size(P)
+	noV = size(face, 2)
 	@assert dim <= 3 "ERROR: Not yet coded."
-	@assert size(face, 2) == dim "ERROR:
+	@assert noV == dim "ERROR:
 		Cannot determine opposite to non hyperplanes."
 	if dim == 1
 		threshold = face[1]
@@ -389,7 +390,11 @@ function oppositeHalfSpacePoints(
 			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) < off]
 		end
 	end
-	return setdiff(opposite, face)
+
+	return [
+		i for i in opposite
+		if sum([P[:, i] == face[:, j] for j = 1 : noV]) == 0
+	]
 end
 
 #-------------------------------------------------------------------------------
