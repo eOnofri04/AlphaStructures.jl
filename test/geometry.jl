@@ -174,7 +174,7 @@ end
 	@test P[2, :] == P13[2, :]
 	@test abs.(P[1, 1] - P11[1, 1]) .< 100
 	@test P[2:end] == P11[2:end]
-	#@test P != P1 != P2 != P13 != P11 != Pperturbated
+	@test P != P1 != P2 != P13 != P11 != Pperturbated
 	@test P == noPt
 
 end
@@ -211,7 +211,7 @@ end
 		) == []
 		@test AlphaStructures.oppositeHalfSpacePoints(
 			V2D, V2D[:, [1; 3]], V2D[:, 2]
-		) == [] #TOCHECK[6]
+		) == [6]
 	end
 
 	@testset "3D Opposite Half Space" begin

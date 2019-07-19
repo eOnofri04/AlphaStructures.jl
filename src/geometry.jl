@@ -304,7 +304,7 @@ function matrixPerturbation(
 		col = [i for i = 1 : size(M, 2)]
 	end
 
-	N = M
+	N = copy(M)
 	perturbation = mod.(rand(Float64, length(row), length(col)), 2*atol).-atol
 	N[row, col] = M[row, col] + perturbation
 	# do not modify N. Why? On terminal it does.
@@ -367,16 +367,22 @@ function oppositeHalfSpacePoints(
 			opposite = [i for i = 1 : n if P[1, i] < threshold]
 		end
 	elseif dim == 2
-		m = (face[2, 1] - face[2, 2]) / (face[1, 1] - face[1, 2])
-		q = face[2, 1] - m * face[1, 1]
-		# false = under the line, true = over the line
-		@assert point[2] ≠ m * point[1] + q "ERROR,
-			the point belongs to the face"
-		if point[2] < m * point[1] + q
-			opposite = [i for i = 1 : n if P[2, i] > m * P[1, i] + q]
+		if (Δx = face[1, 1] - face[1, 2]) != 0.0
+			m = (face[2, 1] - face[2, 2]) / Δx
+			q = face[2, 1] - m * face[1, 1]
+			# false = under the line, true = over the line
+			@assert point[2] ≠ m * point[1] + q "ERROR,
+				the point belongs to the face"
+			side = sign(m * point[1] + q - point[2])
+			opposite =
+				[i for i = 1 : n if side * (m * P[1, i] + q - P[2, i]) < 0]
 		else
-			opposite = [i for i = 1 : n if P[2, i] < m * P[1, i] + q]
+			q = face[1, 1]
+			side = sign(point[1] - q)
+			opposite = [i for i = 1 : n if side * (P[1, i] - q) < 0]
 		end
+
+
 	elseif dim == 3
 		axis = Lar.cross(
 			face[:, 2] - face[:, 1],
