@@ -1,49 +1,39 @@
+export alphaFilter, alphaSimplex, delaunayTriangulation
+#===============================================================================
 #
-#	In this file there is:
-#	 - delaunayTriangulation(V::Lar.Points)
-#	 - alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
-#	 - alphaSimplex(V::Lar.Points,
+#	src/alpha_complex.jl
+#
+#	This File Contains:
+#
+#	 - alphaFilter(
+#			V::Lar.Points,
+#			DT = Array{Int64,1}[];
+#			digits=64
+#		)::DataStructures.SortedMultiDict{}
+#
+#	 - alphaSimplex(
+#			V::Lar.Points,
 #			filtration::DataStructures.SortedMultiDict{},
 #			α_threshold::Float64
 #		)::Array{Lar.Cells,1}
 #
+#	 - delaunayTriangulation(
+#			V::Lar.Points
+#		)::Lar.Cells
+#
+===============================================================================#
 
 """
-	delaunayTriangulation(V::Lar.Points)::Lar.Cells
-
-Return highest level simplices of Delaunay triangulation.
-"""
-function delaunayTriangulation(V::Lar.Points)::Lar.Cells
-	dim = size(V, 1)
-	@assert dim > 0 "Error: V do not contains points."
-	@assert dim < 4 "Error: Function not yet Programmed."
-
-	if dim == 1
-		vertices = vcat(V...)
-		p = sortperm(vertices)
-		upper_simplex = [[p[i],p[i+1]] for i=1:length(p)-1]
-
-	elseif dim == 2
-		vertices = convert(Array{Float64,2},V')
-		points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
-		@assert size(vertices, 1) > 3
-		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
-
-	elseif dim == 3
-		upper_simplex = AlphaStructures.delaunayWall(V)
-	end
-
-	sort!.(upper_simplex)
-
-	return sort(upper_simplex)
-end
-
-"""
-	alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
+	alphaFilter(
+		V::Lar.Points, DT = Array{Int64,1}[];
+		digits=64
+	)::DataStructures.SortedMultiDict{}
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
 This method evaluates the ``\alpha``-filter over the sites `S`.
+If a Delaunay Triangulation `DT` is not specified than it is evaluated
+via `AlphaStructures.delaunayTriangulation()`.
 
 # Examples
 ```jldoctest
@@ -66,14 +56,21 @@ SortedMultiDict(Base.Order.ForwardOrdering(),
 
 ```
 """
-function alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
+function alphaFilter(
+		V::Lar.Points,
+		DT = Array{Int64,1}[];
+		digits=64
+	)::DataStructures.SortedMultiDict{}
 
 	dim = size(V, 1)
+	Cells = [Array{Array{Int64,1},1}() for i=1:dim]  #Generalize definition
 
 	# 1 - Delaunay triangulation of ``V``
-
-	Cells = [Array{Array{Int64,1},1}() for i=1:dim]  #Generalize definition
-	Cells[dim] = AlphaStructures.delaunayTriangulation(V)
+	if isempty(DT)
+		Cells[dim] = AlphaStructures.delaunayTriangulation(V)
+	else
+		Cells[dim] = DT
+	end
 
 	# 2 - 1..d-1 Cells Construction
 	# Cells[d] = Array{Int64}[]
@@ -130,6 +127,7 @@ function alphaFilter(V::Lar.Points; digits=64)::DataStructures.SortedMultiDict{}
 	return filtration
 end
 
+#-------------------------------------------------------------------------------
 
 """
 	alphaSimplex(
@@ -162,4 +160,36 @@ function alphaSimplex(
 	sort!.(simplexCollection)
 
 	return simplexCollection
+end
+
+#-------------------------------------------------------------------------------
+
+"""
+	delaunayTriangulation(V::Lar.Points)::Lar.Cells
+
+Return highest level simplices of Delaunay triangulation.
+"""
+function delaunayTriangulation(V::Lar.Points)::Lar.Cells
+	dim = size(V, 1)
+	@assert dim > 0 "Error: V do not contains points."
+	@assert dim < 4 "Error: Function not yet Programmed."
+
+	if dim == 1
+		vertices = vcat(V...)
+		p = sortperm(vertices)
+		upper_simplex = [[p[i],p[i+1]] for i=1:length(p)-1]
+
+	elseif dim == 2
+		vertices = convert(Array{Float64,2},V')
+		points_map = Array{Int64,1}(collect(1:1:size(vertices)[1]))
+		@assert size(vertices, 1) > 3
+		upper_simplex = Triangle.basic_triangulation(vertices, points_map)
+
+	elseif dim == 3
+		upper_simplex = AlphaStructures.delaunayWall(V)
+	end
+
+	sort!.(upper_simplex)
+
+	return sort(upper_simplex)
 end

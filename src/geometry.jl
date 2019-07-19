@@ -1,35 +1,61 @@
+#===============================================================================
+#
+#	src/geometry.jl
 #
 #	This file contains:
-#	 - findCenter(P::Lar.Points)::Array{Float64,1}
-#	 - findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Int64
-#	 - findMedian(P::Lar.Points, ax::Int64)::Float64
+#
+#	 - findCenter(
+#			P::Lar.Points
+#		)::Array{Float64,1}
+#
+#	 - findClosestPoint(
+#			Psimplex::Lar.Points,
+#			P::Lar.Points;
+#			metric = "circumcenter"
+#		)::Union{Int64, Nothing}
+#
+#	 - findMedian(
+#			P::Lar.Points,
+#			ax::Int64
+#		)::Float64
+#
 #	 - findRadius(
-#			P::Lar.Points, center=false; digits=64
+#			P::Lar.Points,
+#			center=false;
+#			digits=64
 #		)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
+#
+#	 - matrixPerturbation(
+#			M::Array{Float64,2};
+#			atol = 1e-10,
+#			row = [0],
+#			col = [0]
+#		)::Array{Float64,2}
+#
 #	 - oppositeHalfSpacePoints(
 #			P::Lar.Points,
-#			face::Array{Array{Int64,1},1},
+#			face::Array{Float64,2},
 #			point::Array{Float64,1}
 #		)::Array{Int64,1}
+#
 #	 - planarIntersection(
 #			P::Lar.Points,
 #			face::Array{Int64,1},
 #			axis::Int64,
 #			off::Float64
 #		)::Int64
-#	 - pointsPerturbation(
-#			P::Array{Float64,2};
-#			atol=1e-10, ax=0
-#		)::Array{Float64,2}
-#	 - simplexFaces(σ::Array{Int64,1})::Array{Array{Int64,1},1}
+#
+#	 - simplexFaces(
+#			σ::Array{Int64,1}
+#		)::Array{Array{Int64,1},1}
+#
 #	 - vertexInCircumball(
 #			P::Lar.Points,
 #			α_char::Float64,
 #			point::Array{Float64,2}
 #		)::Bool
 #
-
-#-------------------------------------------------------------------------------
+===============================================================================#
 
 """
 	findCenter(P::Lar.Points)::Array{Float64,1}
@@ -115,37 +141,52 @@ end
 #-------------------------------------------------------------------------------
 
 """
-	findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Union{Int64, Nothing}
+	findClosestPoint(
+		Psimplex::Lar.Points, P::Lar.Points;
+		metric = "circumcenter"
+	)::Union{Int64, Nothing}
 
 Returns the index of the closest point in `P` to the `Psimplex` points,
-according to the circumcenter distance metric.
+according to the distance determined by the keyword argument `metric`.
+Possible choices are:
+ - `circumcenter`: (default) returns the point that minimize the circumradius
+ - `dd`: like `circumcenter` but the circumradius is considered to be negative
+    if the circumcenter is opposite to the new point with respect to `Psimplex`.
 """
 function findClosestPoint(
-		Psimplex::Lar.Points, P::Lar.Points
+		Psimplex::Lar.Points, P::Lar.Points;
+		metric = "circumcenter"
 	)::Union{Int64, Nothing}
+
+	@assert metric ∈ ["circumcenter", "dd"] "ERROR: available metrics are
+		`circumcenter` and `dd`."
 
 	simplexDim = size(Psimplex, 2)
     @assert simplexDim <= size(Psimplex, 1) "Cannot add
         another point to the simplex"
 
-    if simplexDim == 1
-        closestidx = findmin(
-            [
-                Lar.norm(Psimplex[:,1] - P[:,col])
-                for col=1:size(P,2)
-            ]
-        )[2]
-    else
-        # radlist = [findRadius([Psimplex P[:,col]]) for col = 1:size(P,2)]
-        # findmin(radlist)[2]
-		radius, closestidx = findmin([
-			AlphaStructures.findRadius([Psimplex P[:,col]])
-			for col = 1 : size(P, 2)
-		])
-		if radius == Inf
-			closestidx = nothing
-		end
-    end
+	if (m = size(P, 2)) == 0
+		return nothing
+	end
+
+    radlist = zeros(m)
+	for col = 1 : m
+		r, c = findRadius([Psimplex P[:,col]], true)
+		sameSign = (
+			r == Inf ||
+			metric != "dd" ||
+			isempty(AlphaStructures.oppositeHalfSpacePoints(
+				[Psimplex P[:,col]], Psimplex, c
+			))
+		)
+		radlist[col] = ((-1)^(1 + sameSign)) * r
+	end
+
+	radius, closestidx = findmin(radlist)
+
+	if radius == Inf
+		closestidx = nothing
+	end
 
 	return closestidx
 
@@ -223,10 +264,59 @@ function findRadius(
 end
 
 #-------------------------------------------------------------------------------
+
+"""
+	matrixPerturbation(
+		M::Array{Float64,2};
+		atol = 1e-10,
+		row = [0],
+		col = [0]
+	)::Array{Float64,2}
+
+Returns the matrix `M` with a ±`atol` perturbation on each value determined
+by the `row`-th rows and `col`-th columns.
+If `row` / `col` are set to `[0]` (or not specified) then all the
+rows / columns are perturbated.
+
+# Examples
+```jldoctest
+
+julia> V = [
+	0.0 1.0 0.0 0.0
+	0.0 0.0 1.0 0.0
+	0.0 0.0 0.0 1.0
+];
+"""
+function matrixPerturbation(
+		M::Array{Float64,2};
+		atol=1e-10, row = [0], col = [0]
+	)::Array{Float64,2}
+
+	if atol == 0.0
+		println("Warning: no perturbation has been performed.")
+		return M
+	end
+
+	if row == [0]
+		row = [i for i = 1 : size(M, 1)]
+	end
+	if col == [0]
+		col = [i for i = 1 : size(M, 2)]
+	end
+
+	N = copy(M)
+	perturbation = mod.(rand(Float64, length(row), length(col)), 2*atol).-atol
+	N[row, col] = M[row, col] + perturbation
+	# do not modify N. Why? On terminal it does.
+	return N
+end
+
+#-------------------------------------------------------------------------------
+
 """
 	oppositeHalfSpacePoints(
 			P::Lar.Points,
-			face::Array{Array{Int64,1},1},
+			face::Array{Float64,2},
 			point::Array{Float64,1}
 		)::Array{Int64,1}
 
@@ -244,15 +334,15 @@ julia> V = [
 		0.0 0.0 0.0 1.0 2.0 0.0 1.0
 	   ];
 
-julia> oppositeHalfSpacePoints(V, [2; 3; 4], V[:, 1])
+julia> oppositeHalfSpacePoints(V, V[:, [2; 3; 4]], V[:, 1])
 2-element Array{Int64,1}:
  5
  7
 
-julia> oppositeHalfSpacePoints(V, [1; 2; 3], V[:, 4])
+julia> oppositeHalfSpacePoints(V, V[:, [1; 2; 3]], V[:, 4])
 0-element Array{Int64,1}
 
-julia> oppositeHalfSpacePoints(V, [1; 3; 4], V[:, 2])
+julia> oppositeHalfSpacePoints(V, V[:, [1; 3; 4]], V[:, 2])
 1-element Array{Int64,1}:
  6
 
@@ -260,38 +350,45 @@ julia> oppositeHalfSpacePoints(V, [1; 3; 4], V[:, 2])
 """
 function oppositeHalfSpacePoints(
 		P::Lar.Points,
-		face::Array{Int64,1},
+		face::Array{Float64,2},
 		point::Array{Float64,1}
 	)::Array{Int64,1}
 
 	dim, n = size(P)
+	noV = size(face, 2)
 	@assert dim <= 3 "ERROR: Not yet coded."
-	@assert length(face) == dim "ERROR:
+	@assert noV == dim "ERROR:
 		Cannot determine opposite to non hyperplanes."
 	if dim == 1
-		threshold = P[1, face[1]]
+		threshold = face[1]
 		if point[1] < threshold
 			opposite = [i for i = 1 : n if P[1, i] > threshold]
 		else
 			opposite = [i for i = 1 : n if P[1, i] < threshold]
 		end
 	elseif dim == 2
-		m = (P[2, face[1]] - P[2, face[2]]) / (P[1, face[1]] - P[1, face[2]])
-		q = P[2, face[1]] - m * P[1, face[1]]
-		# false = under the line, true = over the line
-		@assert point[2] ≠ m * point[1] + q "ERROR,
-			the point belongs to the face"
-		if point[2] < m * point[1] + q
-			opposite = [i for i = 1 : n if P[2, i] > m * P[1, i] + q]
+		if (Δx = face[1, 1] - face[1, 2]) != 0.0
+			m = (face[2, 1] - face[2, 2]) / Δx
+			q = face[2, 1] - m * face[1, 1]
+			# false = under the line, true = over the line
+			@assert point[2] ≠ m * point[1] + q "ERROR,
+				the point belongs to the face"
+			side = sign(m * point[1] + q - point[2])
+			opposite =
+				[i for i = 1 : n if side * (m * P[1, i] + q - P[2, i]) < 0]
 		else
-			opposite = [i for i = 1 : n if P[2, i] < m * P[1, i] + q]
+			q = face[1, 1]
+			side = sign(point[1] - q)
+			opposite = [i for i = 1 : n if side * (P[1, i] - q) < 0]
 		end
+
+
 	elseif dim == 3
 		axis = Lar.cross(
-			P[:, face[2]] - P[:, face[1]],
-			P[:, face[3]] - P[:, face[1]]
+			face[:, 2] - face[:, 1],
+			face[:, 3] - face[:, 1]
 		)
-		off = Lar.dot(axis, P[:, face[1]])
+		off = Lar.dot(axis, face[:, 1])
 		position = Lar.dot(point, axis)
 		if position < off
 			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) > off]
@@ -299,7 +396,11 @@ function oppositeHalfSpacePoints(
 			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) < off]
 		end
 	end
-	return setdiff(opposite, face)
+
+	return [
+		i for i in opposite
+		if sum([P[:, i] == face[:, j] for j = 1 : noV]) == 0
+	]
 end
 
 #-------------------------------------------------------------------------------
@@ -338,29 +439,6 @@ function planarIntersection(
 	end
 
 	return position
-end
-
-#-------------------------------------------------------------------------------
-
-"""
-	pointsPerturbation(M::Array{Float64,2}; atol=1e-10; row=0)::Array{Float64,2}
-
-Returns the matrix `M` with a ±`atol` perturbation.
-"""
-function pointsPerturbation(
-		M::Array{Float64,2};
-		atol=1e-10, row = 0
-	)::Array{Float64,2}
-	if row == 0
-		perturbation = mod.(rand(Float64, size(M)), 2*atol).-atol
-		N = M + perturbation
-	else
-		perturbation = mod.(rand(Float64, size(M,1)), 2*atol).-atol
-		N = M
-		N[:, row] = M[:, row] + perturbation
-	end
-
-	return N
 end
 
 #-------------------------------------------------------------------------------

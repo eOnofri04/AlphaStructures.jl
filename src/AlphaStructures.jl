@@ -8,4 +8,6 @@ module AlphaStructures
 	include("alpha_complex.jl")
 	include("deWall.jl")
 	include("geometry.jl")
+
+	export alphaFilter, alphaSimplex, delaunayTriangulation
 end

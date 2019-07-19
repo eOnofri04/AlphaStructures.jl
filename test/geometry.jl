@@ -77,6 +77,22 @@ end
 		@test σ == [1; 4; 5; 3]
 	end
 
+	@testset "Keyword Argument Exception" begin
+		@test_throws AssertionError AlphaStructures.findClosestPoint(
+			P, P, metric = "Euclidean"
+		)
+		@test_throws AssertionError AlphaStructures.findClosestPoint(
+			P, P, metric = "DD"
+		)
+		@test_throws AssertionError AlphaStructures.findClosestPoint(
+			P, P, metric = "abc"
+		)
+	end
+
+	@testset "Cannot add more points" begin
+		@test_throws AssertionError AlphaStructures.findClosestPoint(P, P)
+	end
+
 end
 
 #-------------------------------------------------------------------------------
@@ -139,6 +155,32 @@ end
 
 #-------------------------------------------------------------------------------
 
+@testset "Matrix Perturbation" begin
+	P = rand(Float64, 3, 100000)
+
+	Pperturbated = AlphaStructures.matrixPerturbation(P, atol = 1e-2)
+	P1 = AlphaStructures.matrixPerturbation(P, row = [1], atol = 1e-3)
+	P2 = AlphaStructures.matrixPerturbation(P, col = [2], atol = 10)
+	P13 = AlphaStructures.matrixPerturbation(P, row = [1; 3], atol = 1e-1)
+	P11 = AlphaStructures.matrixPerturbation(P, row = [1], col = [1], atol=100)
+	noPt = AlphaStructures.matrixPerturbation(P, atol = 0.0)
+
+	@test sum(abs.(P - Pperturbated) .> 1e-2) == 0
+	@test sum(abs.(P[1, :] - P1[1, :]) .> 1e-3) == 0
+	@test P[[2;3], :] == P1[[2;3], :]
+	@test sum(abs.(P[:, 2] - P2[:, 2]) .> 10) == 0
+	@test P[:, [1;3]] == P2[:, [1;3]]
+	@test sum(abs.(P[[1;3], :] - P13[[1;3], :]) .> 1e-1) == 0
+	@test P[2, :] == P13[2, :]
+	@test abs.(P[1, 1] - P11[1, 1]) .< 100
+	@test P[2:end] == P11[2:end]
+	@test P != P1 != P2 != P13 != P11 != Pperturbated
+	@test P == noPt
+
+end
+
+#-------------------------------------------------------------------------------
+
 @testset "Opposit Half Space" begin
 	V = [
 		0.0 1.0 0.0 0.0 4.0 -1. 1.0
@@ -149,38 +191,38 @@ end
 	@testset "1D Opposite Half Space" begin
 		V1D = V[[1], :]
 		@test AlphaStructures.oppositeHalfSpacePoints(
-			V1D, [1], V1D[:, 2]
+			V1D, V1D[:, [1]], V1D[:, 2]
 		) == [6]
 		@test AlphaStructures.oppositeHalfSpacePoints(
-			V1D, [6], V1D[:, 1]
+			V1D, V1D[:, [6]], V1D[:, 1]
 		) == []
 		@test AlphaStructures.oppositeHalfSpacePoints(
-			V1D, [1], V1D[:, 6]
+			V1D, V1D[:, [1]], V1D[:, 6]
 		) == [2; 5; 7]
 	end
 
 	@testset "2D Opposite Half Space" begin
 		V2D = V[1:2, :]
 		@test AlphaStructures.oppositeHalfSpacePoints(
-			V2D, [2; 3], V2D[:, 1]
+			V2D, V2D[:, [2; 3]], V2D[:, 1]
 		) == [5; 7]
 		@test AlphaStructures.oppositeHalfSpacePoints(
-			V2D, [1; 2], V2D[:, 3]
+			V2D, V2D[:, [1; 2]], V2D[:, 3]
 		) == []
 		@test AlphaStructures.oppositeHalfSpacePoints(
-			V2D, [1; 3], V2D[:, 2]
-		) == [] #TOCHECK[6]
+			V2D, V2D[:, [1; 3]], V2D[:, 2]
+		) == [6]
 	end
 
 	@testset "3D Opposite Half Space" begin
 		@test AlphaStructures.oppositeHalfSpacePoints(
-			V, [2; 3; 4], V[:, 1]
+			V, V[:, [2; 3; 4]], V[:, 1]
 		) == [5; 7]
 		@test AlphaStructures.oppositeHalfSpacePoints(
-			V, [1; 2; 3], V[:, 4]
+			V, V[:, [1; 2; 3]], V[:, 4]
 		) == []
 		@test AlphaStructures.oppositeHalfSpacePoints(
-			V, [1; 3; 4], V[:, 2]
+			V, V[:, [1; 3; 4]], V[:, 2]
 		) == [6]
 	end
 
