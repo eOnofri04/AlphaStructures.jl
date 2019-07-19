@@ -77,6 +77,22 @@ end
 		@test σ == [1; 4; 5; 3]
 	end
 
+	@testset "Keyword Argument Exception" begin
+		@test_throws AssertionError AlphaStructures.findClosestPoint(
+			P, P, metric = "Euclidean"
+		)
+		@test_throws AssertionError AlphaStructures.findClosestPoint(
+			P, P, metric = "DD"
+		)
+		@test_throws AssertionError AlphaStructures.findClosestPoint(
+			P, P, metric = "abc"
+		)
+	end
+
+	@testset "Cannot add more points" begin
+		@test_throws AssertionError AlphaStructures.findClosestPoint(P, P)
+	end
+
 end
 
 #-------------------------------------------------------------------------------
@@ -160,7 +176,7 @@ end
 	@test P[2:end] == P11[2:end]
 	#@test P != P1 != P2 != P13 != P11 != Pperturbated
 	@test P == noPt
-	
+
 end
 
 #-------------------------------------------------------------------------------

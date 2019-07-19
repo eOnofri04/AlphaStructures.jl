@@ -10,7 +10,8 @@
 #
 #	 - findClosestPoint(
 #			Psimplex::Lar.Points,
-#			P::Lar.Points
+#			P::Lar.Points;
+#			metric = "circumcenter"
 #		)::Union{Int64, Nothing}
 #
 #	 - findMedian(
@@ -140,14 +141,25 @@ end
 #-------------------------------------------------------------------------------
 
 """
-	findClosestPoint(Psimplex::Lar.Points, P::Lar.Points)::Union{Int64, Nothing}
+	findClosestPoint(
+		Psimplex::Lar.Points, P::Lar.Points;
+		metric = "circumcenter"
+	)::Union{Int64, Nothing}
 
 Returns the index of the closest point in `P` to the `Psimplex` points,
-according to the circumcenter distance metric.
+according to the distance determined by the keyword argument `metric`.
+Possible choices are:
+ - `circumcenter`: (default) returns the point that minimize the circumradius
+ - `dd`: like `circumcenter` but the circumradius is considered to be negative
+    if the circumcenter is opposite to the new point with respect to `Psimplex`.
 """
 function findClosestPoint(
-		Psimplex::Lar.Points, P::Lar.Points
+		Psimplex::Lar.Points, P::Lar.Points;
+		metric = "circumcenter"
 	)::Union{Int64, Nothing}
+
+	@assert metric ∈ ["circumcenter", "dd"] "ERROR: available metrics are
+		`circumcenter` and `dd`."
 
 	simplexDim = size(Psimplex, 2)
     @assert simplexDim <= size(Psimplex, 1) "Cannot add
@@ -277,7 +289,7 @@ function matrixPerturbation(
 	)::Array{Float64,2}
 
 	if atol == 0.0
-		@show "Warning: no perturbation has been performed."
+		println("Warning: no perturbation has been performed.")
 		return M
 	end
 

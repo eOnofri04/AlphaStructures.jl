@@ -173,7 +173,9 @@ function findWallSimplex(
 
 	# Find the Closest Point in the other halfspace with respect to σ
 	#  according to dd-distance.
-	idxbase = AlphaStructures.findClosestPoint(P[:, face], P[:, Pselection])
+	idxbase = AlphaStructures.findClosestPoint(
+		P[:, face], P[:, Pselection], metric = "dd"
+	)
 
 	@assert !isnothing(idxbase)
 	# if isnothing(idxbase)
