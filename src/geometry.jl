@@ -34,7 +34,7 @@
 #
 #	 - oppositeHalfSpacePoints(
 #			P::Lar.Points,
-#			face::Array{Array{Int64,1},1},
+#			face::Array{Float64,2},
 #			point::Array{Float64,1}
 #		)::Array{Int64,1}
 #
@@ -165,24 +165,28 @@ function findClosestPoint(
     @assert simplexDim <= size(Psimplex, 1) "Cannot add
         another point to the simplex"
 
-    if simplexDim == 1
-        closestidx = findmin(
-            [
-                Lar.norm(Psimplex[:,1] - P[:,col])
-                for col=1:size(P,2)
-            ]
-        )[2]
-    else
-        # radlist = [findRadius([Psimplex P[:,col]]) for col = 1:size(P,2)]
-        # findmin(radlist)[2]
-		radius, closestidx = findmin([
-			AlphaStructures.findRadius([Psimplex P[:,col]])
-			for col = 1 : size(P, 2)
-		])
-		if radius == Inf
-			closestidx = nothing
-		end
-    end
+	if (m = size(P, 2)) == 0
+		return nothing
+	end
+
+    radlist = zeros(m)
+	for col = 1 : m
+		r, c = findRadius([Psimplex P[:,col]], true)
+		sameSign = (
+			r == Inf ||
+			metric != "dd" ||
+			isempty(AlphaStructures.oppositeHalfSpacePoints(
+				[Psimplex P[:,col]], Psimplex, c
+			))
+		)
+		radlist[col] = ((-1)^(1 + sameSign)) * r
+	end
+
+	radius, closestidx = findmin(radlist)
+
+	if radius == Inf
+		closestidx = nothing
+	end
 
 	return closestidx
 
@@ -312,7 +316,7 @@ end
 """
 	oppositeHalfSpacePoints(
 			P::Lar.Points,
-			face::Array{Array{Int64,1},1},
+			face::Array{Float64,2},
 			point::Array{Float64,1}
 		)::Array{Int64,1}
 
@@ -330,15 +334,15 @@ julia> V = [
 		0.0 0.0 0.0 1.0 2.0 0.0 1.0
 	   ];
 
-julia> oppositeHalfSpacePoints(V, [2; 3; 4], V[:, 1])
+julia> oppositeHalfSpacePoints(V, V[:, [2; 3; 4]], V[:, 1])
 2-element Array{Int64,1}:
  5
  7
 
-julia> oppositeHalfSpacePoints(V, [1; 2; 3], V[:, 4])
+julia> oppositeHalfSpacePoints(V, V[:, [1; 2; 3]], V[:, 4])
 0-element Array{Int64,1}
 
-julia> oppositeHalfSpacePoints(V, [1; 3; 4], V[:, 2])
+julia> oppositeHalfSpacePoints(V, V[:, [1; 3; 4]], V[:, 2])
 1-element Array{Int64,1}:
  6
 
@@ -346,24 +350,24 @@ julia> oppositeHalfSpacePoints(V, [1; 3; 4], V[:, 2])
 """
 function oppositeHalfSpacePoints(
 		P::Lar.Points,
-		face::Array{Int64,1},
+		face::Array{Float64,2},
 		point::Array{Float64,1}
 	)::Array{Int64,1}
 
 	dim, n = size(P)
 	@assert dim <= 3 "ERROR: Not yet coded."
-	@assert length(face) == dim "ERROR:
+	@assert size(face, 2) == dim "ERROR:
 		Cannot determine opposite to non hyperplanes."
 	if dim == 1
-		threshold = P[1, face[1]]
+		threshold = face[1]
 		if point[1] < threshold
 			opposite = [i for i = 1 : n if P[1, i] > threshold]
 		else
 			opposite = [i for i = 1 : n if P[1, i] < threshold]
 		end
 	elseif dim == 2
-		m = (P[2, face[1]] - P[2, face[2]]) / (P[1, face[1]] - P[1, face[2]])
-		q = P[2, face[1]] - m * P[1, face[1]]
+		m = (face[2, 1] - face[2, 2]) / (face[1, 1] - face[1, 2])
+		q = face[2, 1] - m * face[1, 1]
 		# false = under the line, true = over the line
 		@assert point[2] ≠ m * point[1] + q "ERROR,
 			the point belongs to the face"
@@ -374,10 +378,10 @@ function oppositeHalfSpacePoints(
 		end
 	elseif dim == 3
 		axis = Lar.cross(
-			P[:, face[2]] - P[:, face[1]],
-			P[:, face[3]] - P[:, face[1]]
+			face[:, 2] - face[:, 1],
+			face[:, 3] - face[:, 1]
 		)
-		off = Lar.dot(axis, P[:, face[1]])
+		off = Lar.dot(axis, face[:, 1])
 		position = Lar.dot(point, axis)
 		if position < off
 			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) > off]

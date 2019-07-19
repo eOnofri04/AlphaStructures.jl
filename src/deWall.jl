@@ -162,7 +162,7 @@ function findWallSimplex(
 	# Find the points in the halfspace defined by `face` that do not
 	#  containsother the other point of the simplex.
 	Pselection =
-		AlphaStructures.oppositeHalfSpacePoints(P, face, oppoint)
+		AlphaStructures.oppositeHalfSpacePoints(P, P[:, face], oppoint)
 
 	if DEBUG @show Pselection end
 
