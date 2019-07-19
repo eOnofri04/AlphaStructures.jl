@@ -8,6 +8,7 @@ export deWall;
 #	 - delaunayWall(
 #			P::Lar.Points,
 #			ax = 1,
+#			Pblack = Float64[],
 #			AFL = Array{Int64,1}[],
 #			tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}();
 #			DEBUG = false
@@ -22,6 +23,7 @@ export deWall;
 #
 #	 - findWallSimplex(
 #			P::Lar.Points,
+#			blackidx::Int64,
 #			face::Array{Int64,1},
 #			oppoint::Array{Float64,1};
 #			DEBUG = false
@@ -29,6 +31,7 @@ export deWall;
 #
 #	 - recursiveDelaunayWall(
 # 			P::Lar.Points,
+#			Pblack::Lar.Points,
 # 			tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 # 			AFL::Array{Array{Int64,1},1},
 # 			ax::Int64,
@@ -64,7 +67,7 @@ export deWall;
 
 """
 	delaunayWall(
-		P::Lar.Points, ax = 1, AFL = Array{Int64,1}[],
+		P::Lar.Points, ax = 1, Pblack::Float64[], AFL = Array{Int64,1}[],
 		tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}();
 		DEBUG = false
 	)::Lar.Cells
@@ -78,6 +81,7 @@ If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 function delaunayWall(
 		P::Lar.Points,
 		ax = 1,
+		Pblack = Float64[],
 		AFL = Array{Int64,1}[],
 		tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}();
 		DEBUG = false
@@ -91,13 +95,20 @@ function delaunayWall(
 	AFLplus = Array{Int64,1}[]  # (d-1)faces in positive Wall half-space
 	AFLminus = Array{Int64,1}[] # (d-1)faces in positive Wall half-space
 	off = AlphaStructures.findMedian(P, ax)
+	if !isempty(Pblack) Pext = [P Pblack] else Pext = P end
 
 	# 1 - Determine first simplex (if necessary)
 	if isempty(AFL)
+		@assert isempty(Pblack) "ERROR: If AFL is empty => Pblack must be"
+		@assert isempty(tetraDict) "ERROR: If AFL is empty => tetraDict must be"
 		σ = sort(AlphaStructures.firstDeWallSimplex(P, ax, off, DEBUG = DEBUG))
 		push!(DT, σ)
 		AFL = AlphaStructures.simplexFaces(σ)
 		AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
+	else
+		@assert !isempty(Pblack) "ERROR: Data missing - Pblack"
+		@assert !isempty(AFL) "ERROR: Data missing - AFL"
+		@assert !isempty(tetraDict) "ERROR: Data missing - tetraDict"
 	end
 
 	# 2 - Build `AFL*` according to the axis `ax` with contant term `off`
@@ -110,7 +121,7 @@ function delaunayWall(
 		# if face ∈ keys(tetraDict) oppoint = tetraDict[face]
 		# else Pselection = setdiff([i for i = 1 : n], face) end
 		if ( σ = AlphaStructures.findWallSimplex(
-				P, AFLα[1], tetraDict[AFLα[1]], DEBUG=DEBUG
+				Pext, AFLα[1], tetraDict[AFLα[1]], size(P, 2), DEBUG=DEBUG
 			) ) != nothing
 			push!(DT, σ)
 			AFL = AlphaStructures.simplexFaces(σ)
@@ -129,12 +140,12 @@ function delaunayWall(
 	#      A.K.A. Divide & Conquer phase.
 	if !isempty(AFLminus)
 		union!(DT, recursiveDelaunayWall(
-			P, tetraDict, AFLminus, ax, off, false; DEBUG = DEBUG
+			P, Pblack, tetraDict, AFLminus, ax, off, false; DEBUG = DEBUG
 		))
 	end
 	if !isempty(AFLplus)
 		union!(DT, recursiveDelaunayWall(
-			P, tetraDict, AFLplus, ax, off, true; DEBUG = DEBUG
+			P, Pblack, tetraDict, AFLplus, ax, off, true; DEBUG = DEBUG
 		))
 	end
 
@@ -144,19 +155,23 @@ end
 #-------------------------------------------------------------------------------
 """
 	findWallSimplex(
-		P::Lar.Points, face::Array{Int64,1}, oppoint::Array{Float64,1};
+		P::Lar.Points,
+		face::Array{Int64,1}, oppoint::Array{Float64,1},
+		blackidx = size(P, 2);
 		DEBUG = false
 	)::Union{Array{Int64,1}, Nothing}
 
-Returns the simplex 'σ' build with `face` and a point from `P`
+Returns the simplex 'σ' build with `face` and a point from `P[:, 1:blackidx]`
 such that it is in the opposite half plane of `oppoint`.
 If such a simplex do not exists it returns `nothing`.
+If `blackidx` is not specified all the points `P` are treaten as valid.
 If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 """
 function findWallSimplex(
 		P::Lar.Points,
 		face::Array{Int64,1},
-		oppoint::Array{Float64,1};
+		oppoint::Array{Float64,1},
+		blackidx = size(P, 2);
 		DEBUG = false
 	)::Union{Array{Int64,1}, Nothing}
 
@@ -175,16 +190,23 @@ function findWallSimplex(
 
 	# Find the Closest Point in the other halfspace with respect to σ
 	#  according to dd-distance.
-	idxbase = AlphaStructures.findClosestPoint(
+	idxbase = Pselection[ AlphaStructures.findClosestPoint(
 		P[:, face], P[:, Pselection], metric = "dd"
-	)
+	) ]
 
-	@assert !isnothing(idxbase)
+	# @assert !isnothing(idxbase)
 	# if isnothing(idxbase)
 	# 	return nothing
 	# end
 
-	σ = sort([face; Pselection[idxbase]])
+	# It prevent from adding the same simplex again (cause it has been
+	#  determined in a previous recursive call in the stacktrace).
+	if idxbase > blackidx
+		if DEBUG println("Excluding $face cause simplex already inside.") end
+		return nothing
+	end
+
+	σ = sort([face; idxbase])
 	if DEBUG @show "Found face" σ end
 
 	# Check the simplex correctness
@@ -288,6 +310,7 @@ end
 """
 	recursiveDelaunayWall(
 		P::Lar.Points,
+		Pblack::Lar.Points,
 		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 		AFL::Array{Array{Int64,1},1},
 		ax::Int64,
@@ -304,6 +327,7 @@ If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 """
 function recursiveDelaunayWall(
 		P::Lar.Points,
+		Pblack::Array{Float64},
 		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 		AFL::Array{Array{Int64,1},1},
 		ax::Int64,
@@ -320,28 +344,25 @@ function recursiveDelaunayWall(
 	if DEBUG println("Divide Plus/Minus $positive") end
 
 	Psubset = findall(x -> (x > off) == positive, P[ax, :])
+	blacklist = setdiff(unique([(keys(tetraDict)...)...]), Psubset)
+	if !isempty(Pblack)
+		Pblack = [Pblack P[:, blacklist]]
+	else
+	 	Pblack = P[:, blacklist]
+	end
 
 	if DEBUG println("Step In") end
-
-	newAFL = [[findall(Psubset.==p)[1] for p in σ] for σ in AFL]
-
-	if DEBUG @show newAFL end
-
-	newDict = Dict([
-		[findall(Psubset.==p)[1] for p in k] => v
-		for (k,v) in tetraDict
-			if k ⊆ Psubset
-	])
-
-	if DEBUG @show newDict end
-
-	if DEBUG @show P[:, Psubset] end
 
 	DT = AlphaStructures.delaunayWall(
 			P[:, Psubset],
 			newaxis,
-			newAFL,
-			newDict,
+			Pblack,
+			[[findall(Psubset.==p)[1] for p in σ] for σ in AFL],
+			Dict([
+				[findall(Psubset.==p)[1] for p in k] => v
+				for (k,v) in tetraDict
+					if k ⊆ Psubset
+			]),
 			DEBUG = DEBUG
 		)
 
