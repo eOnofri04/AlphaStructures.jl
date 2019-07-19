@@ -120,13 +120,23 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 		if !isempty(Pminus)
 			for dim = df+1:d
 				try #da verificare queste
-					radius = [AlphaStructures.foundRadius([simplexPoint...,Pminus[:,i]]) for i = 1:size(Pminus,2)]
-					minRad = min(filter(p-> p!=0 && p!=Inf,radius)...)
-					ind = findall(x->x == minRad, radius)[1]
-					p = Pminus[:, ind]
-					push!(simplexPoint,p)
-					index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
-					t = sort([f...,index])
+					radius=Float64[]
+					for i = 1:size(Pminus,2)
+						center = AlphaStructures.foundCenter([simplexPoint...,Pminus[:,i]])
+						if sidePlane(center, axis, off)==1
+							rad = -AlphaStructures.foundRadius([simplexPoint...,Pminus[:,i]])
+							push!(radius,rad)
+						else
+							rad = AlphaStructures.foundRadius([simplexPoint...,Pminus[:,i]])
+							push!(radius,rad)
+						end
+					end
+						minRad = min(filter(p-> p!=0 && p!=Inf,radius)...)
+						ind = findall(x->x == minRad, radius)[1]
+						p = Pminus[:, ind]
+						push!(simplexPoint,p)
+						index = findall(x -> x == [p...], [Ptot[:,i] for i = 1:size(Ptot,2)])[1]
+						t = sort([f...,index])
 				catch
 					return nothing
 				end
@@ -138,7 +148,17 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 		if !isempty(Pplus)
 			for dim = df+1:d
 				try
-					radius = [AlphaStructures.foundRadius([simplexPoint...,Pplus[:,i]]) for i = 1:size(Pplus,2)]
+					radius=Float64[]
+					for i = 1:size(Pplus,2)
+						center = AlphaStructures.foundCenter([simplexPoint...,Pplus[:,i]])
+						if sidePlane(center, axis, off)==-1
+							rad = -AlphaStructures.foundRadius([simplexPoint...,Pplus[:,i]])
+							push!(radius,rad)
+						else
+							rad = AlphaStructures.foundRadius([simplexPoint...,Pplus[:,i]])
+							push!(radius,rad)
+						end
+					end
 					minRad = min(filter(p-> p!=0 && p!=Inf,radius)...)
 					ind = findall(x->x == minRad, radius)[1]
 					p = Pplus[:, ind]
@@ -163,7 +183,6 @@ function makeSimplex(f::Array{Int64,1},tetra::Array{Int64,1},Ptot::Lar.Points, P
 
 	return t
 end
-
 
 """
 	deWall(
@@ -239,7 +258,7 @@ function deWall(
 
     	T = AlphaStructures.makeSimplex(f, tetra, Ptot, P)
 
-		if T != nothing && T ∉ DT #trova dei T che stanno già in DT 
+		if T != nothing && T ∉ DT #trova dei T che stanno già in DT
 			push!(DT,T)
 
 			faces = setdiff(AlphaStructures.simplexFaces(T), [f]) # d-1 - faces of t
