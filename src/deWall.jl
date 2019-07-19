@@ -8,7 +8,8 @@ export deWall;
 #	 - delaunayWall(
 #			P::Lar.Points,
 #			ax = 1,
-#			AFL = Array{Int64,1}[];
+#			AFL = Array{Int64,1}[],
+#			tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}();
 #			DEBUG = false
 #		)::Lar.Cells
 #
@@ -63,7 +64,8 @@ export deWall;
 
 """
 	delaunayWall(
-		P::Lar.Points, ax = 1, AFL = Array{Int64,1}[];
+		P::Lar.Points, ax = 1, AFL = Array{Int64,1}[],
+		tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}();
 		DEBUG = false
 	)::Lar.Cells
 
@@ -189,9 +191,9 @@ function findWallSimplex(
 	radius, center = AlphaStructures.findRadius(P[:, σ], true)
 	for i = 1 : size(P, 2)
 		if Lar.norm(center - P[:, i]) < radius
-			@assert i ∉ Pselection "ERROR: Numerical error
-				evaluating minimum radius for $σ"
-			@show σ "discarded due to a closer point."
+			# @assert i ∉ Pselection "ERROR: Numerical error
+			# 	evaluating minimum radius for $σ"
+			if DEBUG println("$σ discarded due to a closer point.") end
 			return nothing
 		end
 	end
@@ -310,6 +312,8 @@ function recursiveDelaunayWall(
 		DEBUG = false
 	)::Lar.Cells
 
+	#DEBUG = true
+
 	dim, n = size(P)
 	newaxis = mod(ax, dim) + 1
 
@@ -319,15 +323,26 @@ function recursiveDelaunayWall(
 
 	if DEBUG println("Step In") end
 
+	newAFL = [[findall(Psubset.==p)[1] for p in σ] for σ in AFL]
+
+	if DEBUG @show newAFL end
+
+	newDict = Dict([
+		[findall(Psubset.==p)[1] for p in k] => v
+		for (k,v) in tetraDict
+			if k ⊆ Psubset
+	])
+
+	if DEBUG @show newDict end
+
+	if DEBUG @show P[:, Psubset] end
+
 	DT = AlphaStructures.delaunayWall(
 			P[:, Psubset],
 			newaxis,
-			[[findall(Psubset.==p)[1] for p in σ] for σ in AFL],
-			Dict([
-				[findall(Psubset.==p)[1] for p in k] => v
-				for (k,v) in tetraDict
-					if k ⊆ Psubset
-			])
+			newAFL,
+			newDict,
+			DEBUG = DEBUG
 		)
 
 	if DEBUG @show "Step Out with " DT end
@@ -449,7 +464,7 @@ function updateTetraDict!(
 	)::Nothing
 	for cell in AFL
 		point = setdiff(σ, cell)
-		@assert length(point) == 1 "Error during update of TetraDict"
+		@assert length(point) == 1 "Error during update of TetraDict $σ, $cell"
 		tetraDict[ cell ] = P[:, point[1]]
 	end
 end
