@@ -126,11 +126,11 @@ function findCenter(P::Lar.Points)::Array{Float64,1}
 		# https://people.sc.fsu.edu/~jburkardt/presentations
 		#	/cg_lab_tetrahedrons.pdf
 		# page 6 (matrix are transposed)
-		α = LA.det([P; ones(1, 4)])
+		α = Lar.det([P; ones(1, 4)])
 		sq = sum(abs2, P, dims = 1)
-		Dx = LA.det([sq; P[2:2,:]; P[3:3,:]; ones(1, 4)])
-		Dy = LA.det([P[1:1,:]; sq; P[3:3,:]; ones(1, 4)])
-		Dz = LA.det([P[1:1,:]; P[2:2,:]; sq; ones(1, 4)])
+		Dx = Lar.det([sq; P[2:2,:]; P[3:3,:]; ones(1, 4)])
+		Dy = Lar.det([P[1:1,:]; sq; P[3:3,:]; ones(1, 4)])
+		Dz = Lar.det([P[1:1,:]; P[2:2,:]; sq; ones(1, 4)])
 		center = [Dx; Dy; Dz]/2α
 	end
 

@@ -127,7 +127,7 @@ end
 		@test AlphaStructures.findRadius(P[1:3, 2:2]) == 0.0
 	end
 
-	@testset "Edges Find Center" begin
+	@testset "Edges Find Radius" begin
 		@test AlphaStructures.findRadius(P[1:1, 1:2]) == 0.5
 		@test AlphaStructures.findRadius(P[1:2, 1:2]) == 0.5
 		@test AlphaStructures.findRadius(P[1:3, 1:2]) == 0.5
@@ -135,7 +135,7 @@ end
 		@test AlphaStructures.findRadius(P[1:2, 4:5]) == 0.0
 	end
 
-	@testset "Triangles Find Center" begin
+	@testset "Triangles Find Radius" begin
 		r = 0.707106781
 		@test isapprox(AlphaStructures.findRadius(P[1:2, 1:3]), r, atol=1e-9)
 		@test isapprox(AlphaStructures.findRadius(P[1:3, 1:3]), r, atol=1e-9)
@@ -144,7 +144,7 @@ end
 		@test AlphaStructures.findRadius(P[1:3, 3:5]) == Inf
 	end
 
-	@testset "Tetrahedrons Find Center" begin
+	@testset "Tetrahedrons Find Radius" begin
 		r = 0.866025403
 		@test isapprox(AlphaStructures.findRadius(P[1:3, 1:4]), r, atol=1e-9)
 
