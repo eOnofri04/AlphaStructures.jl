@@ -120,9 +120,10 @@ function delaunayWall(
 	while !isempty(AFLα)
 		# if face ∈ keys(tetraDict) oppoint = tetraDict[face]
 		# else Pselection = setdiff([i for i = 1 : n], face) end
-		if ( σ = AlphaStructures.findWallSimplex(
+		σ = AlphaStructures.findWallSimplex(
 				Pext, AFLα[1], tetraDict[AFLα[1]], size(P, 2), DEBUG=DEBUG
-			) ) != nothing
+			)
+		if σ != nothing && σ ∉ DT
 			push!(DT, σ)
 			AFL = AlphaStructures.simplexFaces(σ)
 			AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
