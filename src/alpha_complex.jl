@@ -210,8 +210,8 @@ julia> DT = AlphaStructures.delaunayTriangulation(V)
 """
 function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 	dim = size(V, 1)
-	@assert dim > 0 "Error: V do not contains points."
-	@assert dim < 4 "Error: Function not yet Programmed."
+	@assert dim > 0 "delaunayTriangulation: V do not contains points."
+	@assert dim < 4 "delaunayTriangulation: Function not yet Programmed."
 
 	if dim == 1
 		vertices = vcat(V...)

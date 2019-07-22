@@ -84,10 +84,10 @@ julia> AlphaStructures.findCenter(V)
 """
 function findCenter(P::Lar.Points)::Array{Float64,1}
 	dim, n = size(P)
-	@assert n > 0		"ERROR: at least one points is needed."
-	@assert dim >= n-1	"ERROR: Too much points"
+	@assert n > 0		"findCenter: at least one points is needed."
+	@assert dim >= n-1	"findCenter: Too much points"
 
-	@assert dim < 4		"ERROR: Function not yet Programmed."
+	@assert dim < 4		"findCenter: Function not yet Programmed."
 
 	if n == 1
 		center = P[:, 1]
@@ -158,11 +158,11 @@ function findClosestPoint(
 		metric = "circumcenter"
 	)::Union{Int64, Nothing}
 
-	@assert metric ∈ ["circumcenter", "dd"] "ERROR: available metrics are
+	@assert metric ∈ ["circumcenter", "dd"] "findClosestPoint: available metrics are
 		`circumcenter` and `dd`."
 
 	simplexDim = size(Psimplex, 2)
-    @assert simplexDim <= size(Psimplex, 1) "Cannot add
+    @assert simplexDim <= size(Psimplex, 1) "findClosestPoint: Cannot add
         another point to the simplex"
 
 	if (m = size(P, 2)) == 0
@@ -286,6 +286,13 @@ julia> V = [
 	0.0 0.0 1.0 0.0
 	0.0 0.0 0.0 1.0
 ];
+
+julia> AlphaStructures.matrixPerturbation(V)
+3×4 Array{Float64,2}:
+ -1.27447e-11   1.0           4.68388e-11  3.08495e-11
+  1.17657e-11  -4.25106e-11   1.0          5.62396e-11
+  7.01741e-11  -4.10229e-11  -4.36708e-11  1.0
+
 """
 function matrixPerturbation(
 		M::Array{Float64,2};
@@ -307,7 +314,6 @@ function matrixPerturbation(
 	N = copy(M)
 	perturbation = mod.(rand(Float64, length(row), length(col)), 2*atol).-atol
 	N[row, col] = M[row, col] + perturbation
-	# do not modify N. Why? On terminal it does.
 	return N
 end
 
@@ -356,8 +362,8 @@ function oppositeHalfSpacePoints(
 
 	dim, n = size(P)
 	noV = size(face, 2)
-	@assert dim <= 3 "ERROR: Not yet coded."
-	@assert noV == dim "ERROR:
+	@assert dim <= 3 "oppositeHalfSpacePoints: Not yet coded."
+	@assert noV == dim "oppositeHalfSpacePoints:
 		Cannot determine opposite to non hyperplanes."
 	if dim == 1
 		threshold = face[1]
@@ -371,7 +377,7 @@ function oppositeHalfSpacePoints(
 			m = (face[2, 1] - face[2, 2]) / Δx
 			q = face[2, 1] - m * face[1, 1]
 			# false = under the line, true = over the line
-			@assert point[2] ≠ m * point[1] + q "ERROR,
+			@assert point[2] ≠ m * point[1] + q "oppositeHalfSpacePoints,
 				the point belongs to the face"
 			side = sign(m * point[1] + q - point[2])
 			opposite =
