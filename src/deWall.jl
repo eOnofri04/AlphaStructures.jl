@@ -76,6 +76,26 @@ Return the Delaunay Triangulation of sites `P` via Delaunay Wall algorithm.
 The optional argument `ax` specify on wich axis it will build the Wall.
 The optional argument `AFL` is used in recursive call.
 If the keyword argument `DEBUG` is set to true than all the procedure is shown.
+
+# Examples
+```jldoctest
+
+julia> P = [
+				0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
+            	0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
+            	0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
+           ];
+
+julia> DT = AlphaStructures.delaunayWall(P)
+6-element Array{Array{Int64,1},1}:
+ [1, 2, 4, 5]
+ [1, 3, 4, 5]
+ [2, 4, 5, 6]
+ [3, 4, 5, 7]
+ [4, 5, 6, 7]
+ [4, 6, 7, 8]
+
+```
 """
 
 function delaunayWall(
@@ -167,6 +187,23 @@ such that it is in the opposite half plane of `oppoint`.
 If such a simplex do not exists it returns `nothing`.
 If `blackidx` is not specified all the points `P` are treaten as valid.
 If the keyword argument `DEBUG` is set to true than all the procedure is shown.
+
+# Examples
+```jldoctest
+
+julia> P = [
+ 				0. 1. 0. 0. 2.;
+	  			0. 0. 1. 0. 2.;
+	  			0. 0. 0. 1. 2.]
+
+julia> newtetra = AlphaStructures.findWallSimplex(P,[2,3,4],[0., 0., 0.])
+4-element Array{Int64,1}:
+ 2
+ 3
+ 4
+ 5
+
+```
 """
 function findWallSimplex(
 		P::Lar.Points,
