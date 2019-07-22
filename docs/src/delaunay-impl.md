@@ -66,8 +66,8 @@ AlphaStructures.deWall
 
  1. Select the plane π to split ``P``;
  2. Split ``P`` into two subset ``P^-`` and ``P^+``;
- 3. Construct first simplex of ``S^π`` with `makeFirstWallSimplex`;
- 4. Construct adjacent simplex to complite ``S^π`` with `makeSimplex`;
+ 3. Construct first simplex of ``S^π`` with `firstDeWallSimplex`;
+ 4. Construct adjacent simplex to complite ``S^π`` with `findWallSimplex`;
  5. Update all AFLs;
  6. Construct ``S^-`` and ``S^+``, recursively appling `deWall` on ``P^-`` and ``P^+``, starting from associated AFL;
  7. Return the union of ``S^π``, ``S^-`` and ``S^+``.

@@ -95,7 +95,7 @@ function delaunayWall(
 	AFLplus = Array{Int64,1}[]  # (d-1)faces in positive Wall half-space
 	AFLminus = Array{Int64,1}[] # (d-1)faces in positive Wall half-space
 	off = AlphaStructures.findMedian(P, ax)
-	if !isempty(Pblack) Pext = [P Pblack] else Pext = P end
+	if !isempty(Pblack) Pext = [P Pblack] else Pext = copy(P) end
 
 	# 1 - Determine first simplex (if necessary)
 	if isempty(AFL)
@@ -111,7 +111,7 @@ function delaunayWall(
 		@assert !isempty(tetraDict) "ERROR: Data missing - tetraDict"
 	end
 
-	# 2 - Build `AFL*` according to the axis `ax` with contant term `off`
+	# 2 - Build `AFL*` according to the axis `ax` with constant term `off`
 	AlphaStructures.updateAFL!(
 		P, AFL, AFLα, AFLplus, AFLminus, ax, off, DEBUG = DEBUG
 	)
@@ -121,7 +121,7 @@ function delaunayWall(
 		# if face ∈ keys(tetraDict) oppoint = tetraDict[face]
 		# else Pselection = setdiff([i for i = 1 : n], face) end
 		σ = AlphaStructures.findWallSimplex(
-				Pext, AFLα[1], tetraDict[AFLα[1]], size(P, 2), DEBUG=DEBUG
+				Pext, AFLα[1], tetraDict[AFLα[1]], size(P, 2), DEBUG = DEBUG
 			)
 		if σ != nothing && σ ∉ DT
 			push!(DT, σ)

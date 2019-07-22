@@ -4,25 +4,15 @@ Lar = LinearAlgebraicRepresentation
 GL = ViewerGL
 
 filename = "examples/OBJ/lowpolytree.obj";
-W,EVs,FVs = Lar.obj2lar(filename)
-WW = [[i] for i = 1:size(W,2)]
-V,VV = Lar.apply(Lar.r(pi/2, 0, 0),(W,WW)) #object rotated
+W,EVs,FVs = Lar.obj2lar(filename);
+WW = [[i] for i = 1:size(W,2)];
+V,VV = Lar.apply(Lar.r(pi/2, 0, 0),(W,WW)); #object rotated
 Plasm.view(V,VV)
-
-#Plasm.view(V,EVs[1])
-#Plasm.view(V,FVs[1])
-
-#DT = AlphaStructures.delaunayWall(V)
-#Plasm.view(V,DT)
-
 
 filtration = AlphaStructures.alphaFilter(V, DT);
 VV, EV, FV, TV = AlphaStructures.alphaSimplex(V, filtration, 0.02)
 
 points = [[p] for p in VV]
-# faces = [[f] for f in FV]
-# edges = [[e] for e in EV]
-# GL.VIEW( GL.GLExplode(Vi, [points; edges; faces], 1., 1., 1., 99, 1) )
 
 filter_key = unique(keys(filtration))
 
