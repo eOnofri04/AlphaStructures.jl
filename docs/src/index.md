@@ -21,15 +21,10 @@ In this documentation we present the problem and the related solution we have im
  - [```Triangle.jl```](https://github.com/cvdlab/Triangle.jl) by CVD Lab
 
 and as additional dependece:
- - [Plasm](https://github.com/cvdlab/Plasm.jl) by CVD Lab
+ - [ViewerGL](https://github.com/cvdlab/ViewerGL.jl) by CVD Lab
 
 
 ## Docstrings conventions
 
  - **Bold** is used to point out theory concepts.
  - `Monospace` is used for everything code related.
-
-## Table of Contenents
-
-```@contents
-```
