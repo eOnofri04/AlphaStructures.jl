@@ -12,3 +12,5 @@ In [section 4.1](https://eonofri04.github.io/AlphaStructures.jl/delaunay-impl/) 
 In [section 4.2](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures-impl/) we will talk about solving the problem of finding the charateristical ``\alpha`` of the simplices in order to build the ``\alpha``-Structures.
 
 Lastly, in [section 4.3](https://eonofri04.github.io/AlphaStructures.jl/persistent-homology-impl/) we will give a brief overview of how we solved the Persistent Homology problem.
+
+More utility function could also be found in the [`src/geometry.jl`](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/geometry.jl) file.

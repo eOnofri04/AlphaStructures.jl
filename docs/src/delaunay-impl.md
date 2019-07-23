@@ -31,6 +31,7 @@ In particular we have that:
 		\Sigma^\alpha =& \{\sigma \in \mathcal D_S \mid \sigma \cap \alpha \ne \emptyset }\\
 		\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{NegHalfspace}(\alpha)}\\
 		\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{PosHalfspace}(\alpha)}
+	\end{split}
 ```math
 and therefore by construction we have that ``\Sigma^\alpha``, ``\Sigma^-`` and ``\Sigma^+`` are disjoint and
 ```math
@@ -39,19 +40,19 @@ and therefore by construction we have that ``\Sigma^\alpha``, ``\Sigma^-`` and `
 
 ### Construct simplex wall ``S^\alpha``
 
-The simplex wall ``S^\alpha`` can be simply computed by using an incremental construction approach.
+The simplex wall ``\Sigma^\alpha`` can be simply computed by using an incremental construction approach.
 
 First of all we define three **active face lists**:
-  - ``AFL^\alpha``: the ``(d - 1)-simplices`` intersecting ``\alpha``
-  - ``AFL^+``: the ``(d - 1)-simplices`` totally located in the negative halfspace defined by ``\alpha``
-  - ``AFL^-``: the ``(d - 1)-simplices`` totally located in the positive halfspace defined by ``\alpha``
+  - ``AFL^\alpha``: the ``(d - 1)``-simplices intersecting ``\alpha``
+  - ``AFL^+``: the ``(d - 1)``-simplices totally located in the negative halfspace defined by ``\alpha``
+  - ``AFL^-``: the ``(d - 1)``-simplices totally located in the positive halfspace defined by ``\alpha``
 
 The algorithm starts by constructing an initial ``d``-simplex ``\sigma_0`` that intersect the hyperplane (if no active faces are provided). Then, it processes all of the ``(d - 1)``-simplices of ``σ_0`` by splitting them into the Active Face Lists.
 From now on the ``AFL^\alpha`` is progressively emptied (and filled) by taking one at time the simplices in it.
 
-For each ``d-1``-simplex ``\eta`` (wich will belongs to a ``d``-simplex ``\sigma^1 \in \mathcal D_S``) the algorithm finds out the only other ``d``-simplex ``\sigma^2`` (if it exists) incident on ``\eta``: to do so the algorithm looks for the closest point (according to circumradius distance) to the face that do not belongs to the halfspace where the simplex ``\sigma^1`` is. Lastly all of the new ``(d - 1)-simplex`` of ``\sigma^2`` are splitted between the Active Face Lists (do not that in this procedure, if a face is already present in the AFL than it is simply removed since the two simplices incident over it have been found).
+For each ``d-1``-simplex ``\eta`` (wich will belongs to a ``d``-simplex ``\sigma^1 \in \mathcal D_S``) the algorithm finds out the only other ``d``-simplex ``\sigma^2`` (if it exists) incident on ``\eta``: to do so the algorithm looks for the closest point (according to circumradius distance) to the face that do not belongs to the halfspace where the simplex ``\sigma^1`` is. Lastly all of the new ``(d - 1)``-simplex of ``\sigma^2`` are splitted between the Active Face Lists (do not that in this procedure, if a face is already present in the AFL than it is simply removed since the two simplices incident over it have been found).
 !!! fact
-    For each ``(d - 1)-simplex`` ``\eta``, which does not lie on the convex hull of ``S``, there are exactly two simplices ``\sigma^1`` and ``\sigma^2`` in ``\mathcal D_S``, such that ``\sigma^1 \cap \sigma^2 = f``.
+    For each ``(d - 1)``-simplex ``\eta``, which does not lie on the convex hull of ``S``, there are exactly two simplices ``\sigma^1`` and ``\sigma^2`` in ``\mathcal D_S``, such that ``\sigma^1 \cap \sigma^2 = f``.
     If the algorithm is not able to find out a second simplex incident on ``\eta`` we can therefore claim that that simplex belongs to the convex hull of ``S``.
 
 When the process is over, the wall has been built.
@@ -137,13 +138,21 @@ julia> GL.VIEW([
 
 ## Main Interface
 
-The solu
+The solution we have proposed is located in the `alphaFilter` function (in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/deWall.jl) file):
+
 ```@docs
-	AlphaStructures.firstDeWallSimplex
+	AlphaStructures.delaunayWall
 ```
+
 ```@docs
 	AlphaStructures.findWallSimplex
 ```
+
 ```@docs
-	AlphaStructures.delaunayWall
+	AlphaStructures.firstDeWallSimplex
+```
+
+
+```@docs
+    AlphaStructures.recursiveDelaunayWall
 ```

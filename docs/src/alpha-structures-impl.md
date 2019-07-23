@@ -92,6 +92,7 @@ julia> GL.VIEW( GL.GLExplode(V, [points; edges; faces], 5., 5., 5., 99, 1) );
 ## Main Interface
 
 The solution we have proposed is located in the `alphaFilter` function (in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/alpha_complex.jl) file):
+
 ```@docs
     AlphaStructures.alphaFilter
 ```

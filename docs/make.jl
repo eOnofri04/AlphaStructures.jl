@@ -5,7 +5,7 @@ using Documenter, AlphaStructures
 makedocs(
 	format = :html,
 	sitename = "AlphaStructures.jl",
-	assets = ["assets/AlphaStructures.css", "assets/logo.png"],
+	assets = ["assets/AlphaStructures.css", "assets/logo2.png"],
 	pages = [
 		"1 - Home" => "index.md",
 		"2 - Getting Started" => "gettingStarted.md",

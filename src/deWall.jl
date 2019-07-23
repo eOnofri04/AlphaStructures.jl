@@ -97,7 +97,6 @@ julia> DT = AlphaStructures.delaunayWall(P)
 
 ```
 """
-
 function delaunayWall(
 		P::Lar.Points,
 		ax = 1,
