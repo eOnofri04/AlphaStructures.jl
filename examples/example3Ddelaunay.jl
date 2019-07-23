@@ -1,6 +1,5 @@
-#using AlphaStructures
-using LinearAlgebraicRepresentation, Plasm
-Lar = LinearAlgebraicRepresentation
+using AlphaStructures
+using Plasm
 
 function Point3D(n)
     V = rand(3)

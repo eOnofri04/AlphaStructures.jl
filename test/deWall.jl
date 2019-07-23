@@ -4,9 +4,6 @@ else
 	using Test
 end
 
-using DataStructures, LinearAlgebraicRepresentation
-Lar = LinearAlgebraicRepresentation
-
 @testset "First Delaunay Wall Simplex" begin
 	P = [
 		1.0 1.0 1.5 2.0 2.0

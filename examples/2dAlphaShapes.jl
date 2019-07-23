@@ -21,12 +21,6 @@ Given a Lar complex `(V, EV)`, this method evaluates and gives back:
  - `n::Int64`: the number of internal points (*By default* = 1000);
  - `m::Int64`: the number of external points (*By default* = 0);
 
----
-
-# Examples
-```jldoctest
-julia> Vi, Ve, VVi, VVe = AlphaStructures.pointsRand(V, EV, 1000, 1000);
-```
 """
 function pointsRand(
 		V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0
