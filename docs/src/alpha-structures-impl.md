@@ -2,7 +2,7 @@
 
 As previously said in [section 3.3](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures/) we have addressed the problem of evaluate ``\alpha``-structures via ``\alpha``-filtering evaluation (namely the evaluation of the characteristical ``\alpha`` for each simplex).
 
-![alphastructures]("images/LarAlphaShape.gif")
+![alphastructures](./images/LarAlphaShape.gif)
 
 ## The tasks
 

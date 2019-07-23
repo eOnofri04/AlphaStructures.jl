@@ -162,14 +162,12 @@ function findClosestPoint(
 		`circumcenter` and `dd`."
 
 	simplexDim = size(Psimplex, 2)
-    @assert simplexDim <= size(Psimplex, 1) "findClosestPoint: Cannot add
-        another point to the simplex"
+	@assert simplexDim <= size(Psimplex, 1) "findClosestPoint: Cannot add
+	another point to the simplex."
 
-	if (m = size(P, 2)) == 0
-		return nothing
-	end
+	@assert m = size(P, 2)) != 0 "findClosestPoint: No Points in `P`."
 
-    radlist = zeros(m)
+	radlist = zeros(m)
 	for col = 1 : m
 		r, c = findRadius([Psimplex P[:,col]], true)
 		sameSign = (
