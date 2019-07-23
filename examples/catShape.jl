@@ -4,24 +4,31 @@ Lar = LinearAlgebraicRepresentation
 GL =  ViewerGL
 
 include("./OBJ/cat.jl")
-
-#GL.VIEW([ GL.GLGrid(Vi, VVi) ])
-#GL.VIEW(Ve, VVe)
-
-filtration = AlphaStructures.alphaFilter(VS, DT);
-VV, EV, FV, TV = AlphaStructures.alphaSimplex(VS, filtration, 0.02)
-
-points = [[p] for p in VV]
-# faces = [[f] for f in FV]
-# edges = [[e] for e in EV]
-# GL.VIEW( GL.GLExplode(Vi, [points; edges; faces], 1., 1., 1., 99, 1) )
+## Equivalent to the following instructions:
+# V = Lar.obj2lar("examples/OBJ/cat.obj")[1];
+# VS = AlphaStructures.matrixPerturbation(V);
+# DT = AlphaStructures.delaunayWall(V);
 
 filter_key = unique(keys(filtration))
 
-granular = 15
+filtration = AlphaStructures.alphaFilter(VS, DT);
+VV, EV, FV, TV = AlphaStructures.alphaSimplex(VS, filtration, 0.75)
+GL.VIEW(
+	[
+		GL.GLGrid(VS, EV, GL.COLORS[1], 0.6) # White
+		GL.GLGrid(VS, FV, GL.COLORS[2], 0.3) # Red
+		GL.GLGrid(VS, TV, GL.COLORS[3], 0.3) # Green
+	]
+)
 
+#
+# Arlecchino's Cat
+#
+
+granular = 15
 reduced_filter = filter_key[sort(abs.(rand(Int, granular).%length(filter_key)))]
 reduced_filter = [reduced_filter; 1.]
+points = [[p] for p in VV]
 
 for α in reduced_filter
 	VV,EV,FV,TV = AlphaStructures.alphaSimplex(VS, filtration, α)
@@ -35,14 +42,24 @@ for α in reduced_filter
 	)
 end
 
-# for i = 1000 : 150 : length(filter_key)
-# 	VV,EV,FV = AlphaStructures.alphaSimplex(V, filtration, filter_key[i])
-# 	GL.VIEW(
-# 		GL.GLExplode(
-# 			Vi,
-# 			[[[f] for f in FV]; [[e] for e in EV]],
-# 			1., 1., 1.,	# Explode Ratio
-# 			99, 1		# Colors
-# 		)
-# 	)
-# end
+
+#
+# Appearing Colors
+#
+
+reduced_filter = [
+	0.11;	0.20;	0.33;	0.38;	0.52;	0.57
+	0.60;	0.67;	0.75;	2.25;	2.61;	7.00;
+]
+
+for i = 2 : length(reduced_filter)
+	VV0, EV0, FV0, TV0 = AlphaStructures.alphaSimplex(VS, filtration, reduced_filter[i-1])
+	VV,  EV,  FV,  TV = AlphaStructures.alphaSimplex(VS, filtration, reduced_filter[i])
+	EV0mesh = GL.GLGrid(VS, EV0)
+	FV0mesh = GL.GLGrid(VS, FV0)
+	TV0mesh = GL.GLGrid(VS, TV0)
+	EVmesh = GL.GLGrid(VS, setdiff(EV, EV0), GL.COLORS[2], 1)
+	FVmesh = GL.GLGrid(VS, setdiff(FV, FV0), GL.COLORS[7], 1)
+	TVmesh = GL.GLGrid(VS, setdiff(TV, TV0), GL.COLORS[12], 1)
+	GL.VIEW([EV0mesh; FV0mesh; TV0mesh; EVmesh; FVmesh; TVmesh])
+end
