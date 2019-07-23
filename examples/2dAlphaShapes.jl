@@ -27,13 +27,12 @@ function pointsRand(
 		V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0
 	)::Tuple{Lar.Points, Lar.Points, Lar.Cells, Lar.Cells}
 	classify = Lar.pointInPolygonClassification(V, EV)
-	p = size(V, 2)
-	Vi = rand(2)
-	Ve = rand(2)
-	k1 = 1
-	k2 = 1
+	Vi = [0;0]
+	Ve = [0;0]
+	k1 = 0
+	k2 = 0
 	while k1 < n || k2 < m
-		queryPoint = rand(2)
+		queryPoint = [rand();rand()]
 		inOut = classify(queryPoint)
 
 		if k1 < n && inOut == "p_in"
@@ -47,7 +46,7 @@ function pointsRand(
 	end
 	VVi = [[i] for i = 1 : n]
 	VVe = [[i] for i = 1 : m]
-	return Vi, Ve, VVi, VVe
+	return Vi[:,2:end], Ve[:,2:end], VVi, VVe
 end
 
 
