@@ -46,12 +46,6 @@ In particular the last statement implies that the charateristical ``\alpha`` of 
 
 This key feature is the one we have used in our implementation. In fact, the problem of determine if a simplex is (or is not) obtuse-angled is pretty simple. It suffices to determine if its circumcentre is (or is not, respectivelly) located outside the simplex itself.
 
-## The Implementation
-
-The solution we have proposed is located in the `alphaFilter` function (in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/alpha_complex.jl) file):
-```@docs
-AlphaStructures.alphaFilter
-```
 
 ### The Pipeline
 
@@ -61,3 +55,20 @@ The approach we have followed could be summed up into the following pipeline:
  3. Evaluation of Circumballs Radius for each simplex
  4. Evaluation of the Charatteristical ``\alpha`` for each simplex
  5. Sorting the simplices by their ``\alpha`` in a `DataStructures.SortedMultiDict`
+
+ ## Example
+
+ ## Main Interface
+
+ The solution we have proposed is located in the `alphaFilter` function (in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/alpha_complex.jl) file):
+ ```@docs
+ AlphaStructures.alphaFilter
+ ```
+
+ ```@docs
+ AlphaStructures.alphaSimplex
+ ```
+
+ ```@docs
+ AlphaStructures.delaunayTriangulation
+ ```

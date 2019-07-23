@@ -50,18 +50,6 @@ The process continues iteratively:
 
 Once the simplex wall is computed, DeWall is recursively applied to the pairs (``P^-``, ``AFL^-``) and (``P^+``, ``AFL^+``), unless all the active face lists are empty. The splitting plane is cyclically selected as a plane orthogonal to the axes of the ``E^d`` space, in order to recursively partition the space with a regular pattern.
 
-## The implementation
-The main functions to compute this are in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/3D_delaunay.jl) file
-```@docs
-AlphaStructures.makeFirstWallSimplex
-```
-```@docs
-AlphaStructures.makeSimplex
-```
-```@docs
-AlphaStructures.deWall
-```
-
 ### The Pipeline
 
  1. Select the plane π to split ``P``;
@@ -69,5 +57,67 @@ AlphaStructures.deWall
  3. Construct first simplex of ``S^π`` with `firstDeWallSimplex`;
  4. Construct adjacent simplex to complite ``S^π`` with `findWallSimplex`;
  5. Update all AFLs;
- 6. Construct ``S^-`` and ``S^+``, recursively appling `deWall` on ``P^-`` and ``P^+``, starting from associated AFL;
+ 6. Construct ``S^-`` and ``S^+``, recursively appling `delaunayWall` on ``P^-`` and ``P^+``, starting from associated AFL;
  7. Return the union of ``S^π``, ``S^-`` and ``S^+``.
+
+## Example
+
+The input is a set of points in ``\mathcal R^d``, of type `Lar.Points`, the output is a set of ``d``-simplices, of type `Lar.Cells`.
+So we can create a LAR model to view.
+
+### 3D Delaunay triangulation
+```julia
+
+julia> using AlphaStructures, LinearAlgebraicRepresentation, Plasm
+julia> Lar = LinearAlgebraicRepresentation
+julia> V = [
+               0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
+               0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
+               0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
+           ];
+
+julia> DT = AlphaStructures.delaunayWall(V)
+6-element Array{Array{Int64,1},1}:
+ [1, 2, 4, 5]
+ [1, 3, 4, 5]
+ [2, 4, 5, 6]
+ [3, 4, 5, 7]
+ [4, 5, 6, 7]
+ [4, 6, 7, 8]
+
+julia> Plasm.viewexploded(V,DT)(1.2,1.2,1.2);
+
+```
+
+### 2D Delaunay triangulation
+```julia
+
+julia> using AlphaStructures, LinearAlgebraicRepresentation, Plasm
+julia> Lar = LinearAlgebraicRepresentation
+julia> V = [
+            0.0 2.0 0.0 4.0 5.0 ;
+            0.0 0.0 3.0 1.0 5.0
+            ];
+
+julia> DT = AlphaStructures.delaunayWall(V)
+3-element Array{Array{Int64,1},1}:
+ [2, 3, 4]
+ [3, 4, 5]
+ [1, 2, 3]
+
+julia> Plasm.viewexploded(V,DT)(1.2,1.2);
+
+```
+
+
+## Main Interface
+
+ ```@docs
+ AlphaStructures.firstDeWallSimplex
+ ```
+ ```@docs
+ AlphaStructures.findWallSimplex
+ ```
+ ```@docs
+ AlphaStructures.delaunayWall
+ ```

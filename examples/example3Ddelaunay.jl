@@ -1,5 +1,5 @@
-using AlphaStructures
-using DataStructures, LinearAlgebraicRepresentation, Plasm
+#using AlphaStructures
+using LinearAlgebraicRepresentation, Plasm
 Lar = LinearAlgebraicRepresentation
 
 function Point3D(n)
@@ -18,4 +18,4 @@ Plasm.view(V,VV)
 DT = AlphaStructures.delaunayWall(V)
 
 Plasm.view(V,DT)
-Plasm.viewexploded(V,DT)(5.,5.,5.)
+Plasm.viewexploded(V,DT)(1.2,1.2,1.2)
