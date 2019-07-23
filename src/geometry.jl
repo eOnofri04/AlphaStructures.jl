@@ -69,9 +69,9 @@ to perform the evaluation and therefore returns a `NaN` array.
 
 ```jldoctest
 julia> V = [
-	0.0 1.0 0.0 0.0
-	0.0 0.0 1.0 0.0
-	0.0 0.0 0.0 1.0
+ 0.0 1.0 0.0 0.0
+ 0.0 0.0 1.0 0.0
+ 0.0 0.0 0.0 1.0
 ];
 
 julia> AlphaStructures.findCenter(V)
@@ -231,16 +231,16 @@ as the smallest distance between a point in `P` and the center.
 ```jldoctest
 
 julia> V = [
-	0.0 1.0 0.0 0.0
-	0.0 0.0 1.0 0.0
-	0.0 0.0 0.0 1.0
+ 0.0 1.0 0.0 0.0
+ 0.0 0.0 1.0 0.0
+ 0.0 0.0 0.0 1.0
 ];
 
 julia> AlphaStructures.findRadius(V)
-0.8660254037844386
+ 0.8660254037844386
 
 julia> AlphaStructures.findRadius(V, true)
-(0.8660254037844386, [0.5, 0.5, 0.5])
+ (0.8660254037844386, [0.5, 0.5, 0.5])
 
 ```
 """
@@ -282,9 +282,9 @@ rows / columns are perturbated.
 ```jldoctest
 
 julia> V = [
-	0.0 1.0 0.0 0.0
-	0.0 0.0 1.0 0.0
-	0.0 0.0 0.0 1.0
+ 0.0 1.0 0.0 0.0
+ 0.0 0.0 1.0 0.0
+ 0.0 0.0 0.0 1.0
 ];
 
 julia> AlphaStructures.matrixPerturbation(V)
@@ -335,10 +335,10 @@ _Obs._ Dimension Dipendent, only works if dimension is three or less and
 # Examples
 ```jldoctest
 julia> V = [
-		0.0 1.0 0.0 0.0 4.0 -1. 1.0
-		0.0 0.0 1.0 0.0 1.0 0.0 1.0
-		0.0 0.0 0.0 1.0 2.0 0.0 1.0
-	   ];
+ 0.0 1.0 0.0 0.0 4.0 -1. 1.0
+ 0.0 0.0 1.0 0.0 1.0 0.0 1.0
+ 0.0 0.0 0.0 1.0 2.0 0.0 1.0
+];
 
 julia> oppositeHalfSpacePoints(V, V[:, [2; 3; 4]], V[:, 1])
 2-element Array{Int64,1}:
