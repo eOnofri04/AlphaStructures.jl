@@ -60,16 +60,17 @@ Once the simplex wall is computed, DeWall is recursively applied to the pairs (`
  6. Construct ``S^-`` and ``S^+``, recursively appling `delaunayWall` on ``P^-`` and ``P^+``, starting from associated AFL;
  7. Return the union of ``S^π``, ``S^-`` and ``S^+``.
 
-## Example
+## Examples
 
 The input is a set of points in ``\mathcal R^d``, of type `Lar.Points`, the output is a set of ``d``-simplices, of type `Lar.Cells`.
 So we can create a LAR model to view.
 
 ### 3D Delaunay triangulation
+
 ```julia
 
-julia> using AlphaStructures, LinearAlgebraicRepresentation, Plasm
-julia> Lar = LinearAlgebraicRepresentation
+julia> using AlphaStructures, Plasm
+
 julia> V = [
                0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
                0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
@@ -92,8 +93,8 @@ julia> Plasm.viewexploded(V,DT)(1.2,1.2,1.2);
 ### 2D Delaunay triangulation
 ```julia
 
-julia> using AlphaStructures, LinearAlgebraicRepresentation, Plasm
-julia> Lar = LinearAlgebraicRepresentation
+julia> using AlphaStructures, Plasm
+
 julia> V = [
             0.0 2.0 0.0 4.0 5.0 ;
             0.0 0.0 3.0 1.0 5.0
@@ -108,7 +109,6 @@ julia> DT = AlphaStructures.delaunayWall(V)
 julia> Plasm.viewexploded(V,DT)(1.2,1.2);
 
 ```
-
 
 ## Main Interface
 
