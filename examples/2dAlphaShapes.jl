@@ -1,4 +1,4 @@
-#using AlphaStructures
+using AlphaStructures
 using LinearAlgebraicRepresentation, ViewerGL
 Lar = LinearAlgebraicRepresentation
 GL =  ViewerGL
@@ -21,24 +21,18 @@ Given a Lar complex `(V, EV)`, this method evaluates and gives back:
  - `n::Int64`: the number of internal points (*By default* = 1000);
  - `m::Int64`: the number of external points (*By default* = 0);
 
----
-
-# Examples
-```jldoctest
-julia> Vi, Ve, VVi, VVe = AlphaStructures.pointsRand(V, EV, 1000, 1000);
-```
 """
 function pointsRand(
 		V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0
 	)::Tuple{Lar.Points, Lar.Points, Lar.Cells, Lar.Cells}
 	classify = Lar.pointInPolygonClassification(V, EV)
 	p = size(V, 2)
-	Vi = [0.0; 0.0]
-	Ve = [0.0; 0.0]
-	k1 = 0
-	k2 = 0
+	Vi = rand(2)
+	Ve = rand(2)
+	k1 = 1
+	k2 = 1
 	while k1 < n || k2 < m
-		queryPoint = [rand();rand()]
+		queryPoint = rand(2)
 		inOut = classify(queryPoint)
 
 		if k1 < n && inOut == "p_in"
@@ -52,7 +46,7 @@ function pointsRand(
 	end
 	VVi = [[i] for i = 1 : n]
 	VVe = [[i] for i = 1 : m]
-	return Vi[:, 2:end], Ve[:, 2:end], VVi, VVe
+	return Vi, Ve, VVi, VVe
 end
 
 

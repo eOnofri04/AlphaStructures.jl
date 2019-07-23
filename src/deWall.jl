@@ -76,6 +76,26 @@ Return the Delaunay Triangulation of sites `P` via Delaunay Wall algorithm.
 The optional argument `ax` specify on wich axis it will build the Wall.
 The optional argument `AFL` is used in recursive call.
 If the keyword argument `DEBUG` is set to true than all the procedure is shown.
+
+# Examples
+```jldoctest
+
+julia> P = [
+				0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
+            	0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
+            	0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
+           ];
+
+julia> DT = AlphaStructures.delaunayWall(P)
+6-element Array{Array{Int64,1},1}:
+ [1, 2, 4, 5]
+ [1, 3, 4, 5]
+ [2, 4, 5, 6]
+ [3, 4, 5, 7]
+ [4, 5, 6, 7]
+ [4, 6, 7, 8]
+
+```
 """
 
 function delaunayWall(
@@ -95,23 +115,23 @@ function delaunayWall(
 	AFLplus = Array{Int64,1}[]  # (d-1)faces in positive Wall half-space
 	AFLminus = Array{Int64,1}[] # (d-1)faces in positive Wall half-space
 	off = AlphaStructures.findMedian(P, ax)
-	if !isempty(Pblack) Pext = [P Pblack] else Pext = P end
+	if !isempty(Pblack) Pext = [P Pblack] else Pext = copy(P) end
 
 	# 1 - Determine first simplex (if necessary)
 	if isempty(AFL)
-		@assert isempty(Pblack) "ERROR: If AFL is empty => Pblack must be"
-		@assert isempty(tetraDict) "ERROR: If AFL is empty => tetraDict must be"
+		@assert isempty(Pblack) "delaunayWall: If AFL is empty => Pblack must be"
+		@assert isempty(tetraDict) "delaunayWall: If AFL is empty => tetraDict must be"
 		σ = sort(AlphaStructures.firstDeWallSimplex(P, ax, off, DEBUG = DEBUG))
 		push!(DT, σ)
 		AFL = AlphaStructures.simplexFaces(σ)
 		AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
 	else
-		@assert !isempty(Pblack) "ERROR: Data missing - Pblack"
-		@assert !isempty(AFL) "ERROR: Data missing - AFL"
-		@assert !isempty(tetraDict) "ERROR: Data missing - tetraDict"
+		@assert !isempty(Pblack) "delaunayWall: Data missing - Pblack"
+		@assert !isempty(AFL) "delaunayWall: Data missing - AFL"
+		@assert !isempty(tetraDict) "delaunayWall: Data missing - tetraDict"
 	end
 
-	# 2 - Build `AFL*` according to the axis `ax` with contant term `off`
+	# 2 - Build `AFL*` according to the axis `ax` with constant term `off`
 	AlphaStructures.updateAFL!(
 		P, AFL, AFLα, AFLplus, AFLminus, ax, off, DEBUG = DEBUG
 	)
@@ -120,9 +140,10 @@ function delaunayWall(
 	while !isempty(AFLα)
 		# if face ∈ keys(tetraDict) oppoint = tetraDict[face]
 		# else Pselection = setdiff([i for i = 1 : n], face) end
-		if ( σ = AlphaStructures.findWallSimplex(
-				Pext, AFLα[1], tetraDict[AFLα[1]], size(P, 2), DEBUG=DEBUG
-			) ) != nothing
+		σ = AlphaStructures.findWallSimplex(
+				Pext, AFLα[1], tetraDict[AFLα[1]], size(P, 2), DEBUG = DEBUG
+			)
+		if σ != nothing && σ ∉ DT
 			push!(DT, σ)
 			AFL = AlphaStructures.simplexFaces(σ)
 			AlphaStructures.updateTetraDict!(P, tetraDict, AFL, σ)
@@ -131,7 +152,7 @@ function delaunayWall(
 				P, AFL, AFLα, AFLplus, AFLminus, ax, off, DEBUG=DEBUG
 			)
 		else
-			@assert AlphaStructures.updatelist!(AFLα, AFLα[1]) == false "ERROR:
+			@assert AlphaStructures.updatelist!(AFLα, AFLα[1]) == false "delaunayWall:
 				Something unespected happends while removing a face."
 		end
 	end
@@ -166,6 +187,23 @@ such that it is in the opposite half plane of `oppoint`.
 If such a simplex do not exists it returns `nothing`.
 If `blackidx` is not specified all the points `P` are treaten as valid.
 If the keyword argument `DEBUG` is set to true than all the procedure is shown.
+
+# Examples
+```jldoctest
+
+julia> P = [
+ 				0. 1. 0. 0. 2.;
+	  			0. 0. 1. 0. 2.;
+	  			0. 0. 0. 1. 2.]
+
+julia> newtetra = AlphaStructures.findWallSimplex(P,[2,3,4],[0., 0., 0.])
+4-element Array{Int64,1}:
+ 2
+ 3
+ 4
+ 5
+
+```
 """
 function findWallSimplex(
 		P::Lar.Points,
@@ -271,7 +309,7 @@ function firstDeWallSimplex(
 	# it gives an error if no point are less than `off`
 	#  in fact it means that all the points are located on the median,
 	#  with respect to `ax`.
-	@assert !isempty(Pselection) "ERROR: not able to build the first Delaunay
+	@assert !isempty(Pselection) "firstDeWallSimplex: not able to build the first Delaunay
 		dimplex; all the points have the same `ax` coordinate."
     newidx = Pselection[findmax(P[ax, Pselection])[2]]
     # indices will store the indices of the simplex ...
@@ -285,7 +323,7 @@ function firstDeWallSimplex(
 
     for d = 1 : dim
 		idxbase = AlphaStructures.findClosestPoint(Psimplex, P[:, Pselection])
-		@assert !isnothing(idxbase) "ERROR:
+		@assert !isnothing(idxbase) "firstDeWallSimplex:
 			not able to determine first Delaunay Simplex"
         newidx = Pselection[idxbase]
         indices = [indices; newidx]
@@ -296,7 +334,7 @@ function firstDeWallSimplex(
     # Correctness check
 	radius, center = AlphaStructures.findRadius(Psimplex, true)
     for i = 1 : n
-		@assert Lar.norm(center - P[:, i]) >= radius "ERROR:
+		@assert Lar.norm(center - P[:, i]) >= radius "firstDeWallSimplex:
 			Unable to find first Simplex."
 	end
 
@@ -485,7 +523,7 @@ function updateTetraDict!(
 	)::Nothing
 	for cell in AFL
 		point = setdiff(σ, cell)
-		@assert length(point) == 1 "Error during update of TetraDict $σ, $cell"
+		@assert length(point) == 1 "updateTetraDict!: Error during update of TetraDict $σ, $cell"
 		tetraDict[ cell ] = P[:, point[1]]
 	end
 end

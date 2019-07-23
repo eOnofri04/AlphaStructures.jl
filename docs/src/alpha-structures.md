@@ -16,10 +16,9 @@ But what is ``\alpha`` after all? In the ice-cream analogy above, ``\alpha`` is 
 
 
 
-## Gemoetrical Concept
+## Geometrical Concept
 
 We will shortly discuss all the geometrical concepts that are needed to understand what an ``\alpha``-structure is.
-
 
 
 ### ``\alpha``-hulls and ``\alpha``-diagrams
@@ -84,7 +83,7 @@ The first observation we could make is that the bigger is the value ``\alpha`` t
 It is although pretty clear that if a simplex is in ``\mathcal A`` for a certain ``\alpha`` than it will be in ``\mathcal A`` for every ``\alpha' \geq \alpha``. It then makes sense to search for the first value ``\alpha`` such that each single simplex ``\sigma`` gets inside ``\mathcal A``. We will define it as:
 
 !!! definition
-    Let ``\mathcal A_\infty(S) \equiv \mathcal D(S)`` the Delaunay complex of ``S``. For each simplex ``\sigma \in \mathcal D(S)`` we define the _charateristical ``\alpha`` of ``\sigma``_ like the infimum ``\alpha`` such that ``\sigma \in \mathcal A_\alpha(S)``:
+    Let ``\mathcal A_\infty(S) \equiv \mathcal D(S)`` the Delaunay complex of ``S``. For each simplex ``\sigma \in \mathcal D(S)`` we define the _characteristical ``\alpha`` of ``\sigma``_ like the infimum ``\alpha`` such that ``\sigma \in \mathcal A_\alpha(S)``:
     ```math
         \alpha_\sigma = \inf_{\alpha \geq 0}\{\sigma \in \mathcal A_\alpha(S)\}
     ```
@@ -94,12 +93,12 @@ This last definition gives us a better way to build up the ``\alpha``-Complex:
     \mathcal A_\alpha = \{\sigma \in \mathcal D(S) \mid \alpha_\sigma \leq \alpha\}
 ```
 
-It is of particular interest note that the charateristical `\alpha` of each simplex is bigger or equal than those of the simplices (of lower degree) it is made of:
+It is of particular interest note that the characteristical `\alpha` of each simplex is bigger or equal than those of the simplices (of lower degree) it is made of:
 ```math
     \alpha_\sigma \geq \alpha_{\sigma'} \quad \forall \sigma' \subseteq \sigma
 ```
 
-With this knowledge it is pretty clear that we can sort the simplices via their charateristical ``\alpha`` like the comes in the ``\alpha``-complex. We therefore could define what we call _``\alpha``-Filtration_:
+With this knowledge it is pretty clear that we can sort the simplices via their characteristical ``\alpha`` like the comes in the ``\alpha``-complex. We therefore could define what we call _``\alpha``-Filtration_:
 
 !!! definition
     Let ``\mathcal D`` the Delaunay triangulation of a set of Sites ``S``.
@@ -108,8 +107,8 @@ With this knowledge it is pretty clear that we can sort the simplices via their 
         \emptyset \ =\ K_0 \subseteq K_{\alpha_1} \subseteq K_{\alpha_2} \subseteq \dots \subseteq K_{\alpha_k} \ =\ \mathcal D
     ```
 
-In particular this will be the key we use in our algorith to evaluate the ``\alpha``-structures.
-We will describe more precisely how to evaluate the charateristical ``\alpha`` in the _"Alpha Structures Implementation"_ [section 4.2](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures-impl/).
+In particular this will be the key we use in our algorithm to evaluate the ``\alpha``-structures.
+We will describe more precisely how to evaluate the characteristical ``\alpha`` in the _"Alpha Structures Implementation"_ [section 4.2](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures-impl/).
 
 ## Other ``\alpha``-structures
 

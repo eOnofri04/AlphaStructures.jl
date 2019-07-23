@@ -1,4 +1,4 @@
-#using AlphaStructures
+using AlphaStructures
 using LinearAlgebraicRepresentation, ViewerGL
 Lar = LinearAlgebraicRepresentation
 GL =  ViewerGL
