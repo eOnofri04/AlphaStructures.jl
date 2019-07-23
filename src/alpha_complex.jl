@@ -31,7 +31,7 @@ export alphaFilter, alphaSimplex, delaunayTriangulation
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
-This method evaluates the ``α``-filter over the sites `S`.
+This method evaluates the `α`-filter over the sites `S`.
 If a Delaunay Triangulation `DT` is not specified than it is evaluated
 via `AlphaStructures.delaunayTriangulation()`.
 
@@ -165,7 +165,7 @@ end
 #-------------------------------------------------------------------------------
 
 """
-delaunayTriangulation(V::Lar.Points)::Lar.Cells
+	delaunayTriangulation(V::Lar.Points)::Lar.Cells
 
 Return highest level simplices of Delaunay triangulation.
 
