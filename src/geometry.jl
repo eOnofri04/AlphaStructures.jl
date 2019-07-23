@@ -165,7 +165,7 @@ function findClosestPoint(
 	@assert simplexDim <= size(Psimplex, 1) "findClosestPoint: Cannot add
 	another point to the simplex."
 
-	@assert m = size(P, 2) != 0 "findClosestPoint: No Points in `P`."
+	@assert (m = size(P, 2)) != 0 "findClosestPoint: No Points in `P`."
 
 	radlist = zeros(m)
 	for col = 1 : m
