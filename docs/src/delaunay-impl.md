@@ -2,7 +2,7 @@
 
 We approached the problem as described in [CMS97] and [CMS98].
 
-![alphastructures](./images/3Ddelaunay.png)
+![3Ddelaunay](./images/3Ddelaunay.png)![2Ddelaunay](./images/2Ddelaunay.png)
 
 ## Advantage
 
