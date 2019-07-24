@@ -62,7 +62,7 @@ end
 		EV = [[1,3],[2,3],[2,4],[4,5],[5,6],[6,8],[7,8]]
 
 		# Evaluation
-		filter = AlphaStructures.alphaFilter(V,DT)
+		filter = AlphaStructures.alphaFilter(V, DT)
 
 		@test length(unique(keys(filter))) == 4
 		@test unique(keys(filter)) == [0.0, 0.5, 1.0, 1.5]
