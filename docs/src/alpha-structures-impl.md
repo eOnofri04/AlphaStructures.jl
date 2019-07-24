@@ -26,10 +26,11 @@ In order to obtain a simple method to evaluate characteristical ``\alpha`` so th
 In fact the following relation occurs:
 !!! fact
     A ``d``-dimensional simplex ``\sigma`` is inside the ``\alpha``-complex if and only if and only if the Voronoy regions of the sites of ``sigma`` have a common ``D-d`` intersection hyperplane included in the ``alpha``-hypersphere of the sites themselves. In other words:
+
     ```math
-    	\sigma \in \mathcal A_\alpha(S)
-    	\quad \iff \quad
-    	\bigcap_{t \in \sigma) \left(V_t(\alpha) \cap B_t(\alpha)\right) \ne \emptyset
+        \sigma \in \mathcal A_\alpha(S)
+        \quad \iff \quad
+        \bigcap_{t \in \sigma) \left(V_t(\alpha) \cap B_t(\alpha)\right) \ne \emptyset
     ```
 
 To simplify this notion we could refer to what happend in the two dimensional case:
@@ -44,7 +45,7 @@ The stated condition then assume the following form:
 !!! fact
     A ``d``-dimensional simplex made of sites ``S'\subseteq S`` belongs to the ``\alpha``-complex if and only if the ball of radius ``alpha`` located in the circumcentre of ``S'`` intersects the Voronoy boundary hypersurface of the ``S`` cells.
 
-In particular the last statement implies that the characteristical ``\alpha`` of a simplex ``\sigma`` is alpways bigger or equal than the circumradius of the sites it is made of. Moreover for usual conditions (namely no higher dimensional obtuse-solid-angled simplices) the characteristical ``\alpha`` is precisely that value.
+In particular the last statement implies that the characteristical ``\alpha`` of a simplex ``\sigma`` is always bigger or equal than the circumradius of the sites it is made of. Moreover for usual conditions (namely no higher dimensional obtuse-solid-angled simplices) the characteristical ``\alpha`` is precisely that value.
 
 This key feature is the one we have used in our implementation. In fact, the problem of determine if a simplex is (or is not) obtuse-angled is pretty simple. It suffices to determine if its circumcentre is (or is not, respectivelly) located outside the simplex itself.
 

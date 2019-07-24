@@ -1,4 +1,4 @@
-using AlphaStructures
+#using AlphaStructures
 using LinearAlgebraicRepresentation, ViewerGL
 Lar = LinearAlgebraicRepresentation
 GL =  ViewerGL
@@ -9,9 +9,8 @@ include("./OBJ/cat.jl")
 # VS = AlphaStructures.matrixPerturbation(V);
 # DT = AlphaStructures.delaunayWall(V);
 
-filter_key = unique(keys(filtration))
-
 filtration = AlphaStructures.alphaFilter(VS, DT);
+filter_key = unique(keys(filtration))
 VV, EV, FV, TV = AlphaStructures.alphaSimplex(VS, filtration, 0.75)
 GL.VIEW(
 	[
