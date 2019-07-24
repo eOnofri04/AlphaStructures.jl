@@ -2,6 +2,8 @@
 
 We approached the problem as described in [CMS97] and [CMS98].
 
+![3Ddelaunay](./images/3Ddelaunay.png)![2Ddelaunay](./images/2Ddelaunay.png)
+
 ## Advantage
 
 The duality between Delaunay Triangulations and Voronoi diagrams has been discussed in [section 3.1](https://eonofri04.github.io/AlphaStructures.jl/delaunay/) and [section 3.2](https://eonofri04.github.io/AlphaStructures.jl/voronoy/).
@@ -23,7 +25,7 @@ The DeWall (Delaunay Wall) algorithm could be summed up by following pipeline:
   1. construct the *Wall* (``\Sigma^\alpha``) of the Delaunay simplices over that intersect the plane ``\alpha``
   1. recursively apply DeWall on ``S^-`` to obtain ``\Sigma^-``
   1. recursively apply DeWall on ``S^+`` ro obtain ``\Sigma^+``
-  1. merge ``S^π``, ``S^-`` and ``S^+``.
+  1. merge ``\Sigma^\alpha``, ``\Sigma^-`` and ``\Sigma^+``.
 
 In particular we have that:
 ```math
@@ -32,8 +34,10 @@ In particular we have that:
 		\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{NegHalfspace}(\alpha)}\\
 		\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{PosHalfspace}(\alpha)}
 	\end{split}
-```math
+```
+
 and therefore by construction we have that ``\Sigma^\alpha``, ``\Sigma^-`` and ``\Sigma^+`` are disjoint and
+
 ```math
 	\Sigma^\alpha \cup \Sigma^- \cup \Sigma^+ = \mathcal D_S
 ```
@@ -67,7 +71,7 @@ To avoid this annoying situation (solvable in the merge phase checking if any si
 
 ### Merging the Delaunay Triangulations
 
-If the trick described in the last paragraph have been applied than no particular operations but the merging must be made at this point. In fact the triangulations will be completelly disjoint and their intersection will give us back only ``AFL^-`` and ``AFL^+``.
+If the trick described in the last paragraph have been applied than no particular operations but the merging must be made at this point. In fact the triangulations will be completely disjoint and their intersection will give us back only ``AFL^-`` and ``AFL^+``.
 
 ## Examples
 

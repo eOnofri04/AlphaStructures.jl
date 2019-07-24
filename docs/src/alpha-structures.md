@@ -1,5 +1,7 @@
 # 3.3 - Introduction to ``\alpha``-Structures
 
+![alpha](./images/alpha.png)
+
 Let as usual ``S`` a set of ``n`` sites in ``\mathbb R^D`` (finite).
 Since we are interested in real situation we will restrict to the case ``D \in \{2, 3\}``; however the following description could be simply enlarged for a general ``D`` value.
 
@@ -75,6 +77,8 @@ However ``\Sigma`` comes with a notion of Delaunay Triangulation and, since the 
 It then follows from the way we have defined it that if a ``d``-polytope (``d``-cell) is in ``\mathcal A`` then every cell it is made of is also inside ``\mathcal A``.
 
 ### ``\alpha``-Filtration
+
+![alpha](./images/cat.gif)
 
 We now introduce the case of study of what happends if we vary the ``\alpha`` value. In general this topic is strictly related to Persistent Homology (we will see in the next section).
 

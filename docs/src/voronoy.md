@@ -17,7 +17,7 @@ where the Voronoi cells are defined ``\forall t \in S`` as:
 
 Like for the Delaunay Triangulation, also in this case the Tasselation could be defined on wichever metrics. However if different metrics are used, like the 0-norm, something weird could happend.
 
-##Properties
+## Properties
 
  - The closest pair of sites corresponds to two adjacent cells in the Voronoi diagram.
  - Assume the setting is the Euclidean plane and a group of different sites are given. Then two sites are adjacent on the convex hull if and only if their Voronoi cells share an infinitely long side.
@@ -26,7 +26,8 @@ Like for the Delaunay Triangulation, also in this case the Tasselation could be 
 
 ## Voronoi Diagrams and Delaunay Triangulation
 
-The Voronoi diagram ``\mathcal V`` have a particularry strict relation with Delaunay Triangulations ``\mathcal D``. In fact, in a sense, ``\mathcal D`` and ``\mathcal V`` are one the dual of the other.
+The Voronoi diagram ``\mathcal V`` have a particularly strict relation with Delaunay Triangulations ``\mathcal D``. In fact, in a sense, ``\mathcal D`` and ``\mathcal V`` are one the dual of the other.
 
-In fact, if we consider the graph given from se separation hypersurfaces edges of ``V``, the Delaunay Triangulation is nothing than the dual graph of it. 
+![dual](./images/Delaunay_Voronoi.png)
 
+In fact, if we consider the graph given from separation hypersurfaces edges of ``V``, the Delaunay Triangulation is nothing than the dual graph of it.

@@ -9,9 +9,11 @@ include("./OBJ/cat.jl")
 # VS = AlphaStructures.matrixPerturbation(V);
 # DT = AlphaStructures.delaunayWall(V);
 
+
 filter_key = unique(keys(filtration))
 
 filtration = AlphaStructures.alphaFilter(VS, DT);
+
 VV, EV, FV, TV = AlphaStructures.alphaSimplex(VS, filtration, 0.75)
 GL.VIEW(
 	[
