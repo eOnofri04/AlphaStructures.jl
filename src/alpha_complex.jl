@@ -31,7 +31,7 @@ export alphaFilter, alphaSimplex, delaunayTriangulation
 
 Return ordered collection of pairs `(alpha charatteristic, complex)`.
 
-This method evaluates the ``α``-filter over the sites `S`.
+This method evaluates the `α`-filter over the sites `S`.
 If a Delaunay Triangulation `DT` is not specified than it is evaluated
 via `AlphaStructures.delaunayTriangulation()`.
 
@@ -165,7 +165,7 @@ end
 #-------------------------------------------------------------------------------
 
 """
-delaunayTriangulation(V::Lar.Points)::Lar.Cells
+	delaunayTriangulation(V::Lar.Points)::Lar.Cells
 
 Return highest level simplices of Delaunay triangulation.
 
@@ -176,37 +176,37 @@ julia> V = [1. 2. 5. 6. 0. 7.];
 
 julia> DT = AlphaStructures.delaunayTriangulation(V)
 5-element Array{Array{Int64,1},1}:
-[1, 2]
-[1, 5]
-[2, 3]
-[3, 4]
-[4, 6]
+ [1, 2]
+ [1, 5]
+ [2, 3]
+ [3, 4]
+ [4, 6]
 
 # Examples 2D
 ```jldoctest
 
 julia> V = [
-			1. 2. 1. 2. ;
-			0. 0. 1. 2.
-		];
+ 1. 2. 1. 2. ;
+ 0. 0. 1. 2.
+];
 
 julia> DT = AlphaStructures.delaunayTriangulation(V)
 2-element Array{Array{Int64,1},1}:
-[1, 2, 3]
-[2, 3, 4]
+ [1, 2, 3]
+ [2, 3, 4]
 
 # Examples 3D
 ```jldoctest
 
 julia> V = [
-			1. 2. 1. 2. ;
-			0. 0. 1. 2. ;
-			3. 1. 0. 2.
-		];
+ 1. 2. 1. 2. ;
+ 0. 0. 1. 2. ;
+ 3. 1. 0. 2.
+];
 
 julia> DT = AlphaStructures.delaunayTriangulation(V)
 1-element Array{Array{Int64,1},1}:
-[1, 2, 3, 4]
+ [1, 2, 3, 4]
 """
 function delaunayTriangulation(V::Lar.Points)::Lar.Cells
 	dim = size(V, 1)

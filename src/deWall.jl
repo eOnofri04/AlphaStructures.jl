@@ -81,10 +81,10 @@ If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 ```jldoctest
 
 julia> P = [
-				0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
-            	0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
-            	0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
-           ];
+ 0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
+ 0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
+ 0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
+];
 
 julia> DT = AlphaStructures.delaunayWall(P)
 6-element Array{Array{Int64,1},1}:
@@ -97,7 +97,6 @@ julia> DT = AlphaStructures.delaunayWall(P)
 
 ```
 """
-
 function delaunayWall(
 		P::Lar.Points,
 		ax = 1,
@@ -192,9 +191,10 @@ If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 ```jldoctest
 
 julia> P = [
- 				0. 1. 0. 0. 2.;
-	  			0. 0. 1. 0. 2.;
-	  			0. 0. 0. 1. 2.]
+ 0. 1. 0. 0. 2.;
+ 0. 0. 1. 0. 2.;
+ 0. 0. 0. 1. 2.
+];
 
 julia> newtetra = AlphaStructures.findWallSimplex(P,[2,3,4],[0., 0., 0.])
 4-element Array{Int64,1}:
@@ -473,7 +473,7 @@ julia> list = [[1, 2, 3, 4], [2, 3, 4, 5]]
  [2, 3, 4, 5]
 
 julia> updatelist!(list, [1, 2, 4, 5])
-true
+ true
 
 julia> list
 3-element Array{Array{Int64,1},1}:
@@ -482,7 +482,7 @@ julia> list
  [1, 2, 4, 5]
 
 julia> updatelist!(list, [1, 2, 4, 5])
-false
+ false
 
 julia> list
 2-element Array{Array{Int64,1},1}:

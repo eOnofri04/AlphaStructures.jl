@@ -10,7 +10,7 @@ makedocs(
 		"1 - Home" => "index.md",
 		"2 - Getting Started" => "gettingStarted.md",
 		"Theory..." => [
-			"3.0 - Theory Index" => "theory-index.md", 
+			"3.0 - Theory Index" => "theory-index.md",
 			"3.1 - Delaunay Triangulation" => "delaunay.md",
 			"3.2 - Voronoy Diagrams" => "voronoy.md",
 			"3.3 - Alpha Structures" => "alpha-structures.md",
@@ -18,7 +18,7 @@ makedocs(
 		],
 		"... and Practice" => [
 			"4.0 - Module Introduction" => "this-module.md",
-			"4.1 - 3D Delaunay Triangulation" => "delaunay-impl.md",
+			"4.1 - DeWall Algorithm" => "delaunay-impl.md",
 			"4.2 - Alpha Structures" => "alpha-structures-impl.md",
 			"4.3 - Persistent Homology" => "persistent-homology-impl.md",
 		],

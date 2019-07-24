@@ -1,64 +1,73 @@
-# 4.1 - 3D Delaunay Triangulation
+# 4.1 - Delaunay Wall Triangulation Algorithm
 
-For 3D Delaunay Triangulation of a pointset P ``DT(P)``, we use DeWall algorithm of P. Cignoni, C. Montani, R. Scopigno, that can be generalized to ``E^d`` triangulations.
+We approached the problem as described in [CMS97] and [CMS98].
 
 ## Advantage
 
-The duality between DTs and Voronoi diagrams is well known and therefore algorithms
-are given for the construction of DT from Voronoi diagrams.
-However, direct construction methods are generally more efficient because the Voronoi diagram does not need to be computed and stored. The direct DT algorithm that we use is **divide & conquer** (D&C).
-This is based on the recursive partition and local triangulation of the point set, and then on a merging phase where the resulting triangulations are joined.
- - Classic D&C algorithms: recursively subdivide the input dataset, construct the two DTs and then merge them.
- - DeWall algorithm: first subdivides the input dataset, then builds that part of the DT that should be built in the merge phase of a classic D&C algorithm and then recursively triangulates the two half–spaces, taking into account the border of the previously computed merge triangulation.
+The duality between Delaunay Triangulations and Voronoi diagrams has been discussed in [section 3.1](https://eonofri04.github.io/AlphaStructures.jl/delaunay/) and [section 3.2](https://eonofri04.github.io/AlphaStructures.jl/voronoy/).
+However, direct construction methods are generally more efficient because the Voronoi diagram does not need to be computed and stored. Various approaches have been historically used:
+  - Local improvement: starting with an arbitrary triangulation these algorithms locally modify the faces of pairs of adjacent simplices according to the circumsphere criterion.
+  - On line (or incremental insertion): starting with a simplex which contains the convex hull of the point set these algorithms insert the points in `P` one at a time. The simplex containing the currently added point is partitioned by inserting it as a new vertex. The circumsphere criterion is tested on all the simplices adjacent to the new ones recursively and, if necessary, their faces are flipped.
+  - Incremental construction: the DT is constructed by successively building simplices whose circumhyperspheres contain no points in `P`.
+  - Higher dimensional embedding: these algorithms transform the points into the ``E^{d+1}`` space and then compute the convex hull of the transformed points the DT is obtained by simply projecting the convex hull into ``E^{d}``.
+  - Classic D&C algorithms: this is based on the recursive partition and local triangulation of the point set and then on a merging phase where the resulting triangulations are joined.
 
-## A recursive function
+The algorithm we have choosen to encode is one of the latter class. Its peculiarity is that the computational phase is located in the Divide Step (instead of the merge step).
+Delaunay Wall algorithm first subdivides the input dataset, then builds that part of the DT that should be built in the merge phase of a classic D&C algorithm and then recursively triangulates the two half–spaces, taking into account the border of the previously computed merge triangulation.
 
-The DeWall (Delaunay Wall) algorithm consists of the following steps:
- 1. select a plane π that divides the space into two halfspaces;
- 2. split ``P`` into two subset ``P^-`` in the negative halfspace and ``P^+`` in the positive one;
- 3. construct ``S^π``;
- 4. recursively apply DeWall on ``P^-``, starting from ``S^π``, and build ``S^-``
- 5. recursively apply DeWall on ``P^+``, starting from ``S^π``, and build ``S^+`` (the simplices that are completely contained in the positive halfspace);
- 6. merge ``S^π``, ``S^-`` and ``S^+``.
+## Delauany Wall Pipeline
 
- Where
- ``S^π = {σ_i: σ_i ∩ π ≠ ∅ }``,
- ``S^- = {σ_i: σ_i ⊂ NegHalfspace(π)}``,
- ``S^+ = {σ_i: σ_i ⊂ PosHalfspace(π)}``.
+The DeWall (Delaunay Wall) algorithm could be summed up by following pipeline:
+  1. select a hyperspace ``\alpha`` that divides the space into two halfspaces
+  1. split the sites ``S`` into two subset: ``S^-`` and ``S^+`` (the points in the negative and positive halfspace)
+  1. construct the *Wall* (``\Sigma^\alpha``) of the Delaunay simplices over that intersect the plane ``\alpha``
+  1. recursively apply DeWall on ``S^-`` to obtain ``\Sigma^-``
+  1. recursively apply DeWall on ``S^+`` ro obtain ``\Sigma^+``
+  1. merge ``S^π``, ``S^-`` and ``S^+``.
 
-### Construct simplex wall ``S^π``
+In particular we have that:
+```math
+	\begin{split}
+		\Sigma^\alpha =& \{\sigma \in \mathcal D_S \mid \sigma \cap \alpha \ne \emptyset }\\
+		\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{NegHalfspace}(\alpha)}\\
+		\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{PosHalfspace}(\alpha)}
+	\end{split}
+```math
+and therefore by construction we have that ``\Sigma^\alpha``, ``\Sigma^-`` and ``\Sigma^+`` are disjoint and
+```math
+	\Sigma^\alpha \cup \Sigma^- \cup \Sigma^+ = \mathcal D_S
+```
 
-The simplex wall ``S^π`` can be simply computed by using an incremental construction approach.
+### Construct simplex wall ``S^\alpha``
 
-First of all we need three **active face lists**:
- - ``AFL^π``: the ``(d - 1)-faces`` intersected by plane;
- - ``AFL^+``: the ``(d - 1)-faces`` with all of the vertices in ``P^+``;
- - ``AFL^-``: the ``(d - 1)-faces`` with all of the vertices in ``P^-``.
+The simplex wall ``\Sigma^\alpha`` can be simply computed by using an incremental construction approach.
 
-The algorithm starts by constructing an initial ``d``-simplex ``σ_i`` that intersect the plane; then, it processes all of the ``(d - 1)-faces`` of ``σ_i``: the ``d``-simplex adjacent to each of them (if it exists, i.e. the face does not belong to the convex hull of ``P``) is built and added to the current list of simplices in ``DT(P)``. All of the new ``(d - 1)-faces`` of each new ``d``-simplex are used to update the right active face list (AFL).
+First of all we define three **active face lists**:
+  - ``AFL^\alpha``: the ``(d - 1)``-simplices intersecting ``\alpha``
+  - ``AFL^+``: the ``(d - 1)``-simplices totally located in the negative halfspace defined by ``\alpha``
+  - ``AFL^-``: the ``(d - 1)``-simplices totally located in the positive halfspace defined by ``\alpha``
+
+The algorithm starts by constructing an initial ``d``-simplex ``\sigma_0`` that intersect the hyperplane (if no active faces are provided). Then, it processes all of the ``(d - 1)``-simplices of ``σ_0`` by splitting them into the Active Face Lists.
+From now on the ``AFL^\alpha`` is progressively emptied (and filled) by taking one at time the simplices in it.
+
+For each ``d-1``-simplex ``\eta`` (wich will belongs to a ``d``-simplex ``\sigma^1 \in \mathcal D_S``) the algorithm finds out the only other ``d``-simplex ``\sigma^2`` (if it exists) incident on ``\eta``: to do so the algorithm looks for the closest point (according to circumradius distance) to the face that do not belongs to the halfspace where the simplex ``\sigma^1`` is. Lastly all of the new ``(d - 1)``-simplex of ``\sigma^2`` are splitted between the Active Face Lists (do not that in this procedure, if a face is already present in the AFL than it is simply removed since the two simplices incident over it have been found).
 !!! fact
-  For each ``(d - 1)-face`` ``f``, which does not lie on the convex hull of ``P``, there are exactly two simplices ``σ_1`` and ``σ_2`` in ``DT(P)``, such that ``σ_1`` and ``σ_2`` share ``f``.
-  So to update the AFL we considered that: if a new face ``f`` is already contained in AFL, then it is removed from AFL; otherwise, it is inserted in AFL because its adjacent simplex has not yet been built.
+    For each ``(d - 1)``-simplex ``\eta``, which does not lie on the convex hull of ``S``, there are exactly two simplices ``\sigma^1`` and ``\sigma^2`` in ``\mathcal D_S``, such that ``\sigma^1 \cap \sigma^2 = f``.
+    If the algorithm is not able to find out a second simplex incident on ``\eta`` we can therefore claim that that simplex belongs to the convex hull of ``S``.
 
-The process continues iteratively:
- - extract a face ``f`` from ``AFL^π``,
- - build the ``d``-simplex ``σ`` adjacent to ``f``,
- - update AFLs with the ``(d - 1)-face`` of ``σ``, and then again
- - extract another face from ``AFL^π`` until is empty.
+When the process is over, the wall has been built.
+It remains to use the Active Face Lists of the positive and negative halfspaces.
 
-### A recursive call
+### Recursively call DeWall
 
-Once the simplex wall is computed, DeWall is recursively applied to the pairs (``P^-``, ``AFL^-``) and (``P^+``, ``AFL^+``), unless all the active face lists are empty. The splitting plane is cyclically selected as a plane orthogonal to the axes of the ``E^d`` space, in order to recursively partition the space with a regular pattern.
+The wall building process is then applied again to the two halfspaces defined by ``\alpha`` by choosing another ``\alpha``-hyperplane.
+However if only the points in the halfspace are given to the new call of the function, a careful look must be given to the new simplex evaluated.
+In fact it could happen that point that earlier where closer to points in the other halfspace, now are closer to other points in the same halfspace.
+To avoid this annoying situation (solvable in the merge phase checking if any simplex is intersecting any other) a faster solution is to bring into the recursive step also the points that forms the previous walls and discard the simplices that will be formed with that points (in our code, the `blacklist`).
 
-### The Pipeline
+### Merging the Delaunay Triangulations
 
- 1. Select the plane π to split ``P``;
- 2. Split ``P`` into two subset ``P^-`` and ``P^+``;
- 3. Construct first simplex of ``S^π`` with `firstDeWallSimplex`;
- 4. Construct adjacent simplex to complite ``S^π`` with `findWallSimplex`;
- 5. Update all AFLs;
- 6. Construct ``S^-`` and ``S^+``, recursively appling `delaunayWall` on ``P^-`` and ``P^+``, starting from associated AFL;
- 7. Return the union of ``S^π``, ``S^-`` and ``S^+``.
+If the trick described in the last paragraph have been applied than no particular operations but the merging must be made at this point. In fact the triangulations will be completelly disjoint and their intersection will give us back only ``AFL^-`` and ``AFL^+``.
 
 ## Examples
 
@@ -68,14 +77,15 @@ So we can create a LAR model to view.
 ### 3D Delaunay triangulation
 
 ```julia
+julia> using AlphaStructures, ViewerGL;
 
-julia> using AlphaStructures, Plasm
+julia> GL = ViewerGL;
 
 julia> V = [
-               0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
-               0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
-               0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
-           ];
+ 0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
+ 0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
+ 0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
+];
 
 julia> DT = AlphaStructures.delaunayWall(V)
 6-element Array{Array{Int64,1},1}:
@@ -86,19 +96,28 @@ julia> DT = AlphaStructures.delaunayWall(V)
  [4, 5, 6, 7]
  [4, 6, 7, 8]
 
-julia> Plasm.viewexploded(V,DT)(1.2,1.2,1.2);
+julia> GL.VIEW([
+	GL.GLExplode(
+		VS,
+		[[σ] for σ in DT],
+		1.5, 1.5, 1.5,	# Explode Ratio
+		99, 1			# Colors
+	)
+]);
 
 ```
 
 ### 2D Delaunay triangulation
 ```julia
 
-julia> using AlphaStructures, Plasm
+julia> using AlphaStructures, ViewerGL;
+
+julia> GL = ViewerGL;
 
 julia> V = [
-            0.0 2.0 0.0 4.0 5.0 ;
-            0.0 0.0 3.0 1.0 5.0
-            ];
+ 0.0 2.0 0.0 4.0 5.0
+ 0.0 0.0 3.0 1.0 5.0
+];
 
 julia> DT = AlphaStructures.delaunayWall(V)
 3-element Array{Array{Int64,1},1}:
@@ -106,18 +125,34 @@ julia> DT = AlphaStructures.delaunayWall(V)
  [3, 4, 5]
  [1, 2, 3]
 
-julia> Plasm.viewexploded(V,DT)(1.2,1.2);
+julia> GL.VIEW([
+	GL.GLExplode(
+		VS,
+		[[σ] for σ in DT],
+		1., 1.,	1.	# Explode Ratio
+		99, 1		# Colors
+	)
+]);
 
 ```
 
 ## Main Interface
 
- ```@docs
- AlphaStructures.firstDeWallSimplex
- ```
- ```@docs
- AlphaStructures.findWallSimplex
- ```
- ```@docs
- AlphaStructures.delaunayWall
- ```
+The solution we have proposed is located in the `alphaFilter` function (in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/deWall.jl) file):
+
+```@docs
+	AlphaStructures.delaunayWall
+```
+
+```@docs
+	AlphaStructures.findWallSimplex
+```
+
+```@docs
+	AlphaStructures.firstDeWallSimplex
+```
+
+
+```@docs
+    AlphaStructures.recursiveDelaunayWall
+```

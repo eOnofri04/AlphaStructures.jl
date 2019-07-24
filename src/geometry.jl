@@ -69,9 +69,9 @@ to perform the evaluation and therefore returns a `NaN` array.
 
 ```jldoctest
 julia> V = [
-	0.0 1.0 0.0 0.0
-	0.0 0.0 1.0 0.0
-	0.0 0.0 0.0 1.0
+ 0.0 1.0 0.0 0.0
+ 0.0 0.0 1.0 0.0
+ 0.0 0.0 0.0 1.0
 ];
 
 julia> AlphaStructures.findCenter(V)
@@ -162,14 +162,12 @@ function findClosestPoint(
 		`circumcenter` and `dd`."
 
 	simplexDim = size(Psimplex, 2)
-    @assert simplexDim <= size(Psimplex, 1) "findClosestPoint: Cannot add
-        another point to the simplex"
+	@assert simplexDim <= size(Psimplex, 1) "findClosestPoint: Cannot add
+	another point to the simplex."
 
-	if (m = size(P, 2)) == 0
-		return nothing
-	end
+	@assert (m = size(P, 2)) != 0 "findClosestPoint: No Points in `P`."
 
-    radlist = zeros(m)
+	radlist = zeros(m)
 	for col = 1 : m
 		r, c = findRadius([Psimplex P[:,col]], true)
 		sameSign = (
@@ -231,16 +229,16 @@ as the smallest distance between a point in `P` and the center.
 ```jldoctest
 
 julia> V = [
-	0.0 1.0 0.0 0.0
-	0.0 0.0 1.0 0.0
-	0.0 0.0 0.0 1.0
+ 0.0 1.0 0.0 0.0
+ 0.0 0.0 1.0 0.0
+ 0.0 0.0 0.0 1.0
 ];
 
 julia> AlphaStructures.findRadius(V)
-0.8660254037844386
+ 0.8660254037844386
 
 julia> AlphaStructures.findRadius(V, true)
-(0.8660254037844386, [0.5, 0.5, 0.5])
+ (0.8660254037844386, [0.5, 0.5, 0.5])
 
 ```
 """
@@ -282,9 +280,9 @@ rows / columns are perturbated.
 ```jldoctest
 
 julia> V = [
-	0.0 1.0 0.0 0.0
-	0.0 0.0 1.0 0.0
-	0.0 0.0 0.0 1.0
+ 0.0 1.0 0.0 0.0
+ 0.0 0.0 1.0 0.0
+ 0.0 0.0 0.0 1.0
 ];
 
 julia> AlphaStructures.matrixPerturbation(V)
@@ -335,10 +333,10 @@ _Obs._ Dimension Dipendent, only works if dimension is three or less and
 # Examples
 ```jldoctest
 julia> V = [
-		0.0 1.0 0.0 0.0 4.0 -1. 1.0
-		0.0 0.0 1.0 0.0 1.0 0.0 1.0
-		0.0 0.0 0.0 1.0 2.0 0.0 1.0
-	   ];
+ 0.0 1.0 0.0 0.0 4.0 -1. 1.0
+ 0.0 0.0 1.0 0.0 1.0 0.0 1.0
+ 0.0 0.0 0.0 1.0 2.0 0.0 1.0
+];
 
 julia> oppositeHalfSpacePoints(V, V[:, [2; 3; 4]], V[:, 1])
 2-element Array{Int64,1}:
