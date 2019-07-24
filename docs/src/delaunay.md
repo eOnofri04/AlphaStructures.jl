@@ -17,7 +17,7 @@ however it could be obtained using any kind of metrics (The esistence and the un
 
 Let ``n = |S|``. We have that the Delaunay Triangulation ``\mathcal D_S`` has the following properties:
 
-![alphastructures](./images/delaunay.png)
+![delaunay](./images/delaunay.png)
 
  - The union of all simplices in the triangulation is the convex hull of the points.
  - The Delaunay triangulation contains ``\mathcal O(n\lceil D / 2\rceil)`` simplices. [Rai95]

@@ -1,5 +1,5 @@
 using AlphaStructures
-using LinearAlgebraicRepresentation, Plasm,ViewerGL
+using LinearAlgebraicRepresentation,ViewerGL
 Lar = LinearAlgebraicRepresentation
 GL = ViewerGL
 

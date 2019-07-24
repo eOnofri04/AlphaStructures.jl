@@ -2,6 +2,8 @@
 
 We approached the problem as described in [CMS97] and [CMS98].
 
+![alphastructures](./images/3Ddelaunay.png)
+
 ## Advantage
 
 The duality between Delaunay Triangulations and Voronoi diagrams has been discussed in [section 3.1](https://eonofri04.github.io/AlphaStructures.jl/delaunay/) and [section 3.2](https://eonofri04.github.io/AlphaStructures.jl/voronoy/).
