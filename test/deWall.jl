@@ -29,9 +29,10 @@ end
 	P = [ 0. 1. 0  0  2.;
 	 	  0  0  1. 0  2.;
 		  0  0  0  1. 2.]
-	@test AlphaStructures.findWallSimplex(P,[2,3,4],[0., 0., 0.]; DEBUG = true) == [2,3,4,5]
-	@test AlphaStructures.findWallSimplex(P,[2,3,5],[0., 0., 1.]) == nothing
-	@test AlphaStructures.findWallSimplex(P,[2,3,4],[2., 2., 2.])  == [1,2,3,4]
+	@test AlphaStructures.findWallSimplex(P, [2,3,4], [0., 0., 0.]; DEBUG = true) == [2,3,4,5]
+	@test AlphaStructures.findWallSimplex(P, [2,3,5], [0., 0., 1.]) == nothing
+	@test AlphaStructures.findWallSimplex(P, [2,3,4], [2., 2., 2.])  == [1,2,3,4]
+	@test AlphaStructures.findWallSimplex(P, [2,3,4], [0., 0., 0.], 1, DEBUG = true) == nothing
 end
 
 @testset "Delaunay Wall" begin
