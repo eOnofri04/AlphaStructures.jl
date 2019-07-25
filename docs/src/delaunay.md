@@ -5,7 +5,7 @@ The first key concept we introduce is the Delaunay triangulation, a particular s
 A special situation is not defined for Delaunay triangulation: if ``d+2`` or more points lies on the same ``d``-circumball (assuming no other point is inside of it) then the Delaunay triangulation is not unique since more than one complex could be built between them. A simple example is when a 2-dimensional square. Here all the four vertices are on the circumcircle of the square and therefore for each choice of a diagonal we will have a legal Delaunay triangulation.
 
 ![delaunay](./images/delaunay.png)
-> **Figure 1:** Delaunay Triangulation of the black sites. In red its corresponding circumcenters.
+> **Figure 1:** Delaunay Triangulation of the blue sites. In red its corresponding circumcenters.
 
 This particular situation led us to consider the set ``S`` made of points in a general position.
 
