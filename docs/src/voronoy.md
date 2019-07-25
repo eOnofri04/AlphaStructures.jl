@@ -28,6 +28,7 @@ Like for the Delaunay Triangulation, also in this case the Tasselation could be 
 
 The Voronoi diagram ``\mathcal V`` have a particularly strict relation with Delaunay Triangulations ``\mathcal D``. In fact, in a sense, ``\mathcal D`` and ``\mathcal V`` are one the dual of the other.
 
-![dual](./images/Delaunay_Voronoi.png)
-
 In fact, if we consider the graph given from separation hypersurfaces edges of ``V``, the Delaunay Triangulation is nothing than the dual graph of it.
+
+![dual](./images/Delaunay_Voronoi.png)
+> **Figure 1:** Duality of Delaunay Triangulation (in black) and Voronoy Diagram (in red).
