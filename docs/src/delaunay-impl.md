@@ -27,13 +27,13 @@ The DeWall (Delaunay Wall) algorithm could be summed up by following pipeline:
 
 In particular we have that:
 ```math
-	\Sigma^\alpha =& \{\sigma \in \mathcal D_S \mid \sigma \cap \alpha \ne \emptyset }
+	\Sigma^\alpha = \{\sigma \in \mathcal D_S \mid \sigma \cap \alpha \ne \emptyset \}
 ```
 ```math
-	\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{NegHalfspace}(\alpha)}
+	\Sigma^- = \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{NegHalfspace}(\alpha)\}
 ```
 ```math
-	\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{PosHalfspace}(\alpha)}
+	\Sigma^+ = \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{PosHalfspace}(\alpha)\}
 ```
 
 and therefore by construction we have that ``\Sigma^\alpha``, ``\Sigma^-`` and ``\Sigma^+`` are disjoint and
