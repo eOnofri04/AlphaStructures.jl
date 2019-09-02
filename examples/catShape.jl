@@ -9,12 +9,11 @@ include("./OBJ/cat.jl")
 # VS = AlphaStructures.matrixPerturbation(V);
 # DT = AlphaStructures.delaunayWall(V);
 
-
+filtration = AlphaStructures.alphaFilter(VS, DT);
 filter_key = unique(keys(filtration))
 
-filtration = AlphaStructures.alphaFilter(VS, DT);
 
-VV, EV, FV, TV = AlphaStructures.alphaSimplex(VS, filtration, 0.75)
+VV, EV, FV, TV = AlphaStructures.alphaSimplex(VS, filtration, 0.85)
 GL.VIEW(
 	[
 		GL.GLGrid(VS, EV, GL.COLORS[1], 0.6) # White
@@ -29,7 +28,7 @@ GL.VIEW(
 
 granular = 15
 reduced_filter = filter_key[sort(abs.(rand(Int, granular).%length(filter_key)))]
-reduced_filter = [reduced_filter; 1.]
+reduced_filter = [reduced_filter; max(filter_key...)]
 points = [[p] for p in VV]
 
 for α in reduced_filter
@@ -49,6 +48,7 @@ end
 # Appearing Colors
 #
 
+#=
 reduced_filter = [
 	0.11;	0.20;	0.33;	0.38;	0.52;	0.57
 	0.60;	0.67;	0.75;	2.25;	2.61;	7.00;
@@ -65,3 +65,4 @@ for i = 2 : length(reduced_filter)
 	TVmesh = GL.GLGrid(VS, setdiff(TV, TV0), GL.COLORS[12], 1)
 	GL.VIEW([EV0mesh; FV0mesh; TV0mesh; EVmesh; FVmesh; TVmesh])
 end
+=#

@@ -66,14 +66,14 @@ VV,EV,FV = AlphaStructures.alphaSimplex(Vi, filtration, 0.02)
 points = [[p] for p in VV]
 faces = [[f] for f in FV]
 edges = [[e] for e in EV]
-GL.VIEW( GL.GLExplode(Vi, [edges; faces], 1.5, 1.5, 1.5, 99, 1) )
+GL.VIEW( GL.GLExplode(Vi, [edges; faces], 1.5, 1.5, 1.5, 99, 1) );
 
 filter_key = unique(keys(filtration))
 
 granular = 15
 
 reduced_filter = filter_key[sort(abs.(rand(Int, granular).%length(filter_key)))]
-reduced_filter = [reduced_filter; 1.]
+reduced_filter = [reduced_filter; max(filter_key...)]
 
 #
 # Arlecchino's Lar
@@ -91,6 +91,7 @@ for α in reduced_filter
 	)
 end
 
+#=
 for i = 1000 : 150 : length(filter_key)
 	VV,EV,FV = AlphaStructures.alphaSimplex(Vi, filtration, filter_key[i])
 	GL.VIEW(
@@ -102,12 +103,13 @@ for i = 1000 : 150 : length(filter_key)
 		)
 	)
 end
-
+=#
 
 #
 # Appearing Colors
 #
 
+#=
 reduced_filter = [
 	0.001;	0.002;	0.003;	0.004;	0.005
 	0.006;	0.007;	0.008;	0.009;	0.010
@@ -115,11 +117,12 @@ reduced_filter = [
 ]
 
 for i = 2 : length(reduced_filter)
-	VV0, EV0, FV0 = AlphaStructures.alphaSimplex(VS, filtration, reduced_filter[i-1])
-	VV,  EV,  FV  = AlphaStructures.alphaSimplex(VS, filtration, reduced_filter[i])
+	VV0, EV0, FV0 = AlphaStructures.alphaSimplex(Vi, filtration, reduced_filter[i-1])
+	VV,  EV,  FV  = AlphaStructures.alphaSimplex(Vi, filtration, reduced_filter[i])
 	EV0mesh = GL.GLGrid(Vi, EV0)
 	FV0mesh = GL.GLGrid(Vi, FV0)
 	EVmesh = GL.GLGrid(Vi, setdiff(EV, EV0), GL.COLORS[2], 1)
 	FVmesh = GL.GLGrid(Vi, setdiff(FV, FV0), GL.COLORS[7], 1)
 	GL.VIEW([EV0mesh; FV0mesh; EVmesh; FVmesh])
 end
+=#

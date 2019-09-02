@@ -250,7 +250,7 @@ function findWallSimplex(
 	# Check the simplex correctness
 	radius, center = AlphaStructures.findRadius(P[:, σ], true)
 	for i = 1 : size(P, 2)
-		if Lar.norm(center - P[:, i]) < radius
+		if Lar.norm(center - P[:, i]) < radius - 1.e-14
 			# @assert i ∉ Pselection "ERROR: Numerical error
 			# 	evaluating minimum radius for $σ"
 			if DEBUG println("$σ discarded due to a closer point.") end

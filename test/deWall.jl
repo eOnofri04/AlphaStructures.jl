@@ -5,7 +5,7 @@ else
 end
 
 @testset "First Delaunay Wall Simplex" begin
-	
+
 	P = [
 		1.0 1.0 1.5 2.0 2.0
 		0.0 0.2 1.3 1.0 1.0
@@ -33,7 +33,7 @@ end
 		P = [ 0. 1. 0  1    2.;
 		 	  0  0  1. 0.2  2.;
 		 	]
-			
+
 		@test AlphaStructures.findWallSimplex(P, [2,3], [0., 0.]; DEBUG = true) == nothing
 		@test AlphaStructures.findWallSimplex(P, [1,2], [0.,1.]) == nothing
 		@test AlphaStructures.findWallSimplex(P, [4,3], [0.,0.]) == [3,4,5]
