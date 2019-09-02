@@ -18,14 +18,12 @@ GL.VIEW([
 filtration = AlphaStructures.alphaFilter(V);
 VV, EV, FV, TV = AlphaStructures.alphaSimplex(V, filtration, 0.02)
 
-points = [[p] for p in VV]
-
 filter_key = unique(keys(filtration))
 
 granular = 15
 
 reduced_filter = filter_key[sort(abs.(rand(Int, granular).%length(filter_key)))]
-reduced_filter = [reduced_filter; 1.]
+reduced_filter = [reduced_filter; max(filter_key...)]
 
 for α in reduced_filter
 	VV,EV,FV,TV = AlphaStructures.alphaSimplex(V, filtration, α)
