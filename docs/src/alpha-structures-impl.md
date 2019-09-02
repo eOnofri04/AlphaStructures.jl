@@ -3,6 +3,7 @@
 As previously said in [section 3.3](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures/) we have addressed the problem of evaluate ``\alpha``-structures via ``\alpha``-filtering evaluation (namely the evaluation of the characteristical ``\alpha`` for each simplex).
 
 ![alphastructures](./images/LarAlphaShape.gif)
+> **Figure 1:** 2D Alpha Shape with various ``\alpha``
 
 ## The tasks
 
@@ -28,9 +29,7 @@ In fact the following relation occurs:
     A ``d``-dimensional simplex ``\sigma`` is inside the ``\alpha``-complex if and only if and only if the Voronoy regions of the sites of ``sigma`` have a common ``D-d`` intersection hyperplane included in the ``alpha``-hypersphere of the sites themselves. In other words:
 
     ```math
-        \sigma \in \mathcal A_\alpha(S)
-        \quad \iff \quad
-        \bigcap_{t \in \sigma) \left(V_t(\alpha) \cap B_t(\alpha)\right) \ne \emptyset
+        \sigma \in \mathcal A_\alpha(S) \quad \iff \quad \bigcap_{t \in \sigma) \left(V_t(\alpha) \cap B_t(\alpha)\right) \ne \emptyset
     ```
 
 To simplify this notion we could refer to what happend in the two dimensional case:
@@ -43,7 +42,7 @@ Of course we could overturn the point of view by looking what happend if we cons
 First of all we are sure it is well defined and unique since ``S`` satisfies the general position condition.
 The stated condition then assume the following form:
 !!! fact
-    A ``d``-dimensional simplex made of sites ``S'\subseteq S`` belongs to the ``\alpha``-complex if and only if the ball of radius ``alpha`` located in the circumcentre of ``S'`` intersects the Voronoy boundary hypersurface of the ``S`` cells.
+    A ``d``-dimensional simplex made of sites ``S'\subseteq S`` belongs to the ``\alpha``-complex if and only if the ball of radius ``\alpha`` located in the circumcentre of ``S'`` intersects the Voronoy boundary hypersurface of the ``S`` cells.
 
 In particular the last statement implies that the characteristical ``\alpha`` of a simplex ``\sigma`` is always bigger or equal than the circumradius of the sites it is made of. Moreover for usual conditions (namely no higher dimensional obtuse-solid-angled simplices) the characteristical ``\alpha`` is precisely that value.
 
@@ -72,6 +71,10 @@ julia> V = [
 ];
 
 julia> filtration = AlphaStructures.alphaFilter(V);
+SortedMultiDict(Base.Order.ForwardOrdering(),
+    0.0 => [1], 0.0 => [2], 0.0 => [3]  …
+    0.8948905417047672 => [10, 13], 0.8948905417047672 => [3, 10, 13]
+)
 
 julia> VV,EV,FV = AlphaStructures.alphaSimplex(V,filtration,0.25)
 3-element Array{Array{Array{Int64,1},1},1}:
@@ -87,12 +90,13 @@ julia> faces = [[f] for f in FV];
 
 julia> edges = [[e] for e in EV];
 
-julia> GL.VIEW( GL.GLExplode(V, [points; edges; faces], 5., 5., 5., 99, 1) );
+julia> GL.VIEW( GL.GLExplode(V, [points; edges; faces], 1.5, 1.5, 1.5, 99, 1) );
 ```
 
 ## Main Interface
 
 The solution we have proposed is located in the `alphaFilter` function (in [this](https://github.com/eOnofri04/AlphaStructures.jl/blob/master/src/alpha_complex.jl) file):
+
 
 ```@docs
     AlphaStructures.alphaFilter

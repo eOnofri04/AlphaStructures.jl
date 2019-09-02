@@ -181,7 +181,6 @@ julia> DT = AlphaStructures.delaunayTriangulation(V)
  [2, 3]
  [3, 4]
  [4, 6]
-
 ```
 
 # Examples 2D
@@ -196,7 +195,6 @@ julia> DT = AlphaStructures.delaunayTriangulation(V)
 2-element Array{Array{Int64,1},1}:
  [1, 2, 3]
  [2, 3, 4]
-
 ```
 
 # Examples 3D
@@ -211,7 +209,6 @@ julia> V = [
 julia> DT = AlphaStructures.delaunayTriangulation(V)
 1-element Array{Array{Int64,1},1}:
  [1, 2, 3, 4]
-
 ```
 """
 function delaunayTriangulation(V::Lar.Points)::Lar.Cells

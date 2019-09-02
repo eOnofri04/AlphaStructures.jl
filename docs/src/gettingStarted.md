@@ -2,7 +2,7 @@
 
 If you have not done so already, download and install [Julia](https://julialang.org/downloads/).
 
-This package was developed with `julia 1.1.0` ([![Build Status Julia-1.1](https://travis-ci.org/eOnofri04/AlphaStructures.jl.svg?branch=master)](https://travis-ci.org/eOnofri04/AlphaStructures.jl)) but it should be supported also on `julia 0.6.4`.
+This package was developed with `julia 1.1.0` ([![Build Status Julia-1.1](https://travis-ci.org/eOnofri04/AlphaStructures.jl.svg?branch=master)](https://travis-ci.org/eOnofri04/AlphaStructures.jl)).
 
 To install AlphaStructures package first you have to download [this](https://github.com/eOnofri04/AlphaStructures.jl) repository.
 

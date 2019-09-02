@@ -1,7 +1,5 @@
 # 3.3 - Introduction to ``\alpha``-Structures
 
-![alpha](./images/alpha.png)
-
 Let as usual ``S`` a set of ``n`` sites in ``\mathbb R^D`` (finite).
 Since we are interested in real situation we will restrict to the case ``D \in \{2, 3\}``; however the following description could be simply enlarged for a general ``D`` value.
 
@@ -16,7 +14,8 @@ Imagine a huge mass of ice-cream making up the space ``\mathbb R^d`` and contain
 
 But what is ``\alpha`` after all? In the ice-cream analogy above, ``\alpha`` is the squared radius of the carving spoon. A very small value will allow us to eat up all of the ice-cream except the chocolate points themselves. Thus for ``\alpha \to 0`` the ``\alpha`` shape degenerates to the sites set ``S``. On the other hand, a huge value of ``\alpha`` will prevent us even from moving the spoon between two points since it is too large and we will never spoon up the ice-cream lying in the inside of the convex hull of ``S``. Hence, the ``\alpha``-shape becomes the convex hull of ``S`` as ``\alpha \to \infty``.
 
-
+![alpha](./images/alpha.png)
+> **Figure 1:** ``\alpha``-structure over Delaunay Triangulation on 2D ``\alpha`` symbol.
 
 ## Geometrical Concept
 
@@ -79,6 +78,7 @@ It then follows from the way we have defined it that if a ``d``-polytope (``d``-
 ### ``\alpha``-Filtration
 
 ![alpha](./images/cat.gif)
+> **Figure 2:** ``\alpha``-filtration of a 3D cat shape.
 
 We now introduce the case of study of what happends if we vary the ``\alpha`` value. In general this topic is strictly related to Persistent Homology (we will see in the next section).
 

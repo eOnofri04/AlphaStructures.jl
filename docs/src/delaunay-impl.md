@@ -2,8 +2,6 @@
 
 We approached the problem as described in [CMS97] and [CMS98].
 
-![3Ddelaunay](./images/3Ddelaunay.png)![2Ddelaunay](./images/2Ddelaunay.png)
-
 ## Advantage
 
 The duality between Delaunay Triangulations and Voronoi diagrams has been discussed in [section 3.1](https://eonofri04.github.io/AlphaStructures.jl/delaunay/) and [section 3.2](https://eonofri04.github.io/AlphaStructures.jl/voronoy/).
@@ -29,11 +27,13 @@ The DeWall (Delaunay Wall) algorithm could be summed up by following pipeline:
 
 In particular we have that:
 ```math
-	\begin{split}
-		\Sigma^\alpha =& \{\sigma \in \mathcal D_S \mid \sigma \cap \alpha \ne \emptyset }\\
-		\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{NegHalfspace}(\alpha)}\\
-		\Sigma^- =& \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{PosHalfspace}(\alpha)}
-	\end{split}
+	\Sigma^\alpha = \{\sigma \in \mathcal D_S \mid \sigma \cap \alpha \ne \emptyset \}
+```
+```math
+	\Sigma^- = \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{NegHalfspace}(\alpha)\}
+```
+```math
+	\Sigma^+ = \{\sigma \in \mathcal D_S \mid \sigma \in \mbox{PosHalfspace}(\alpha)\}
 ```
 
 and therefore by construction we have that ``\Sigma^\alpha``, ``\Sigma^-`` and ``\Sigma^+`` are disjoint and
@@ -110,6 +110,7 @@ julia> GL.VIEW([
 ]);
 
 ```
+![3Ddelaunay](./images/3Ddelaunay.png)
 
 ### 2D Delaunay triangulation
 ```julia
@@ -139,6 +140,7 @@ julia> GL.VIEW([
 ]);
 
 ```
+![2Ddelaunay](./images/2Ddelaunay.png)
 
 ## Main Interface
 

@@ -10,7 +10,7 @@ It offers the basics about Persistent Homology evaluation via Alpha Complex cons
 
 In a proper manner, this should be the starting point toward a future collaboration with a larger project wich is **LAR** - [_Linear Algebraic Representation_](https://github.com/cvdlab/LinearAlgebraicRepresentation.jl).
 
-To do so, outputs are formatted in order to be simply read by [Plasm](https://github.com/cvdlab/Plasm.jl) graphic interface.
+To do so, outputs are formatted in order to be simply read by [ViewerGL](https://github.com/cvdlab/ViewerGL.jl) graphic interface.
 
 ## Getting Started
 
