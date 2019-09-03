@@ -1,8 +1,8 @@
 using AlphaStructures
 using LinearAlgebraicRepresentation,DataStructures
-Lar=LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
 using ViewerGL
-GL=ViewerGL
+GL = ViewerGL
 
 function pointsRand(
 		V::Lar.Points, EV::Lar.Cells, n = 1000, m = 0

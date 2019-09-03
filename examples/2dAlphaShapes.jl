@@ -109,7 +109,7 @@ end
 # Appearing Colors
 #
 
-#=
+
 reduced_filter = [
 	0.001;	0.002;	0.003;	0.004;	0.005
 	0.006;	0.007;	0.008;	0.009;	0.010
@@ -125,4 +125,4 @@ for i = 2 : length(reduced_filter)
 	FVmesh = GL.GLGrid(Vi, setdiff(FV, FV0), GL.COLORS[7], 1)
 	GL.VIEW([EV0mesh; FV0mesh; EVmesh; FVmesh])
 end
-=#
+
