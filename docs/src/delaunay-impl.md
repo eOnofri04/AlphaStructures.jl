@@ -18,7 +18,7 @@ Delaunay Wall algorithm first subdivides the input dataset, then builds that par
 ## Delauany Wall Pipeline
 
 The DeWall (Delaunay Wall) algorithm could be summed up by following pipeline:
-  1. select a hyperspace ``\alpha`` that divides the space into two halfspaces
+  1. select a hyperplane ``\alpha`` that divides the space into two halfspaces
   1. split the sites ``S`` into two subset: ``S^-`` and ``S^+`` (the points in the negative and positive halfspace)
   1. construct the *Wall* (``\Sigma^\alpha``) of the Delaunay simplices over that intersect the plane ``\alpha``
   1. recursively apply DeWall on ``S^-`` to obtain ``\Sigma^-``

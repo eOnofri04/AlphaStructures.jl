@@ -15,7 +15,7 @@ where the Voronoi cells are defined ``\forall t \in S`` as:
 	V_t(S) = \{p \in \mathbb R^D \mid d(t, p) < d(u, p), \forall u \in S \backslash t\}
 ```
 
-Like for the Delaunay Triangulation, also in this case the Tasselation could be defined on wichever metrics. However if different metrics are used, like the 0-norm, something weird could happend.
+Like for the Delaunay Triangulation, also in this case the Tasselation could be defined on whichever metrics. However if different metrics are used, like the 0-norm, something weird could happend.
 
 ## Properties
 
