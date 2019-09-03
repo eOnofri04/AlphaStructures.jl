@@ -11,7 +11,7 @@ Then start julia and navigate to the folder called `AlphaStructures.jl` (with th
 include("src/AlphaStructures.jl")
 ```
 
-If you want, you can test if everithyng is working fine by running
+If you want, you can test if everything is working fine by running
 ```julia
 include("test/runtests.jl")
 ```
@@ -19,12 +19,8 @@ include("test/runtests.jl")
 this will run all the tests written so far and checking all is working properly.
 
 If you want to use a Graphic Interface to preview the results you are going to build up
-you can also use [Plasm](https://github.com/cvdlab/Plasm.jl) package developed by [CVD-LAB](https://github.com/cvdlab) by running
+you can also use [ViewerGL](https://github.com/cvdlab/ViewerGL.jl) package developed by [CVD-LAB](https://github.com/cvdlab) by running
 ```julia
-]add Plasm
-using Plasm
+]add ViewerGL
+using ViewerGL
 ```
-
-# First Steps
-
-!!! ToDo

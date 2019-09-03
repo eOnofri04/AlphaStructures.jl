@@ -4,7 +4,7 @@ This section has the purpose to introduce the theoretical concept behind the cod
 For this reason we will give a brief overview of:
  - Delaunay Triangulation in [section 3.1](https://eonofri04.github.io/AlphaStructures.jl/delaunay/)
  - Voronoy Diagram in [section 3.2](https://eonofri04.github.io/AlphaStructures.jl/voronoy/)
- - Alpha Complexs in [section 3.3](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures/)
+ - Alpha Structures in [section 3.3](https://eonofri04.github.io/AlphaStructures.jl/alpha-structures/)
  - Persistent Homology in [section 3.4](https://eonofri04.github.io/AlphaStructures.jl/persistent-homology/)
 
 In general we will assume ``S`` a set of sites (namely points in ``\mathbb R^D, D < \infty``).
