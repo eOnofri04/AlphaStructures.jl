@@ -12,7 +12,7 @@ makedocs(
 		"Theory..." => [
 			"3.0 - Theory Index" => "theory-index.md",
 			"3.1 - Delaunay Triangulation" => "delaunay.md",
-			"3.2 - Voronoy Diagrams" => "voronoy.md",
+			"3.2 - Voronoi Diagrams" => "voronoi.md",
 			"3.3 - Alpha Structures" => "alpha-structures.md",
 			"3.4 - Persistent Homology" => "persistent-homology.md",
 		],
