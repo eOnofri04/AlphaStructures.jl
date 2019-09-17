@@ -29,7 +29,7 @@ In fact the following relation occurs:
     A ``d``-dimensional simplex ``\sigma`` is inside the ``\alpha``-complex if and only if and only if the Voronoy regions of the sites of ``sigma`` have a common ``D-d`` intersection hyperplane included in the ``alpha``-hypersphere of the sites themselves. In other words:
 
     ```math
-        \sigma \in \mathcal A_\alpha(S) \quad \iff \quad \bigcap_{t \in \sigma) \left(V_t(\alpha) \cap B_t(\alpha)\right) \ne \emptyset
+        \sigma \in \mathcal A_\alpha(S) \quad \iff \quad \bigcap_{t \in \sigma}\left(V_t(\alpha) \cap B_t(\alpha)\right) \ne \emptyset
     ```
 
 To simplify this notion we could refer to what happend in the two dimensional case:
