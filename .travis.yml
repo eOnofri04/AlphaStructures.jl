@@ -42,7 +42,7 @@ install:
 #      julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl", rev="julia-1.0"))';
 #    fi
   - if [[ "$TRAVIS_JULIA_VERSION" != "0.6.4" ]]; then
-      julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/eOnofri04/LinearAlgebraicRepresentation.jl", rev="julia-1.0"))';
+      julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl"))';
       julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/cvdlab/ViewerGL.jl"))';
     fi
 
