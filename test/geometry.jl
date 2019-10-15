@@ -276,55 +276,55 @@ end
 end
 
 #-------------------------------------------------------------------------------
-#
-# @testset "Vertex in Circumball" begin
-#
-# 	@testset "2D Vertex in Circumball" begin
-# 		V = [
-# 			0. 1. 0.;
-# 			0. 0. 1.
-# 		]
-# 		simplex = [2, 3]
-# 		up_simplex = [1, 2, 3]
-# 		point = V[:, setdiff(up_simplex, simplex)]
-# 		T=[ V[:, v] for v in simplex ]
-# 		@test AlphaStructures.vertexInCircumball(
-# 			T, AlphaStructures.foundRadius(T), point
-# 		)
-# 	end
-#
-# 	@testset "3D Vertex in Circumball" begin
-#
-# 		@testset "edge and triangle" begin
-# 			V=[
-# 				0. 1. 0.;
-# 				0. 0. 1.;
-# 				0. 0. 0.
-# 			]
-# 			simplex = [2, 3]
-# 			up_simplex = [1, 2, 3]
-# 			point = V[:, setdiff(up_simplex, simplex)]
-# 			T=[ V[:, v] for v in simplex ]
-# 			@test AlphaStructures.vertexInCircumball(
-# 				T, AlphaStructures.foundRadius(T), point
-# 			)
-# 		end
-#
-# 		@testset "triangle and tetrahedron" begin
-# 			V=[
-# 				0. 1. 0. 0.;
-# 				0. 0. 1. 0.;
-# 				0. 0. 0. 1.
-# 			]
-# 			simplex = [2, 3, 4]
-# 			up_simplex = [1, 2, 3, 4]
-# 			point = V[:, setdiff(up_simplex, simplex)]
-# 			T=[ V[:, v] for v in simplex ]
-# 			@test AlphaStructures.vertexInCircumball(
-# 				T, AlphaStructures.foundRadius(T), point
-# 			)
-# 		end
-#
-# 	end
-#
-# end
+
+ @testset "Vertex in Circumball" begin
+
+ 	@testset "2D Vertex in Circumball" begin
+ 		V = [
+ 			0. 1. 0.;
+ 			0. 0. 1.
+ 		]
+ 		simplex = [2, 3]
+ 		up_simplex = [1, 2, 3]
+ 		point = V[:, setdiff(up_simplex, simplex)]
+ 		T= V[:, simplex]
+ 		@test AlphaStructures.vertexInCircumball(
+ 			T, AlphaStructures.findRadius(T), point
+ 		)
+ 	end
+
+ 	@testset "3D Vertex in Circumball" begin
+
+ 		@testset "edge and triangle" begin
+ 			V=[
+ 				0. 1. 0.;
+ 				0. 0. 1.;
+ 				0. 0. 0.
+ 			]
+ 			simplex = [2, 3]
+ 			up_simplex = [1, 2, 3]
+ 			point = V[:, setdiff(up_simplex, simplex)]
+ 			T= V[:, simplex]
+			@test AlphaStructures.vertexInCircumball(
+ 				T, AlphaStructures.findRadius(T), point
+ 			)
+ 		end
+
+ 		@testset "triangle and tetrahedron" begin
+ 			V=[
+ 				0. 1. 0. 0.;
+ 				0. 0. 1. 0.;
+ 				0. 0. 0. 1.
+ 			]
+ 			simplex = [2, 3, 4]
+ 			up_simplex = [1, 2, 3, 4]
+ 			point = V[:, setdiff(up_simplex, simplex)]
+ 			T= V[:, simplex]
+ 			@test AlphaStructures.vertexInCircumball(
+ 				T, AlphaStructures.findRadius(T), point
+ 			)
+ 		end
+
+ 	end
+
+ end

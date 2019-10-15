@@ -60,71 +60,103 @@ function alphaFilter(
 		V::Lar.Points,
 		DT = Array{Int64,1}[];
 		digits=64
-	)::DataStructures.SortedMultiDict{}
+	)::DataStructures.SortedDict{}
 
 	dim = size(V, 1)
-	Cells = [Array{Array{Int64,1},1}() for i=1:dim]  #Generalize definition
+	filtration = DataStructures.SortedDict{Array{Int64,1},Float64}()
 
-	# 1 - Delaunay triangulation of ``V``
-	if isempty(DT)
-		Cells[dim] = AlphaStructures.delaunayTriangulation(V)
-	else
-		Cells[dim] = DT
-	end
-
-	# 2 - 1..d-1 Cells Construction
-	# Cells[d] = Array{Int64}[]
-	for d = dim-1 : -1 : 1
-		for cell in Cells[dim]
-			# It gives back combinations in natural order
-			newCells = collect(Combinatorics.combinations(cell, d+1))
-			push!(Cells[d], newCells...)
-		end
-		Cells[d] = unique(sort(Cells[d]))
-	end
-
-	# 3 - Evaluate Circumballs Radius
-
-	α_char = [ zeros(length(Cells[i])) for i in 1 : dim ]
-	for d = 1 : dim
-		for i = 1 : length(Cells[d]) # simplex in Cells[d]
-			simplex = Cells[d][i]
-			α_char[d][i] = findRadius(V[:, simplex], digits=digits);
-		end
-	end
-
-	# 4 - Evaluate Charatteristical α
-
-	for d = dim-1 : -1 : 1
-		for i = 1 : length(Cells[d])    # simplex in Cells[d]
-			simplex = Cells[d][i]
-			for j = 1 : length(Cells[d+1])  # up_simplex in Cells[d+1]
-				up_simplex = Cells[d+1][j]
-				if issubset(simplex, up_simplex) #contains(up_simplex, simplex)
-					point = V[:, setdiff(up_simplex, simplex)]
-					if vertexInCircumball(V[:, simplex], α_char[d][i], point)
-						α_char[d][i] = α_char[d+1][j]
-					end
-				end
-			end
-		end
-	end
-
-	# 5 - Sorting Complex by Alpha
-	filtration = DataStructures.SortedMultiDict{Float64, Array{Int64,1}}()
-
-	# each point => α_char = 0.
+	# 1 - Each point => alpha_char = 0.
 	for i = 1 : size(V, 2)
-		insert!(filtration, 0., [i])
+		insert!(filtration, [i], 0.)
 	end
 
-	for d = 1 : dim
-		for i = 1 : length(Cells[d])
-			insert!(filtration, α_char[d][i], Cells[d][i])
+	# 2 - Delaunay triangulation of ``V``
+	if isempty(DT)
+		DT = AlphaStructures.delaunayTriangulation(V)
+	end
+
+	n_upsimplex = length(DT)
+
+	# 3 - process all upper simplex
+	ind = 1
+	for upper_simplex in DT
+		if ind % 10000 == 0
+			println(ind," simplices processed of ", n_upsimplex)
 		end
+		AlphaStructures.processuppersimplex(V,upper_simplex,filtration; digits = digits)
+		ind = ind + 1
 	end
 
 	return filtration
+end
+
+"""
+	processuppersimplex(
+		V::Lar.Points,
+		up_simplex::Array{Int64,1},
+		filtration::DataStructures.SortedDict{};
+		digits=64
+		)
+
+Process the upper simplex.
+"""
+function processuppersimplex(
+		V::Lar.Points,
+		up_simplex::Array{Int64,1},
+		filtration::DataStructures.SortedDict{};
+		digits=64
+		)
+
+	α_char = AlphaStructures.findRadius(V[:, up_simplex], digits=digits);
+	insert!(filtration, up_simplex, α_char)
+
+	d = length(up_simplex)-1
+	if d > 1
+		# It gives back combinations in natural order
+		newsimplex = collect(Combinatorics.combinations(up_simplex,d))
+		for lowsimplex in newsimplex
+			AlphaStructures.processlowsimplex(V, up_simplex, lowsimplex, filtration; digits=digits)
+		end
+	end
+end
+
+"""
+	processlowsimplex(
+		V::Lar.Points,
+		up_simplex::Array{Int64,1},
+		lowsimplex::Array{Int64,1},
+		filtration::DataStructures.SortedDict{};
+		digits=64
+		)
+
+Process the lower simplex knowing the upper.
+"""
+function processlowsimplex(
+	V::Lar.Points,
+	up_simplex::Array{Int64,1},
+	lowsimplex::Array{Int64,1},
+	filtration::DataStructures.SortedDict{};
+	digits=64)
+
+	α_char = AlphaStructures.findRadius(V[:, lowsimplex], digits=digits)
+	point = V[:, setdiff(up_simplex, lowsimplex)]
+
+	if AlphaStructures.vertexInCircumball(V[:, lowsimplex], α_char, point)
+		filtration[lowsimplex] = filtration[up_simplex]
+
+	elseif !haskey(filtration, lowsimplex)
+		filtration[lowsimplex] = α_char
+
+	end
+
+	d = length(lowsimplex)-1
+	if d > 1
+		# It gives back combinations in natural order
+		newsimplex = collect(Combinatorics.combinations(lowsimplex,d))
+		for simplex in newsimplex
+			 AlphaStructures.processlowsimplex(V, lowsimplex, simplex, filtration, digits=digits)
+		end
+	end
 end
 
 #-------------------------------------------------------------------------------
@@ -141,7 +173,7 @@ Return collection of all `d`-simplex, for `d ∈ [0,dimension]`,
 """
 function alphaSimplex(
 		V::Lar.Points,
-		filtration::DataStructures.SortedMultiDict{},
+		filtration::DataStructures.SortedDict{},
 		α_threshold::Float64
 	)::Array{Lar.Cells,1}
 
@@ -150,10 +182,8 @@ function alphaSimplex(
 	simplexCollection = [ Array{Array{Int64,1},1}() for i = 1 : dim+1 ]
 
 	for (k, v) in filtration
-        if k <= α_threshold
-        	push!(simplexCollection[length(v)], v)
-    	else
-			break
+        if v <= α_threshold
+        	push!(simplexCollection[length(k)], k)
     	end
     end
 
