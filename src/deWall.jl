@@ -305,7 +305,9 @@ function firstDeWallSimplex(
 	if DEBUG println("Determine first Simplex with ax = $ax") end
     # the first point of the simplex is the one with coordinate `ax` maximal
     #  such that it is less than `off` (closer to α from minus)
+
 	Pselection = findall(x -> x < off, P[ax, :])
+
 	# it gives an error if no point are less than `off`
 	#  in fact it means that all the points are located on the median,
 	#  with respect to `ax`.

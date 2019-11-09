@@ -167,8 +167,8 @@ function findClosestPoint(
 
 	@assert (m = size(P, 2)) != 0 "findClosestPoint: No Points in `P`."
 
-	radlist = zeros(m)
-	for col = 1 : m
+	radlist = SharedArray{Float64}(m)
+	@sync @distributed for col = 1 : m
 		r, c = findRadius([Psimplex P[:,col]], true)
 		sameSign = (
 			r == Inf ||
