@@ -1,8 +1,7 @@
 using AlphaStructures
-using LinearAlgebraicRepresentation, ViewerGL
-using LasIO
+using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-GL = ViewerGL
+
 
 include("deWall.jl")
 include("alpha_complex.jl")
