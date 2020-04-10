@@ -1,14 +1,16 @@
 __precompile__()
 
 module AlphaStructures
-	using LinearAlgebraicRepresentation, Triangle
+	using LinearAlgebraicRepresentation
+	using MATLAB
 	using Combinatorics, DataStructures
 	using Distributed, SharedArrays
 	Lar = LinearAlgebraicRepresentation
 
 	include("alpha_complex.jl")
-	include("deWall.jl")
+	#include("deWall.jl")
 	include("geometry.jl")
+	include("delaunayTriangulation.jl")
 
 	export alphaFilter, alphaSimplex, delaunayTriangulation
 end
