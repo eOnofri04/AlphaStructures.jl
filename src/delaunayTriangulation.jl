@@ -10,8 +10,8 @@ julia> V = [1. 2. 5. 6. 0. 7.];
 
 julia> DT = AlphaStructures.delaunayTriangulation(V)
 5-element Array{Array{Int64,1},1}:
- [1, 2]
  [1, 5]
+ [1, 2]
  [2, 3]
  [3, 4]
  [4, 6]
