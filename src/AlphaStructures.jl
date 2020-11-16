@@ -2,7 +2,8 @@ __precompile__()
 
 module AlphaStructures
 	using LinearAlgebraicRepresentation
-	using MATLAB
+	#using MATLAB
+	using Delaunay
 	using Combinatorics, DataStructures
 	using Distributed, SharedArrays
 	Lar = LinearAlgebraicRepresentation
