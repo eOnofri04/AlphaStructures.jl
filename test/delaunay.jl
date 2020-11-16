@@ -6,7 +6,7 @@
 				0.0 1.0 0.0
 				0.0 0.0 1.0
 			];
-			DT = Common.delaunayTriangulation(P)
+			DT = delaunayTriangulation(P)
 			@test DT == [ [1, 2, 3] ]
 		end
 
@@ -15,7 +15,7 @@
 				0.0 1.0 0.0 2.0
 				0.0 0.0 1.0 0.0
 			];
-			DT = Common.delaunayTriangulation(P)
+			DT = delaunayTriangulation(P)
 			@test DT == [ [1, 2, 3], [2, 3, 4] ]
 		end
 
@@ -24,7 +24,7 @@
 				0.0 1.0 0.0 1.0
 				0.0 0.0 1.0 1.0
 			];
-			DT = Common.delaunayTriangulation(P)
+			DT = delaunayTriangulation(P)
 			@test length(DT) == 2
 		end
 	end
@@ -36,7 +36,7 @@
 				0.0 0.0 1.0 0.0
 				0.0 0.0 0.0 1.0
 			];
-			DT = Common.delaunayTriangulation(P)
+			DT = delaunayTriangulation(P)
 			@test DT == [ [1, 2, 3, 4] ]
 		end
 
@@ -46,7 +46,7 @@
 				0.0 0.0 1.0 0.0 0.0
 				0.0 0.0 0.0 1.0 0.0
 			];
-			DT = Common.delaunayTriangulation(P)
+			DT = delaunayTriangulation(P)
 			@test DT == [ [1, 2, 3, 4], [2, 3, 4, 5] ]
 		end
 
@@ -56,7 +56,7 @@
 				0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
 				0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
 			];
-			DT = Common.delaunayTriangulation(P)
+			DT = delaunayTriangulation(P)
 			@test length(DT) == 6
 		end
 	end

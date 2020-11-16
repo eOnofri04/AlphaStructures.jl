@@ -1,55 +1,3 @@
-if VERSION < VersionNumber("1.0.0")
-	using Base.Test
-else
-	using Test
-end
-
-@testset "delaunayTriangulation" begin
-
-	@testset "1D delaunayTriangulation" begin
-		V = [
-			0. 1. 2. 9. 14. 12. 4. 7.
-		]
-		D = AlphaStructures.delaunayTriangulation(V)
-		@test D == [[1,2],[2,3],[3,7],[4,6],[4,8],[5,6],[7,8]]
-	end
-#=
-	@testset "2D delaunayTriangulation" begin
-		V = [
-			0.0 1.0 0.0 2.0;
-			0.0 0.0 1.0 2.0
-		]
-		D = AlphaStructures.delaunayTriangulation(V)
-		@test D == [[1,2,3],[2,3,4]]
-	end
-=#
-	@testset "3D delaunayTriangulation" begin
-		V = [
-        	0.0 0.0 3.0 1.0 0.5 2.0
-        	0.0 1.0 3.0 0.0 0.5 2.0
-        	0.0 0.0 0.0 0.0 1.0 1.0
-        ]
-		DT = AlphaStructures.delaunayTriangulation(V)
-		@test DT == [ [1, 2, 4, 5], [2, 3, 4, 6], [2, 4, 5, 6] ]
-		V = [
-			0.0 1.0 0.0 2.0 0.0 1.0 0.0 2.0;
-			0.0 0.0 1.0 2.0 0.0 0.0 1.0 2.0;
-			0.0 0.0 0.0 0.0 1.0 1.0 1.0 2.0
-		]
-		D = AlphaStructures.delaunayTriangulation(V)
-		@test D == [
-			[1, 2, 3, 6],
-			[1, 3, 5, 6],
-			[2, 3, 4, 6],
-			[3, 4, 6, 7],
-			[3, 5, 6, 7],
-			[4, 6, 7, 8],
-			[5, 6, 7, 8],
-		]
-	end
-
-end
-
 @testset "α Filter" begin
 
 	@testset "1D α Filter" begin
@@ -69,7 +17,7 @@ end
 		@test length(unique(keys(filter))) == 15
 		@test sort([v for v in unique(keys(filter)) if length(v) == 2]) == EV
 	end
-#=
+
 	@testset "2D α Filter" begin
 		# Input Data
 		V = [
@@ -94,7 +42,7 @@ end
 		@test sort([v for v in unique(keys(filter)) if length(v) == 2]) == EV
 		@test sort([v for v in unique(keys(filter)) if length(v) == 3]) == FV
 	end
-=#
+
 	@testset "3D α Filter" begin
 		V = [
 			0.0 1.0 0.0 0.0 1.0 0.0;
@@ -104,7 +52,7 @@ end
 
 		# Expected Output
 		VV = [[1],[2],[3],[4],[5],[6]]
-		CV = [[1,2,3,5],[1,3,4,5],[3,4,5,6]] #ATTENTION it is not unique
+		CV = [[1, 2, 3, 6], [1, 2, 4, 6], [2, 4, 5, 6]] #ATTENTION it is not unique
 
 		# Evaluation
 		filter = AlphaStructures.alphaFilter(V, digits=4)
@@ -142,7 +90,7 @@ end
 		@test α_simplices[2] == [[1, 2], [2, 3], [3, 6], [4, 5], [5, 6], [7, 8]]
 
 	end
-#=
+
 	@testset "2D α Simplex" begin
 		# Input Data
 		V = [
@@ -170,7 +118,7 @@ end
 		@test α_simplices[3] == [[1,2,3],[2,3,4]]
 
 	end
-=#
+
 	@testset "3D α Simplex" begin
 		# Input Data
 		V = [
