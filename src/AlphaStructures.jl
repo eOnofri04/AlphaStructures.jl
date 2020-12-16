@@ -3,9 +3,9 @@ __precompile__()
 module AlphaStructures
 	using LinearAlgebraicRepresentation
 	using MATLAB
-	#using Delaunay
+	#using Delaunay #BUG in package
 	using Combinatorics, DataStructures
-	using Distributed, SharedArrays
+	using Distributed
 	Lar = LinearAlgebraicRepresentation
 
 	include("alpha_complex.jl")
