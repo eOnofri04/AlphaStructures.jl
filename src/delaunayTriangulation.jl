@@ -45,12 +45,12 @@ julia> DT = AlphaStructures.delaunayTriangulation(V)
  [1, 2, 3, 4]
 ```
 """
-function delaunayTriangulation(points::Lar.Points)
-    V = convert(Lar.Points,points')
-    mesh = delaunay(V);
-    DT = [mesh.simplices[c,:] for c in 1:size(mesh.simplices,1)]
-    return sort.(DT)
-end
+# function delaunayTriangulation(points::Lar.Points)
+#     V = convert(Lar.Points,points')
+#     mesh = delaunay(V);
+#     DT = [mesh.simplices[c,:] for c in 1:size(mesh.simplices,1)]
+#     return sort.(DT)
+# end
 
 
 #---------------------------------- OLD --------------------------------------
@@ -79,29 +79,27 @@ end
 # 	return sort(upper_simplex)
 # end
 #
-# """
-# 	delaunayMATLAB(V::Lar.Points)
-#
-# Delaunay triangulation algorithm in MATLAB.
-# """
-#
-# function delaunayTriangulation(V::Lar.Points)::Lar.Cells
-# 	return delaunayMATLAB(V)
-# end
-#
-#
-# function delaunayMATLAB(V::Lar.Points)
-#
-# 	dim = size(V,1)
-# 	@assert dim <=3 "delaunayMATLAB: input points have invalid dimension."
-#
-# 	W = convert(Lar.Points,V')
-# 	@mput W
-# 	mat"DT = delaunay(W)"
-# 	@mget DT
-# 	DT = convert(Array{Int64,2},DT)
-# 	DT = [DT[i,:] for i in 1:size(DT,1)]
-#
-# 	return DT
-# end
-#
+
+function delaunayTriangulation(V::Lar.Points)::Lar.Cells
+	return delaunayMATLAB(V)
+end
+
+"""
+	delaunayMATLAB(V::Lar.Points)
+
+Delaunay triangulation algorithm in MATLAB.
+"""
+function delaunayMATLAB(V::Lar.Points)
+
+	dim = size(V,1)
+	@assert dim <=3 "delaunayMATLAB: input points have invalid dimension."
+
+	W = convert(Lar.Points,V')
+	@mput W
+	mat"DT = delaunay(W)"
+	@mget DT
+	DT = convert(Array{Int64,2},DT)
+	DT = [DT[i,:] for i in 1:size(DT,1)]
+
+	return DT
+end
