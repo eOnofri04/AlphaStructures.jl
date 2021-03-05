@@ -6,26 +6,26 @@ export alphaFilter, alphaSimplex, delaunayTriangulation
 #	This File Contains:
 #
 #	 - alphaFilter(
-#			V::Lar.Points,
+#			V::Matrix,
 #			DT = Array{Int64,1}[];
 #			digits=64
 #		)::DataStructures.SortedMultiDict{}
 #
 #	 - alphaSimplex(
-#			V::Lar.Points,
+#			V::Matrix,
 #			filtration::DataStructures.SortedMultiDict{},
 #			α_threshold::Float64
-#		)::Array{Lar.Cells,1}
+#		)::Array{Array{Array{Int64,1},1},1}
 #
 #	 - delaunayTriangulation(
-#			V::Lar.Points
-#		)::Lar.Cells
+#			V::Matrix
+#		)::Array{Array{Int64,1},1}
 #
 ===============================================================================#
 
 """
 	alphaFilter(
-		V::Lar.Points, DT = Array{Int64,1}[];
+		V::Matrix, DT = Array{Int64,1}[];
 		digits=64
 	)::DataStructures.SortedMultiDict{}
 
@@ -57,7 +57,7 @@ SortedMultiDict(Base.Order.ForwardOrdering(),
 ```
 """
 function alphaFilter(
-		V::Lar.Points,
+		V::Matrix,
 		DT = Array{Int64,1}[];
 		digits=64
 	)::DataStructures.SortedDict{}
@@ -92,7 +92,7 @@ end
 
 """
 	processuppersimplex(
-		V::Lar.Points,
+		V::Matrix,
 		up_simplex::Array{Int64,1},
 		filtration::DataStructures.SortedDict{};
 		digits=64
@@ -101,7 +101,7 @@ end
 Process the upper simplex.
 """
 function processuppersimplex(
-		V::Lar.Points,
+		V::Matrix,
 		up_simplex::Array{Int64,1},
 		filtration::DataStructures.SortedDict{};
 		digits=64
@@ -122,7 +122,7 @@ end
 
 """
 	processlowsimplex(
-		V::Lar.Points,
+		V::Matrix,
 		up_simplex::Array{Int64,1},
 		lowsimplex::Array{Int64,1},
 		filtration::DataStructures.SortedDict{};
@@ -132,7 +132,7 @@ end
 Process the lower simplex knowing the upper.
 """
 function processlowsimplex(
-	V::Lar.Points,
+	V::Matrix,
 	up_simplex::Array{Int64,1},
 	lowsimplex::Array{Int64,1},
 	filtration::DataStructures.SortedDict{};
@@ -163,19 +163,19 @@ end
 
 """
 	alphaSimplex(
-		V::Lar.Points,
+		V::Matrix,
 		filtration::DataStructures.SortedMultiDict{},
 		α_threshold::Float64
-	)::Array{Lar.Cells,1}
+	)::Array{Array{Array{Int64,1},1},1}
 
 Return collection of all `d`-simplex, for `d ∈ [0,dimension]`,
 	with characteristic α less than a given value `α_threshold`.
 """
 function alphaSimplex(
-		V::Lar.Points,
+		V::Matrix,
 		filtration::DataStructures.SortedDict{},
 		α_threshold::Float64
-	)::Array{Lar.Cells,1}
+	)::Array{Array{Array{Int64,1},1},1}
 
 	dim = size(V, 1)
 	# [VV, EV, FV, ...]

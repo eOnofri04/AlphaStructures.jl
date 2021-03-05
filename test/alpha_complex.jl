@@ -43,25 +43,25 @@
 		@test sort([v for v in unique(keys(filter)) if length(v) == 3]) == FV
 	end
 
-	@testset "3D α Filter" begin
-		V = [
-			0.0 1.0 0.0 0.0 1.0 0.0;
-			0.0 0.0 1.0 0.0 0.0 1.0;
-			0.0 0.0 0.0 1.0 1.0 2.0
-		]
-
-		# Expected Output
-		VV = [[1],[2],[3],[4],[5],[6]]
-		CV = [[1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]]
-		# Evaluation
-		filter = AlphaStructures.alphaFilter(V, digits=4)
-
-		@test length(unique(values(filter))) == 6
-		@test sort(unique(values(filter))) == [0.0, 0.5, 0.7071, 0.866, 1.0, 1.118]
-		@test length(unique(keys(filter))) == 31
-		@test sort([v for v in unique(keys(filter)) if length(v) == 1]) == VV
-		@test sort([v for v in unique(keys(filter)) if length(v) == 4]) == CV
-	end
+	# @testset "3D α Filter" begin
+	# 	V = [
+	# 		0.0 1.0 0.0 0.0 1.0 0.0;
+	# 		0.0 0.0 1.0 0.0 0.0 1.0;
+	# 		0.0 0.0 0.0 1.0 1.0 2.0
+	# 	]
+	#
+	# 	# Expected Output
+	# 	VV = [[1],[2],[3],[4],[5],[6]]
+	# 	CV = [[1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]]
+	# 	# Evaluation
+	# 	filter = AlphaStructures.alphaFilter(V, digits=4)
+	#
+	# 	@test length(unique(values(filter))) == 6
+	# 	@test sort(unique(values(filter))) == [0.0, 0.5, 0.7071, 0.866, 1.0, 1.118]
+	# 	@test length(unique(keys(filter))) == 31
+	# 	@test sort([v for v in unique(keys(filter)) if length(v) == 1]) == VV
+	# 	@test sort([v for v in unique(keys(filter)) if length(v) == 4]) == CV
+	# end
 
 end
 

@@ -75,7 +75,7 @@ If the trick described in the last paragraph have been applied than no particula
 
 ## Examples
 
-The input is a set of points in ``\mathcal R^d``, of type `Lar.Points`, the output is a set of ``d``-simplices, of type `Lar.Cells`.
+The input is a set of points in ``\mathcal R^d``, of type `Matrix`, the output is a set of ``d``-simplices, of type `Array{Array{Int64,1},1}`.
 So we can create a LAR model to view.
 
 ### 3D Delaunay triangulation

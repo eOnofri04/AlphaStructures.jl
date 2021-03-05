@@ -5,22 +5,22 @@
 #	This file contains:
 #
 #	 - findCenter(
-#			P::Lar.Points
+#			P::Matrix
 #		)::Array{Float64,1}
 #
 #	 - findClosestPoint(
-#			Psimplex::Lar.Points,
-#			P::Lar.Points;
+#			Psimplex::Matrix,
+#			P::Matrix;
 #			metric = "circumcenter"
 #		)::Union{Int64, Nothing}
 #
 #	 - findMedian(
-#			P::Lar.Points,
+#			P::Matrix,
 #			ax::Int64
 #		)::Float64
 #
 #	 - findRadius(
-#			P::Lar.Points,
+#			P::Matrix,
 #			center=false;
 #			digits=64
 #		)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
@@ -33,13 +33,13 @@
 #		)::Array{Float64,2}
 #
 #	 - oppositeHalfSpacePoints(
-#			P::Lar.Points,
+#			P::Matrix,
 #			face::Array{Float64,2},
 #			point::Array{Float64,1}
 #		)::Array{Int64,1}
 #
 #	 - planarIntersection(
-#			P::Lar.Points,
+#			P::Matrix,
 #			face::Array{Int64,1},
 #			axis::Int64,
 #			off::Float64
@@ -50,7 +50,7 @@
 #		)::Array{Array{Int64,1},1}
 #
 #	 - vertexInCircumball(
-#			P::Lar.Points,
+#			P::Matrix,
 #			α_char::Float64,
 #			point::Array{Float64,2}
 #		)::Bool
@@ -58,7 +58,7 @@
 ===============================================================================#
 
 """
-	findCenter(P::Lar.Points)::Array{Float64,1}
+	findCenter(P::Matrix)::Array{Float64,1}
 
 Evaluates the circumcenter of the `P` points.
 
@@ -82,7 +82,7 @@ julia> AlphaStructures.findCenter(V)
 
 ```
 """
-function findCenter(P::Lar.Points)::Array{Float64,1}
+function findCenter(P::Matrix)::Array{Float64,1}
 	dim, n = size(P)
 	@assert n > 0		"findCenter: at least one points is needed."
 	@assert dim >= n-1	"findCenter: Too much points"
@@ -99,25 +99,25 @@ function findCenter(P::Lar.Points)::Array{Float64,1}
 	elseif n == 3
 		#https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
 		if dim == 2
-			denom = 2 * Lar.det([ P[:, 2] - P[:, 1]  P[:, 3] - P[:, 1] ])
-			deter = (P[:, 2] - P[:, 1]) * Lar.norm(P[:, 3] - P[:, 1])^2 -
-					(P[:, 3] - P[:, 1]) * Lar.norm(P[:, 2] - P[:, 1])^2
+			denom = 2 * LinearAlgebra.det([ P[:, 2] - P[:, 1]  P[:, 3] - P[:, 1] ])
+			deter = (P[:, 2] - P[:, 1]) * LinearAlgebra.norm(P[:, 3] - P[:, 1])^2 -
+					(P[:, 3] - P[:, 1]) * LinearAlgebra.norm(P[:, 2] - P[:, 1])^2
 			numer = [- deter[2], deter[1]]
 			center = P[:, 1] + numer / denom
 
 		elseif dim == 3
 			#circumcenter of a triangle in R^3
-			numer = Lar.norm(P[:, 3] - P[:, 1])^2 * Lar.cross(
-						Lar.cross(P[:, 2] - P[:, 1], P[:, 3] - P[:, 1]),
+			numer = LinearAlgebra.norm(P[:, 3] - P[:, 1])^2 * LinearAlgebra.cross(
+						LinearAlgebra.cross(P[:, 2] - P[:, 1], P[:, 3] - P[:, 1]),
 						P[:, 2] - P[:, 1]
 					) +
-					Lar.norm(P[:, 2] - P[:, 1])^2 * Lar.cross(
+					LinearAlgebra.norm(P[:, 2] - P[:, 1])^2 * LinearAlgebra.cross(
 				  		P[:, 3] - P[:, 1],
-						Lar.cross(P[:, 2] - P[:, 1], P[:, 3] - P[:, 1]
+						LinearAlgebra.cross(P[:, 2] - P[:, 1], P[:, 3] - P[:, 1]
 					)
 			)
-			denom = 2 * Lar.norm(
-				Lar.cross(P[:, 2] - P[:, 1], P[:, 3] - P[:, 1])
+			denom = 2 * LinearAlgebra.norm(
+				LinearAlgebra.cross(P[:, 2] - P[:, 1], P[:, 3] - P[:, 1])
 			)^2
 			center = P[:, 1] + numer / denom
 		end
@@ -126,11 +126,11 @@ function findCenter(P::Lar.Points)::Array{Float64,1}
 		# https://people.sc.fsu.edu/~jburkardt/presentations
 		#	/cg_lab_tetrahedrons.pdf
 		# page 6 (matrix are transposed)
-		α = Lar.det([P; ones(1, 4)])
+		α = LinearAlgebra.det([P; ones(1, 4)])
 		sq = sum(abs2, P, dims = 1)
-		Dx = Lar.det([sq; P[2:2,:]; P[3:3,:]; ones(1, 4)])
-		Dy = Lar.det([P[1:1,:]; sq; P[3:3,:]; ones(1, 4)])
-		Dz = Lar.det([P[1:1,:]; P[2:2,:]; sq; ones(1, 4)])
+		Dx = LinearAlgebra.det([sq; P[2:2,:]; P[3:3,:]; ones(1, 4)])
+		Dy = LinearAlgebra.det([P[1:1,:]; sq; P[3:3,:]; ones(1, 4)])
+		Dz = LinearAlgebra.det([P[1:1,:]; P[2:2,:]; sq; ones(1, 4)])
 		center = [Dx; Dy; Dz]/2α
 	end
 
@@ -142,7 +142,7 @@ end
 
 """
 	findClosestPoint(
-		Psimplex::Lar.Points, P::Lar.Points;
+		Psimplex::Matrix, P::Matrix;
 		metric = "circumcenter"
 	)::Union{Int64, Nothing}
 
@@ -154,7 +154,7 @@ Possible choices are:
     if the circumcenter is opposite to the new point with respect to `Psimplex`.
 """
 function findClosestPoint(
-		Psimplex::Lar.Points, P::Lar.Points;
+		Psimplex::Matrix, P::Matrix;
 		metric = "circumcenter"
 	)::Union{Int64, Nothing}
 
@@ -193,11 +193,11 @@ end
 #-------------------------------------------------------------------------------
 
 """
-	findMedian(P::Lar.Points, ax::Int64)::Float64
+	findMedian(P::Matrix, ax::Int64)::Float64
 
 Returns the median of the `P` points across the `ax` axis
 """
-function findMedian(P::Lar.Points, ax::Int64)::Float64
+function findMedian(P::Matrix, ax::Int64)::Float64
 	xp = sort(unique(P[ax, :]))
 	if length(xp) == 1
 		median = xp[1]
@@ -212,7 +212,7 @@ end
 
 """
 	findRadius(
-		P::Lar.Points, center=false; digits=64
+		P::Matrix, center=false; digits=64
 	)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
 
 Returns the value of the circumball radius of the given points.
@@ -243,7 +243,7 @@ julia> AlphaStructures.findRadius(V, true)
 ```
 """
 function findRadius(
-		P::Lar.Points, center=false; digits=64
+		P::Matrix, center=false; digits=64
 	)::Union{Float64, Tuple{Float64, Array{Float64,1}}}
 
  	c = AlphaStructures.findCenter(P)
@@ -251,7 +251,7 @@ function findRadius(
 		r = Inf
 	else
 		r = round(
-			findmin([Lar.norm(c - P[:, i]) for i = 1 : size(P, 2)])[1],
+			findmin([LinearAlgebra.norm(c - P[:, i]) for i = 1 : size(P, 2)])[1],
 			digits = digits
 		)
 	end
@@ -319,7 +319,7 @@ end
 
 """
 	oppositeHalfSpacePoints(
-			P::Lar.Points,
+			P::Matrix,
 			face::Array{Float64,2},
 			point::Array{Float64,1}
 		)::Array{Int64,1}
@@ -353,7 +353,7 @@ julia> oppositeHalfSpacePoints(V, V[:, [1; 3; 4]], V[:, 2])
 ```
 """
 function oppositeHalfSpacePoints(
-		P::Lar.Points,
+		P::Matrix,
 		face::Array{Float64,2},
 		point::Array{Float64,1}
 	)::Array{Int64,1}
@@ -388,16 +388,16 @@ function oppositeHalfSpacePoints(
 
 
 	elseif dim == 3
-		axis = Lar.cross(
+		axis = LinearAlgebra.cross(
 			face[:, 2] - face[:, 1],
 			face[:, 3] - face[:, 1]
 		)
-		off = Lar.dot(axis, face[:, 1])
-		position = Lar.dot(point, axis)
+		off = LinearAlgebra.dot(axis, face[:, 1])
+		position = LinearAlgebra.dot(point, axis)
 		if position < off
-			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) > off]
+			opposite = [i for i = 1:size(P, 2) if LinearAlgebra.dot(P[:,i], axis) > off]
 		else
-			opposite = [i for i = 1:size(P, 2) if Lar.dot(P[:,i], axis) < off]
+			opposite = [i for i = 1:size(P, 2) if LinearAlgebra.dot(P[:,i], axis) < off]
 		end
 	end
 
@@ -411,7 +411,7 @@ end
 
 """
 	planarIntersection(
-		P::Lar.Points,
+		P::Matrix,
 		face::Array{Int64,1},
 		axis::Int64,
 		off::Float64
@@ -424,7 +424,7 @@ the normal `axis` and the contant term `off`. It returns:
  - `-1` if `f` is completely contained in the negative half space of `α`
 """
 function planarIntersection(
-		P::Lar.Points,
+		P::Matrix,
 		face::Array{Int64,1},
 		axis::Int64,
 		off::Float64
@@ -476,7 +476,7 @@ end
 
 """
 	vertexInCircumball(
-		P::Lar.Points,
+		P::Matrix,
 		α_char::Float64,
 		point::Array{Float64,2}
 	)::Bool
@@ -486,11 +486,45 @@ Determine if a point is inner of the circumball determined by `P` points
 
 """
 function vertexInCircumball(
-		P::Lar.Points,
+		P::Matrix,
 		α_char::Float64,
 		point::Array{Float64,2}
 	)::Bool
 
 	center = AlphaStructures.findCenter(P)
-	return Lar.norm(point - center) <= α_char
+	return LinearAlgebra.norm(point - center) <= α_char
+end
+
+"""
+	apply_matrix(affineMatrix::Matrix, V::Matrix) -> Matrix
+
+Apply affine transformation `affineMatrix` to points `V`.
+"""
+function apply_matrix(affineMatrix::Matrix, V::Matrix)
+	m,n = size(V)
+	W = [V; fill(1.0, (1,n))]
+	T = (affineMatrix * W)[1:m,1:n]
+	return T
+end
+
+function apply_matrix(affineMatrix, V::Array{Float64,1})
+	T = reshape(V,3,1)
+	return apply_matrix(affineMatrix, T)
+end
+
+"""
+	traslation(args...) -> Matrix
+
+Return an *affine transformation Matrix* in homogeneous coordinates.
+Such `translation` Matrix has ``d+1`` rows and ``d+1`` columns,
+where ``d`` is the number of translation parameters in the `args` array.
+
+"""
+function traslation(args...)
+	d = length(args)
+	mat = Matrix{Float64}(LinearAlgebra.I, d+1, d+1)
+	for k in range(1, length=d)
+			mat[k,d+1]=args[k]
+	end
+	return mat
 end

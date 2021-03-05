@@ -6,23 +6,23 @@ export delaunayWall;
 #	This File Contains:
 #
 #	 - delaunayWall(
-#			P::Lar.Points,
+#			P::Matrix,
 #			ax = 1,
 #			Pblack = Float64[],
 #			AFL = Array{Int64,1}[],
 #			tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}();
 #			DEBUG = false
-#		)::Lar.Cells
+#		)::Array{Array{Int64,1},1}
 #
 #	 - firstDeWallSimplex(
-#			P::Lar.Points,
+#			P::Matrix,
 #			ax::Int64,
 #			off::Float64;
 #			DEBUG = false
 #		)::Array{Int64,1}
 #
 #	 - findWallSimplex(
-#			P::Lar.Points,
+#			P::Matrix,
 #			blackidx::Int64,
 #			face::Array{Int64,1},
 #			oppoint::Array{Float64,1};
@@ -30,18 +30,18 @@ export delaunayWall;
 #		)::Union{Array{Int64,1}, Nothing}
 #
 #	 - recursiveDelaunayWall(
-# 			P::Lar.Points,
-#			Pblack::Lar.Points,
+# 			P::Matrix,
+#			Pblack::Matrix,
 # 			tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 # 			AFL::Array{Array{Int64,1},1},
 # 			ax::Int64,
 # 			off::Float64,
 # 			positive::Bool;
 # 			DEBUG = false
-# 		)::Lar.Cells
+# 		)::Array{Array{Int64,1},1}
 #
 #	 - updateAFL!(
-#			P::Lar.Points
+#			P::Matrix
 #			new::Array{Int64,1}[],
 #			AFLα = Array{Int64,1}[],
 #			AFLplus = Array{Int64,1}[],
@@ -57,7 +57,7 @@ export delaunayWall;
 #		)::Bool
 #
 #	 - updateTetraDict!(
-#			P::Lar.Points,
+#			P::Matrix,
 #			tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 #			AFL::Array{Array{Int64,1},1},
 #			σ::Array{Int64,1}
@@ -67,10 +67,10 @@ export delaunayWall;
 
 """
 	delaunayWall(
-		P::Lar.Points, ax = 1, Pblack::Float64[], AFL = Array{Int64,1}[],
+		P::Matrix, ax = 1, Pblack::Float64[], AFL = Array{Int64,1}[],
 		tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}();
 		DEBUG = false
-	)::Lar.Cells
+	)::Array{Array{Int64,1},1}
 
 Return the Delaunay Triangulation of sites `P` via Delaunay Wall algorithm.
 The optional argument `ax` specify on wich axis it will build the Wall.
@@ -98,13 +98,13 @@ julia> DT = AlphaStructures.delaunayWall(P)
 ```
 """
 function delaunayWall(
-		P::Lar.Points,
+		P::Matrix,
 		ax = 1,
 		Pblack = Float64[],
 		AFL = Array{Int64,1}[],
 		tetraDict = DataStructures.Dict{Array{Int64,1},Array{Float64,1}}();
 		DEBUG = false
-	)::Lar.Cells
+	)::Array{Array{Int64,1},1}
 
 	if DEBUG @show "Delaunay Wall with parameters" P ax AFL tetraDict end
 
@@ -175,7 +175,7 @@ end
 #-------------------------------------------------------------------------------
 """
 	findWallSimplex(
-		P::Lar.Points,
+		P::Matrix,
 		face::Array{Int64,1}, oppoint::Array{Float64,1},
 		blackidx = size(P, 2);
 		DEBUG = false
@@ -206,7 +206,7 @@ julia> newtetra = AlphaStructures.findWallSimplex(P,[2,3,4],[0., 0., 0.])
 ```
 """
 function findWallSimplex(
-		P::Lar.Points,
+		P::Matrix,
 		face::Array{Int64,1},
 		oppoint::Array{Float64,1},
 		blackidx = size(P, 2);
@@ -250,7 +250,7 @@ function findWallSimplex(
 	# Check the simplex correctness
 	radius, center = AlphaStructures.findRadius(P[:, σ], true)
 	for i = 1 : size(P, 2)
-		if Lar.norm(center - P[:, i]) < radius - 1.e-14
+		if LinearAlgebra.norm(center - P[:, i]) < radius - 1.e-14
 			# @assert i ∉ Pselection "ERROR: Numerical error
 			# 	evaluating minimum radius for $σ"
 			if DEBUG println("$σ discarded due to a closer point.") end
@@ -266,7 +266,7 @@ end
 
 """
  	firstDeWallSimplex(
-		P::Lar.Points, ax::Int64, off::Float64;
+		P::Matrix, ax::Int64, off::Float64;
 		DEBUG = false
 	)::Array{Int64,1}
 
@@ -293,7 +293,7 @@ julia> firstDeWallSimplex(V, 1, AlphaStructures.findMedian(V,1))
 ```
 """
 function firstDeWallSimplex(
-		P::Lar.Points,
+		P::Matrix,
 		ax::Int64,
 		off::Float64;
 		DEBUG = false
@@ -336,7 +336,7 @@ function firstDeWallSimplex(
     # Correctness check
 	radius, center = AlphaStructures.findRadius(Psimplex, true)
     for i = 1 : n
-		@assert Lar.norm(center - P[:, i]) >= radius "firstDeWallSimplex:
+		@assert LinearAlgebra.norm(center - P[:, i]) >= radius "firstDeWallSimplex:
 			Unable to find first Simplex."
 	end
 
@@ -349,15 +349,15 @@ end
 
 """
 	recursiveDelaunayWall(
-		P::Lar.Points,
-		Pblack::Lar.Points,
+		P::Matrix,
+		Pblack::Matrix,
 		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 		AFL::Array{Array{Int64,1},1},
 		ax::Int64,
 		off::Float64,
 		positive::Bool;
 		DEBUG = false
-	)::Lar.Cells
+	)::Array{Array{Int64,1},1}
 
 Utility function that prepeares the Divide phase for Delaunay Wall.
 Returns the Delaunay Triangulation for the positve or negative subspace of `P`
@@ -366,7 +366,7 @@ constant term `off`.
 If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 """
 function recursiveDelaunayWall(
-		P::Lar.Points,
+		P::Matrix,
 		Pblack::Array{Float64},
 		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 		AFL::Array{Array{Int64,1},1},
@@ -374,7 +374,7 @@ function recursiveDelaunayWall(
 		off::Float64,
 		positive::Bool;
 		DEBUG = false
-	)::Lar.Cells
+	)::Array{Array{Int64,1},1}
 
 	#DEBUG = true
 
@@ -415,7 +415,7 @@ end
 
 """
 	updateAFL!(
-		P::Lar.Points
+		P::Matrix
 		new::Array{Int64,1}[],
 		AFLα = Array{Int64,1}[],
 		AFLplus = Array{Int64,1}[],
@@ -431,7 +431,7 @@ The function returns a Bool value that states if the operation was succesfully.
 If the keyword argument `DEBUG` is set to true than all the procedure is shown.
 """
 function updateAFL!(
-		P::Lar.Points,
+		P::Matrix,
 		newσ::Array{Array{Int64,1},1},
 		AFLα::Array{Array{Int64,1},1},
 		AFLplus::Array{Array{Int64,1},1},
@@ -508,7 +508,7 @@ end
 
 """
 	updateTetraDict!(
-		P::Lar.Points,
+		P::Matrix,
 		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 		AFL::Array{Array{Int64,1},1},
 		σ::Array{Int64,1}
@@ -518,7 +518,7 @@ Update the content of `tetraDict` by adding the outer points of the faces of `σ
 in the dictionary.
 """
 function updateTetraDict!(
-		P::Lar.Points,
+		P::Matrix,
 		tetraDict::DataStructures.Dict{Array{Int64,1},Array{Float64,1}},
 		AFL::Array{Array{Int64,1},1},
 		σ::Array{Int64,1}
