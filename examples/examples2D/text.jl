@@ -23,6 +23,7 @@ GL.VIEW([
 	GL.GLPoints(permutedims(V))
 ])
 
+# points by columns
 filtration = AlphaStructures.alphaFilter(V);
 VV,EV,FV = AlphaStructures.alphaSimplex(V, filtration, 0.01)
 

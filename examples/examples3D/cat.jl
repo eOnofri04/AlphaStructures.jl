@@ -15,6 +15,7 @@ function load_points(filename::String)::Matrix
     return V
 end
 
+
 V = load_points("examples/examples3D/model/cat.txt")
 
 # view points
@@ -22,6 +23,7 @@ GL.VIEW([
 	GL.GLPoints(permutedims(V))
 ])
 
+# points by columns
 filtration = AlphaStructures.alphaFilter(V);
 VV, EV, FV, TV = AlphaStructures.alphaSimplex(V, filtration, 0.9)
 
