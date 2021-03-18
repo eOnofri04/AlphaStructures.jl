@@ -1,33 +1,26 @@
 language: julia
-os:
-  - osx
-julia:
-  - 1.4
+
+os: osx
+
 branches:
   only:
     - master
+
+julia:
+  - 1.4
+
 notifications:
   email: false
+
+after_success:
+  - julia -e 'using Pkg; Pkg.add("Documenter");'
+  - julia -e 'cd(Pkg.dir("AlphaStructures")); include(joinpath("docs", "make.jl"));'
 
 deploy:
   provider: pages
   skip_cleanup: true
-  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
-  keep_history: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  local-dir: docs/build
   on:
-    branch: main
-    
-jobs:
-  build:
-    runs-on: osx
-    steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@latest
-        with:
-          version: '1.4'
-      - name: Install dependencies
-        run: julia --project=docs/ -e 'using Pkg; Pkg.add(PackageSpec(path=pwd())); Pkg.instantiate(); Pkg.add("Documenter")'
-      - name: Build and deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
-        run: julia --project=docs/ docs/make.jl
+    branch: master
