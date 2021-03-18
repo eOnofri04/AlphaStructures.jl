@@ -1,12 +1,22 @@
-name: Documentation
+language: julia
+os:
+  - osx
+julia:
+  - 1.4
+branches:
+  only:
+    - master
+notifications:
+  email: false
 
-on:
-  push:
-    branches:
-      - master
-    tags: '*'
-  pull_request:
-
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep_history: true
+  on:
+    branch: main
+    
 jobs:
   build:
     runs-on: osx
