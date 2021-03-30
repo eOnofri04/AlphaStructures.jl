@@ -12,7 +12,7 @@ During my education I have also studied many field about Computer Science that v
 More recently I have broaden my horizons by confront myself with new perspectives of the Applied Mathematics like Graph Theory, Machine Learning, Computational Topology and Big Data Analysis.
 
  - [Linkedin](https://www.linkedin.com/in/elia-onofri-80b403173/)
- - [email](elia.onofri4@gmail.com)
+ - [email](eonofri@uniroma3.it)
 
 
 ### [Maria Teresa Graziano](https://github.com/marteresagh)
