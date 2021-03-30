@@ -4,7 +4,6 @@ julia:
   - 1.4
   - nightly
 os:
-  - linux
   - osx
 
 notifications:
@@ -16,11 +15,13 @@ after_success:
 
 jobs:
   allow_failures:
-    - os: nightly
+    - os:
+      - nightly
   include:
     - stage: "Documentation"
       julia: 1.4
-      os: linux
+      os: osx
+      github-token: $GITHUB_TOKEN
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.instantiate();
                                     Pkg.develop(PackageSpec(path=pwd()))'
