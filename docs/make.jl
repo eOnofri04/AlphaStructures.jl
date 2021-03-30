@@ -27,6 +27,10 @@ makedocs(
 	]
 )
 
+deploydocs(
+    repo = "github.com/eOnofri04/AlphaStructures.jl.git",
+)
+
 # makedocs(
 # 	format = :html,
 # 	sitename = "AlphaStructures.jl",
