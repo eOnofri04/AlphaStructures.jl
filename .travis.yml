@@ -15,7 +15,7 @@ after_success:
 
 jobs:
   allow_failures:
-    - os:
+    - julia:
       - nightly
   include:
     - stage: "Documentation"
