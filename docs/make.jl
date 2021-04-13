@@ -14,13 +14,11 @@ makedocs(
 			"3.1 - Delaunay Triangulation" => "delaunay.md",
 			"3.2 - Voronoi Diagrams" => "voronoi.md",
 			"3.3 - Alpha Structures" => "alpha-structures.md",
-			"3.4 - Persistent Homology" => "persistent-homology.md",
 		],
 		"... and Practice" => [
 			"4.0 - Module Introduction" => "this-module.md",
 			"4.1 - DeWall Algorithm" => "delaunay-impl.md",
 			"4.2 - Alpha Structures" => "alpha-structures-impl.md",
-			"4.3 - Persistent Homology" => "persistent-homology-impl.md",
 		],
 		"A - About the Authors" => "authors.md",
 		"B - Bibliography" => "bibliography.md"

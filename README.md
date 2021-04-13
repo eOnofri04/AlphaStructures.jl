@@ -5,16 +5,15 @@
 [![Read the Docs](https://img.shields.io/readthedocs/pip.svg)](https://eOnofri04.github.io/AlphaStructures.jl/dev)
 
 
-This library, developed as part of the course of [**IN540** - _Computational Applied Topology_ - 2018/19](http://www.dia.uniroma3.it/~paoluzzi/web/did/topologiacomputazionale/2019/index.html), is a cloud point analysis tool.
-It offers the basics about Persistent Homology evaluation via Alpha Complex construction.
+This library, developed as part of the course of [**IN540** - _Computational Applied Topology_ - 2018/19](http://www.dia.uniroma3.it/~paoluzzi/web/did/topologiacomputazionale/2019/index.html), is a point cloud analysis tool.
 
-In a proper manner, this should be the starting point toward a future collaboration with a larger project wich is **LAR** - [_Linear Algebraic Representation_](https://github.com/cvdlab/LinearAlgebraicRepresentation.jl).
+In a proper manner, this should be the starting point toward a future collaboration with a larger project which is **LAR** - [_Linear Algebraic Representation_](https://github.com/cvdlab/LinearAlgebraicRepresentation.jl).
 
 To do so, outputs are formatted in order to be simply read by [ViewerGL](https://github.com/cvdlab/ViewerGL.jl) graphic interface.
 
 ## Getting Started
 
-To get start using this library please refere to the [Getting Started Page](https://eonofri04.github.io/AlphaStructures.jl/gettingStarted.html) of the documentation.
+To get start using this library please refer to the [Getting Started Page](https://eonofri04.github.io/AlphaStructures.jl/dev/gettingStarted.html) of the documentation.
 
 ## Structure of the Repository
 
@@ -25,8 +24,7 @@ To get start using this library please refere to the [Getting Started Page](http
 
 ## Documentation
 
-The [Documentation](https://eOnofri04.github.io/AlphaStructures.jl/) gives a general overwiev about the [Persistent Homology](https://eOnofri04.github.io/AlphaStructures.jl/) problem and how we have approached it.
-It also presents what [Alpha Complex and Alpha Shapes](https://eOnofri04.github.io/AlphaStructures.jl/) are, providing both a theoretical and implemetative background.
+The [Documentation](https://eOnofri04.github.io/AlphaStructures.jl/dev) gives a general overview about the [Alpha Complex and Alpha Shapes](https://eOnofri04.github.io/AlphaStructures.jl/dev/alpha-structures), providing both a theoretical and implementation background.
 
 ## Authors
  - [Elia Onofri](https://github.com/eOnofri04) - [Ln](https://www.linkedin.com/in/elia-onofri-80b403173/) (elia.onofri4@gmail.com)
