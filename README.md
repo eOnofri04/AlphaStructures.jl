@@ -13,7 +13,7 @@ To do so, outputs are formatted in order to be simply read by [ViewerGL](https:/
 
 ## Getting Started
 
-To get start using this library please refer to the [Getting Started Page](https://eonofri04.github.io/AlphaStructures.jl/dev/gettingStarted.html) of the documentation.
+To get start using this library please refer to the [Getting Started Page](https://eonofri04.github.io/AlphaStructures.jl/dev/gettingStarted) of the documentation.
 
 ## Structure of the Repository
 
