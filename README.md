@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/eOnofri04/AlphaStructures.jl.svg?branch=master)](https://travis-ci.org/eOnofri04/AlphaStructures.jl)
 [![Coverage Status](https://coveralls.io/repos/github/eOnofri04/AlphaStructures.jl/badge.svg?branch=master)](https://coveralls.io/github/eOnofri04/AlphaStructures.jl?branch=master)
-[![Read the Docs](https://img.shields.io/readthedocs/pip.svg)](https://eOnofri04.github.io/AlphaStructures.jl/)
+[![Read the Docs](https://img.shields.io/readthedocs/pip.svg)](https://eOnofri04.github.io/AlphaStructures.jl/dev)
 
 
 This library, developed as part of the course of [**IN540** - _Computational Applied Topology_ - 2018/19](http://www.dia.uniroma3.it/~paoluzzi/web/did/topologiacomputazionale/2019/index.html), is a cloud point analysis tool.
@@ -36,7 +36,7 @@ More informations about the authors could be found in the [Authors page](https:/
 
 ## Project Managers
 Professor [Alberto Paoluzzi](http://paoluzzi.dia.uniroma3.it)
- 
+
 ## Bibliography Link
  - [Pro Git](https://git-scm.com/book/en/v2)
  - [Edelsbrunner introduction to Computational Topology](https://www.researchgate.net/publication/220692408_Computational_Topology_An_Introduction)
