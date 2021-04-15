@@ -13,6 +13,8 @@ notifications:
 after_success:
   - julia --project -e 'import Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
 
+coveralls: true
+
 jobs:
   allow_failures:
     - julia:
