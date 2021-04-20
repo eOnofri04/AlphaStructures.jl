@@ -56,7 +56,12 @@ function delaunayTriangulation(V::Matrix)::Array{Array{Int64,1},1}
 		upper_simplex = [[p[i],p[i+1]] for i=1:length(p)-1]
 		return sort(sort.(upper_simplex))
 
+	elseif dim == 2
+		println("Delaunay triangulation of Triangulate package")
+		upper_simplex = triangulate2D(V)
+		return sort(upper_simplex)
 	else
+		println("Delaunay triangulation of Delaunay package")
 		upper_simplex = DelaunayTriangulation(V)
 		return sort(upper_simplex)
 	end
@@ -80,7 +85,21 @@ function DelaunayTriangulation(points::Matrix)
     return sort.(DT)
 end
 
-#
+
+"""
+    delaunay_triangulation(points::Matrix) -> Array{Array{Int64,1},1}
+
+Delaunay triangulation of points in d-dimensional Euclidean space.
+Lar interface of Delaunay.jl.
+"""
+function triangulate2D(points::Matrix)
+	triin = Triangulate.TriangulateIO()
+	triin.pointlist = points
+	(triout, vorout) = triangulate("Q", triin)
+	trias = Array{Int64,1}[c[:] for c in eachcol(triout.trianglelist)]
+	return sort.(trias)
+end
+
 # """
 # 	delaunayMATLAB(V::Matrix)
 #

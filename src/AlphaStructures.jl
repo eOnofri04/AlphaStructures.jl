@@ -2,7 +2,8 @@ __precompile__()
 
 module AlphaStructures
 	using LinearAlgebra
-	using Delaunay # BUG in this package, in 3D triangulation
+	using Delaunay # used in 3D triangulation --->> warning Test possible BUG in this package
+	using Triangulate # used in 2D triangulation
 	using Combinatorics, DataStructures
 	using Distributed
 	using SharedArrays
