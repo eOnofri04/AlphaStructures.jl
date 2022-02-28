@@ -57,11 +57,11 @@ function delaunayTriangulation(V::Matrix)::Array{Array{Int64,1},1}
 		return sort(sort.(upper_simplex))
 
 	elseif dim == 2
-		println("Delaunay triangulation of Triangulate package")
+		# println("Delaunay triangulation of Triangulate package")
 		upper_simplex = triangulate2D(V)
 		return sort(upper_simplex)
 	else
-		println("Delaunay triangulation of Delaunay package")
+		# println("Delaunay triangulation of Delaunay package")
 		upper_simplex = DelaunayTriangulation(V)
 		return sort(upper_simplex)
 	end
