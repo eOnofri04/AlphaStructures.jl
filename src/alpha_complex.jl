@@ -80,9 +80,9 @@ function alphaFilter(
 	# 3 - process all upper simplex
 	ind = 1
 	for upper_simplex in DT
-		if ind % 500000 == 0
-			println(ind," simplices processed of ", n_upsimplex)
-		end
+		# if ind % 500000 == 0
+		# 	println(ind," simplices processed of ", n_upsimplex)
+		# end
 		AlphaStructures.processuppersimplex(V,upper_simplex,filtration; digits = digits)
 		ind = ind + 1
 	end
