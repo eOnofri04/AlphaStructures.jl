@@ -1,7 +1,7 @@
 name = "AlphaStructures"
 uuid = "b34a2d8f-0989-4844-9314-dd3cff8ff09b"
 authors = ["marteresagh <marteresa28@gmail.com>"]
-version = "0.1.0"
+version = "1.0.0"
 
 [deps]
 Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
